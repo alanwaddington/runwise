@@ -18,4 +18,9 @@ describe('Home page', () => {
 		expect(heading.className).toMatch(/text-ink/);
 		expect(heading.className).not.toMatch(/text-gray-900/);
 	});
+
+	it('sets the document title', () => {
+		render(Home);
+		expect(document.title).toBe('Runwise');
+	});
 });

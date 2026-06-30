@@ -13,6 +13,10 @@
 	let { title, description, children }: Props = $props();
 </script>
 
+<svelte:head>
+	<title>{title} | Runwise</title>
+</svelte:head>
+
 <div class="mx-auto max-w-2xl">
 	<a
 		href="/"

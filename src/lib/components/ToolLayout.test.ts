@@ -49,4 +49,11 @@ describe('ToolLayout', () => {
 		render(ToolLayout, { props: { title: 'Pace Calculator', description: 'Work out your pace.' } });
 		expect(screen.getByRole('heading', { level: 1, name: 'Pace Calculator' })).toBeInTheDocument();
 	});
+
+	it('sets the document title from the title prop', () => {
+		render(ToolLayout, {
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', children: childSnippet }
+		});
+		expect(document.title).toBe('Pace Calculator | Runwise');
+	});
 });
