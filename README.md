@@ -11,6 +11,10 @@ Fast, clean running calculators: pace, race time predictor, HR zones, VO2 max, a
 - **VO2 Max Estimator** — `/vo2max`
 - **Parkrun Predictor** — `/parkrun`
 
+## Requirements
+
+- Node.js 22 or later
+
 ## Development
 
 ```bash
