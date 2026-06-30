@@ -12,6 +12,10 @@
 	let clipboardAvailable = $derived(typeof navigator !== 'undefined' && !!navigator.clipboard);
 	let copyTimeout: ReturnType<typeof setTimeout> | undefined;
 
+	$effect(() => {
+		return () => clearTimeout(copyTimeout);
+	});
+
 	async function copy() {
 		await navigator.clipboard.writeText(value);
 		copied = true;

@@ -50,4 +50,23 @@ describe('ResultDisplay', () => {
 		render(ResultDisplay, { props: { value: '4:32 /km', label: 'Pace' } });
 		expect(screen.queryByRole('button')).not.toBeInTheDocument();
 	});
+
+	it('clears the pending revert timeout when destroyed before it fires', async () => {
+		vi.useFakeTimers();
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		Object.assign(navigator, { clipboard: { writeText } });
+		const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+		const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+
+		const { unmount } = render(ResultDisplay, { props: { value: '4:32 /km', label: 'Pace' } });
+		const button = screen.getByRole('button', { name: /copy/i });
+		await fireEvent.click(button);
+
+		const pendingTimeoutId = setTimeoutSpy.mock.results[setTimeoutSpy.mock.results.length - 1].value;
+		clearTimeoutSpy.mockClear();
+
+		unmount();
+
+		expect(clearTimeoutSpy).toHaveBeenCalledWith(pendingTimeoutId);
+	});
 });
