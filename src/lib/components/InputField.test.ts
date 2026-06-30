@@ -41,6 +41,20 @@ describe('InputField', () => {
 		expect(screen.queryByText('min/km')).not.toBeInTheDocument();
 	});
 
+	it('associates the unit suffix with the input via aria-describedby', () => {
+		render(InputField, { props: { label: 'Pace', id: 'pace', value: 0, unit: 'min/km' } });
+		const input = screen.getByLabelText('Pace');
+		const unit = screen.getByText('min/km');
+		expect(unit).toHaveAttribute('id', 'pace-unit');
+		expect(input).toHaveAttribute('aria-describedby', 'pace-unit');
+	});
+
+	it('has no aria-describedby when no unit is provided', () => {
+		render(InputField, { props: { label: 'Distance', id: 'distance', value: 0 } });
+		const input = screen.getByLabelText('Distance');
+		expect(input).not.toHaveAttribute('aria-describedby');
+	});
+
 	it('updates the bound value when the user types', async () => {
 		let value = 0;
 		render(InputField, {

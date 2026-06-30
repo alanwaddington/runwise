@@ -28,11 +28,15 @@
 			{step}
 			{placeholder}
 			bind:value
+			aria-describedby={unit ? `${id}-unit` : undefined}
 			class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none dark:border-gray-700"
 			class:pr-14={unit}
 		/>
 		{#if unit}
-			<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500">
+			<span
+				id="{id}-unit"
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+			>
 				{unit}
 			</span>
 		{/if}
