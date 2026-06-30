@@ -44,4 +44,9 @@ describe('ToolLayout', () => {
 		expect(card?.className).toMatch(/rounded-2xl/);
 		expect(card?.className).toMatch(/border/);
 	});
+
+	it('renders without crashing when no child content is provided', () => {
+		render(ToolLayout, { props: { title: 'Pace Calculator', description: 'Work out your pace.' } });
+		expect(screen.getByRole('heading', { level: 1, name: 'Pace Calculator' })).toBeInTheDocument();
+	});
 });

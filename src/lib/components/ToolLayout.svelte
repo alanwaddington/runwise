@@ -7,7 +7,7 @@
 		/** A short explanation of what the tool does. */
 		description: string;
 		/** The tool's input/result content, rendered inside the bordered card. */
-		children: Snippet;
+		children?: Snippet;
 	}
 
 	let { title, description, children }: Props = $props();
@@ -25,6 +25,6 @@
 	<p class="mt-2 text-gray-600 dark:text-gray-400">{description}</p>
 
 	<div class="mt-8 rounded-2xl border border-gray-200 bg-bg p-6 dark:border-gray-700">
-		{@render children()}
+		{@render children?.()}
 	</div>
 </div>
