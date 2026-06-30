@@ -1,1 +1,23 @@
 @import 'tailwindcss';
+
+@theme {
+	--color-accent: #1b8a5a;
+	--color-accent-dark: #146344;
+	--color-bg: #fafaf8;
+	--color-ink: #19191a;
+	--font-sans: 'Manrope', system-ui, sans-serif;
+	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg: #19191a;
+		--color-ink: #fafaf8;
+	}
+}
+
+body {
+	background-color: var(--color-bg);
+	color: var(--color-ink);
+	font-family: var(--font-sans);
+}
