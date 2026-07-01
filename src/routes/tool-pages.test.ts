@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 const pages = [
-	{ component: Pace, title: 'Pace Calculator', description: 'Calculate your running pace, speed, and finish time.' },
+	{ component: Pace, title: 'Pace Calculator', description: 'Convert between min/km, min/mile, km/h and mph instantly.' },
 	{
 		component: RacePredictor,
 		title: 'Race Time Predictor',
