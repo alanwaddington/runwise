@@ -13,9 +13,11 @@
 |------|--------|
 | Overall Assessment | Pass ✅ |
 | Risk Level | Low |
-| Test Coverage | Adequate |
+| Test Coverage | Adequate (339 tests, including 7 new tests for findings fixes) |
 | Acceptance Criteria | 14/14 Met |
 | Lint | 0 errors / 0 warnings (0 in diff, 0 pre-existing) |
+| Minor Findings | 0/2 (all fixed) |
+| Suggestions | 0/1 (all fixed) |
 
 ---
 
@@ -107,19 +109,19 @@ None.
 
 ### Minor (nice to fix)
 
-#### m1 -- LTHR zone gaps between boundaries
+#### m1 -- LTHR zone gaps between boundaries ✅ FIXED
 - **Category:** Code Quality
-- **Location:** `hr-zones.ts:74-110`
-- **Description:** LTHR zone boundaries have small gaps (e.g., Zone 2 ends at 89%, Zone 3 starts at 90%; Zone 4 ends at 99%, Zone 5 starts at 100%). These match Joe Friel's published zones accurately, but users may notice 1-2 BPM gaps in their results (e.g., LTHR 170 has no zone covering 152 bpm or 161 bpm). This is by design per Friel's method but could confuse users.
-- **Recommendation:** Consider adding a note in the UI or tooltip explaining that small BPM gaps between Friel zones are intentional. Not a blocker.
+- **Location:** `+page.svelte:344-348`
+- **Fix Applied:** Added educational note below LTHR results table: "Note: Joe Friel's zone boundaries intentionally have small gaps between them. This is by design and doesn't indicate an error." Note appears only when LTHR method is selected and results are visible.
+- **Tests Added:** 3 tests verify note appears in LTHR mode, doesn't appear in Max HR mode, and is hidden when results are cleared.
 
 ### Suggestions (optional)
 
-#### S1 -- Consider keyboard navigation between tabs
+#### S1 -- Consider keyboard navigation between tabs ✅ FIXED
 - **Category:** Accessibility
-- **Location:** `+page.svelte:81-108`
-- **Description:** The segmented control uses `role="tablist"` and `role="tab"` which is correct, but doesn't implement arrow key navigation between tabs (WAI-ARIA Tabs pattern recommends Left/Right arrow keys to move between tabs). Current implementation works via click/Enter/Space which is functional.
-- **Recommendation:** Could add `onkeydown` handler for arrow key tab switching in a future iteration. Not a blocker -- current implementation is accessible via keyboard.
+- **Location:** `+page.svelte:66-74`
+- **Fix Applied:** Added `handleTabKeydown` function that responds to ArrowLeft and ArrowRight keys to cycle between method tabs with proper wraparound. Handler attached to tablist container with `tabindex="-1"` for keyboard focus support.
+- **Tests Added:** 4 tests verify arrow navigation cycles correctly, wraps around, and updates aria-selected state.
 
 ---
 
