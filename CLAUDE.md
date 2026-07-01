@@ -7,13 +7,21 @@ Guides live under `docs/Guides/` in three sub-folders:
 - `docs/Guides/Developer Guide/`
 - `docs/Guides/Deployment Guide/`
 
-Each guide is maintained as a `.md` file (source of truth). After updating any `.md` file under `docs/Guides/`, always regenerate the derived formats:
+Each guide is maintained as a `.md` file (source of truth). After updating any `.md` file under `docs/Guides/`, regenerate the derived formats:
 
 ```bash
 npm run docs:generate
 ```
 
-This converts every guide `.md` → `.html` and `.pdf` in-place. Commit all three formats together.
+This converts every guide `.md` → `.html` and `.pdf` in-place.
+
+**Important:** Only regenerate PDF/HTML if their source `.md` file has actually changed. After running `npm run docs:generate`, restore unmodified binaries to avoid spurious diffs:
+
+```bash
+git checkout -- docs/Guides/*/*.pdf docs/Guides/*/*.html
+```
+
+Then commit only the `.md` files that changed, plus their corresponding HTML/PDF if content changed. This keeps git history clean and makes it clear what actually changed in the documentation.
 
 ## Testing
 
