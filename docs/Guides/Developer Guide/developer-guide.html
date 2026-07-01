@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>developer guide</title>
+  <style>
+  body { font-family: system-ui, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 24px;
+         color: #19191a; line-height: 1.6; }
+  h1 { font-size: 2rem; font-weight: 700; border-bottom: 2px solid #1b8a5a; padding-bottom: 8px; }
+  h2 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; }
+  h3 { font-size: 1rem; font-weight: 600; margin-top: 1.5rem; }
+  code, pre { font-family: 'IBM Plex Mono', monospace; background: #f4f4f0; padding: 2px 6px;
+               border-radius: 4px; font-size: 0.875em; }
+  pre { padding: 12px 16px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #e0e0dc; padding: 8px 12px; text-align: left; }
+  th { background: #f4f4f0; font-weight: 600; }
+  hr { border: none; border-top: 1px solid #e0e0dc; margin: 2rem 0; }
+  a { color: #1b8a5a; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #19191a; color: #fafaf8; }
+    code, pre, th { background: #2a2a2b; }
+    th, td { border-color: #3a3a3b; }
+    hr { border-color: #3a3a3b; }
+  }
+</style>
+</head>
+<body><h1>Runwise Developer Guide</h1>
+<hr>
+<h2>Stack</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Framework</td>
+<td>SvelteKit + Svelte 5 + TypeScript</td>
+</tr>
+<tr>
+<td>Styling</td>
+<td>Tailwind CSS v4</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Vitest + @testing-library/svelte</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>Vercel (<code>@sveltejs/adapter-vercel</code>)</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Prerequisites</h2>
+<ul>
+<li>Node.js 22 or later</li>
+<li>npm</li>
+</ul>
+<hr>
+<h2>Setup</h2>
+<pre><code class="language-bash">git clone https://github.com/alanwaddington/runwise.git
+cd runwise
+npm install
+npm run dev
+</code></pre>
+<p>Open <a href="http://localhost:5173">http://localhost:5173</a>.</p>
+<hr>
+<h2>Project Structure</h2>
+<pre><code>src/
+├── app.css              # Global styles + Tailwind theme tokens
+├── app.html             # SvelteKit HTML shell
+├── lib/
+│   └── components/      # Shared UI components
+│       ├── HeroSection.svelte
+│       ├── HeroSection.test.ts
+│       ├── InputField.svelte
+│       ├── InputField.test.ts
+│       ├── ResultDisplay.svelte
+│       ├── ResultDisplay.test.ts
+│       ├── SiteNav.svelte
+│       ├── SiteNav.test.ts
+│       ├── ToolCard.svelte
+│       ├── ToolCard.test.ts
+│       ├── ToolLayout.svelte
+│       └── ToolLayout.test.ts
+└── routes/
+    ├── +layout.svelte   # Root layout — header + main wrapper
+    ├── +page.svelte     # Home page — HeroSection + ToolCard grid
+    ├── +error.svelte    # Error page
+    ├── pace/
+    ├── race-predictor/
+    ├── training-paces/
+    ├── hr-zones/
+    ├── vo2max/
+    └── parkrun/
+</code></pre>
+<hr>
+<h2>Design System</h2>
+<h3>Tokens (<code>src/app.css</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Light</th>
+<th>Dark</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--color-accent</code></td>
+<td><code>#1B8A5A</code></td>
+<td><code>#1B8A5A</code></td>
+<td>Links, active states, focus rings</td>
+</tr>
+<tr>
+<td><code>--color-accent-dark</code></td>
+<td><code>#146344</code></td>
+<td><code>#146344</code></td>
+<td>Hover variant</td>
+</tr>
+<tr>
+<td><code>--color-bg</code></td>
+<td><code>#FAFAF8</code></td>
+<td><code>#19191A</code></td>
+<td>Page background</td>
+</tr>
+<tr>
+<td><code>--color-ink</code></td>
+<td><code>#19191A</code></td>
+<td><code>#FAFAF8</code></td>
+<td>Body text</td>
+</tr>
+<tr>
+<td><code>--font-sans</code></td>
+<td>Manrope</td>
+<td>—</td>
+<td>UI and body text</td>
+</tr>
+<tr>
+<td><code>--font-mono</code></td>
+<td>IBM Plex Mono</td>
+<td>—</td>
+<td>Result values, route labels</td>
+</tr>
+</tbody></table>
+<p>Dark mode is applied automatically via <code>prefers-color-scheme</code>. Always use design tokens (<code>text-ink</code>, <code>bg-bg</code>, <code>border-ink/10</code>) rather than hardcoded Tailwind colours.</p>
+<h3>Components</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Props</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>HeroSection</code></td>
+<td>none</td>
+<td>Home page hero — icon, tagline, sub-copy, separator</td>
+</tr>
+<tr>
+<td><code>ToolCard</code></td>
+<td><code>href</code>, <code>name</code>, <code>description</code>, <code>route</code></td>
+<td>Linked card on the home page</td>
+</tr>
+<tr>
+<td><code>ToolLayout</code></td>
+<td><code>title</code>, <code>description</code></td>
+<td>Wrapper for tool pages — back link, heading, description</td>
+</tr>
+<tr>
+<td><code>SiteNav</code></td>
+<td>none</td>
+<td>Top navigation — brand + tool links with active-route highlight</td>
+</tr>
+<tr>
+<td><code>InputField</code></td>
+<td><code>label</code>, <code>id</code>, <code>value</code>, <code>type?</code>, <code>unit?</code></td>
+<td>Labelled input with optional unit suffix</td>
+</tr>
+<tr>
+<td><code>ResultDisplay</code></td>
+<td><code>value</code>, <code>label</code>, <code>unit?</code></td>
+<td>Prominent result block with copy-to-clipboard</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Adding a New Tool</h2>
+<ol>
+<li>Create <code>src/routes/&lt;tool-name&gt;/+page.svelte</code></li>
+<li>Import <code>ToolLayout</code> and pass <code>title</code> and <code>description</code> props</li>
+<li>Add the tool to the <code>tools</code> array in <code>src/routes/+page.svelte</code></li>
+<li>Add the tool link to <code>SiteNav.svelte</code></li>
+<li>Add tests alongside the page</li>
+</ol>
+<hr>
+<h2>Testing</h2>
+<pre><code class="language-bash">npm run test          # Run all tests once
+npm run test -- --watch  # Watch mode
+</code></pre>
+<p>Tests live alongside their components (<code>*.test.ts</code>). Follow the existing pattern:</p>
+<pre><code class="language-ts">import { describe, it, expect, afterEach } from &#39;vitest&#39;;
+import { render, cleanup, screen } from &#39;@testing-library/svelte&#39;;
+import MyComponent from &#39;./MyComponent.svelte&#39;;
+
+afterEach(() =&gt; { cleanup(); });
+
+describe(&#39;MyComponent&#39;, () =&gt; {
+  it(&#39;renders correctly&#39;, () =&gt; {
+    render(MyComponent, { props: { ... } });
+    expect(screen.getByRole(&#39;...&#39;)).toBeInTheDocument();
+  });
+});
+</code></pre>
+<hr>
+<h2>Code Quality</h2>
+<pre><code class="language-bash">npm run check    # TypeScript / svelte-check
+npm run lint     # ESLint
+npm run format   # Prettier (auto-fix)
+</code></pre>
+<hr>
+<h2>Workflow</h2>
+<p>This project follows an issue-driven workflow:</p>
+<pre><code>/analyse &lt;issue&gt;   → requirements + acceptance criteria
+/design &lt;issue&gt;    → architecture + work breakdown
+/develop &lt;issue&gt;   → TDD implementation
+/verify &lt;PR&gt;       → runtime verification
+/pr-reviewer &lt;PR&gt;  → acceptance criteria audit
+/merge &lt;PR&gt;        → merge + close issues
+</code></pre>
+</body>
+</html>
