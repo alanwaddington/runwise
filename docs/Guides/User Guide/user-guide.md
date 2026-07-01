@@ -105,13 +105,35 @@ Calculate your five heart rate training zones using either the Max HR percentage
 
 ### VO2 Max Estimator — `/vo2max`
 
-Estimate your aerobic fitness level from a race performance.
+Estimate your aerobic fitness level (VO2 max) from a recent race performance using the Jack Daniels VDOT method.
 
 **Inputs:**
-- Race distance
-- Race time
 
-**Output:** Estimated VO2 max (ml/kg/min) and fitness category.
+| Field | Format | Example |
+|-------|--------|---------|
+| Race distance | Dropdown (5K, 10K, Half Marathon, Marathon, or Custom) | 5K |
+| Custom distance | Decimal km — appears when "Custom (km)" is selected | 8.0 |
+| Finish time | MM:SS or H:MM:SS — auto-detected | 25:00 or 1:52:30 |
+| Age | Integer (10–100), optional | 35 |
+| Gender | Male / Female / Prefer not to say, optional | Male |
+
+**Output:**
+
+Your estimated VDOT score is displayed in ml/kg/min to one decimal place. VDOT is a practical proxy for VO2 max derived from race performance rather than a lab test.
+
+**Fitness category** (shown below the VDOT score):
+
+| Situation | Display |
+|-----------|---------|
+| Age and gender provided | Your personalised category (e.g. *Fair for a male age 30–39*) with a colour-coded badge |
+| Age provided, gender set to "Prefer not to say" | Both male and female category ranges for your age bracket |
+| No age or gender entered | Full ACSM reference table with norms for both male and female across all age brackets |
+
+Categories follow ACSM norms: Superior, Excellent, Good, Fair, Poor, Very Poor. A note is shown when your age falls outside the published ACSM brackets (20–79) and the nearest bracket is used.
+
+**Race predictions:** A table of predicted finish times for all standard distances (5K, 10K, Half Marathon, Marathon) is shown alongside the VDOT, using the same Riegel formula as the Race Time Predictor.
+
+Cross-links to the Training Pace Calculator and Race Time Predictor are displayed when results are visible.
 
 ---
 
