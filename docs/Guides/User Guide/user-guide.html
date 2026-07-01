@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>user guide</title>
+  <style>
+  body { font-family: system-ui, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 24px;
+         color: #19191a; line-height: 1.6; }
+  h1 { font-size: 2rem; font-weight: 700; border-bottom: 2px solid #1b8a5a; padding-bottom: 8px; }
+  h2 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; }
+  h3 { font-size: 1rem; font-weight: 600; margin-top: 1.5rem; }
+  code, pre { font-family: 'IBM Plex Mono', monospace; background: #f4f4f0; padding: 2px 6px;
+               border-radius: 4px; font-size: 0.875em; }
+  pre { padding: 12px 16px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #e0e0dc; padding: 8px 12px; text-align: left; }
+  th { background: #f4f4f0; font-weight: 600; }
+  hr { border: none; border-top: 1px solid #e0e0dc; margin: 2rem 0; }
+  a { color: #1b8a5a; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #19191a; color: #fafaf8; }
+    code, pre, th { background: #2a2a2b; }
+    th, td { border-color: #3a3a3b; }
+    hr { border-color: #3a3a3b; }
+  }
+</style>
+</head>
+<body><h1>Runwise User Guide</h1>
+<p>Runwise is a free collection of running calculators. No account required.</p>
+<hr>
+<h2>Getting Started</h2>
+<p>Open <a href="/">runwise</a> in any browser. The home page lists all six tools — click any card to open it.</p>
+<hr>
+<h2>Tools</h2>
+<h3>Pace Calculator — <code>/pace</code></h3>
+<p>Convert between the three common pace formats:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>min/km</td>
+<td>min/mile and km/h</td>
+</tr>
+<tr>
+<td>min/mile</td>
+<td>min/km and km/h</td>
+</tr>
+<tr>
+<td>km/h</td>
+<td>min/km and min/mile</td>
+</tr>
+</tbody></table>
+<p>Enter a value in any field and the other two update instantly.</p>
+<hr>
+<h3>Race Time Predictor — <code>/race-predictor</code></h3>
+<p>Predict your finish time for a half marathon or marathon from a recent race result.</p>
+<p><strong>Inputs:</strong></p>
+<ul>
+<li>Recent race distance (e.g. 10K)</li>
+<li>Recent race time</li>
+</ul>
+<p><strong>Output:</strong> Predicted half marathon and marathon finish times using the Riegel formula.</p>
+<hr>
+<h3>Training Paces — <code>/training-paces</code></h3>
+<p>Generate a full set of training paces from a recent race result.</p>
+<p><strong>Inputs:</strong></p>
+<ul>
+<li>Recent race distance</li>
+<li>Recent race time</li>
+</ul>
+<p><strong>Output:</strong> Easy, marathon, threshold, interval, and repetition paces.</p>
+<hr>
+<h3>HR Zone Calculator — <code>/hr-zones</code></h3>
+<p>Calculate your five heart rate training zones.</p>
+<p><strong>Inputs:</strong></p>
+<ul>
+<li>Maximum heart rate (or age for estimated max HR)</li>
+<li>Resting heart rate (optional — used for Karvonen formula)</li>
+</ul>
+<p><strong>Output:</strong> HR ranges for zones 1–5.</p>
+<hr>
+<h3>VO2 Max Estimator — <code>/vo2max</code></h3>
+<p>Estimate your aerobic fitness level from a race performance.</p>
+<p><strong>Inputs:</strong></p>
+<ul>
+<li>Race distance</li>
+<li>Race time</li>
+</ul>
+<p><strong>Output:</strong> Estimated VO2 max (ml/kg/min) and fitness category.</p>
+<hr>
+<h3>Parkrun Predictor — <code>/parkrun</code></h3>
+<p>Predict your 5K parkrun time from recent training or racing.</p>
+<p><strong>Inputs:</strong></p>
+<ul>
+<li>Recent race distance</li>
+<li>Recent race time</li>
+</ul>
+<p><strong>Output:</strong> Predicted 5K finish time.</p>
+<hr>
+<h2>Tips</h2>
+<ul>
+<li>All calculators work on mobile — tap any input field and your keyboard will appear.</li>
+<li>Results update as you type; no submit button required.</li>
+<li>Use the navigation bar at the top to switch between tools without going back to the home page.</li>
+</ul>
+<hr>
+<h2>Dark Mode</h2>
+<p>Runwise respects your device&#39;s dark/light mode setting automatically.</p>
+</body>
+</html>
