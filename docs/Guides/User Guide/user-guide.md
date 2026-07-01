@@ -54,15 +54,33 @@ A link to the VO2 Max Estimator is displayed alongside results.
 
 ---
 
-### Training Paces — `/training-paces`
+### Training Pace Calculator — `/training-paces`
 
-Generate a full set of training paces from a recent race result.
+Calculate your optimal training paces for all five intensity zones from a recent race result. Based on Jack Daniels' VDOT methodology.
 
 **Inputs:**
-- Recent race distance
-- Recent race time
 
-**Output:** Easy, marathon, threshold, interval, and repetition paces.
+| Field | Format | Example |
+|-------|--------|---------|
+| Race distance | Dropdown (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon, or Custom) | 5K |
+| Custom distance | Decimal km — appears when "Custom (km)" is selected | 12.5 |
+| Race time | MM:SS or H:MM:SS — auto-detected | 25:00 or 1:56:20 |
+
+**Output:** Your calculated VDOT score (a measure of aerobic fitness) displayed as a headline, followed by a table of training pace ranges for five zones:
+
+| Zone | Name | Purpose |
+|------|------|---------|
+| E | Easy / Recovery | Daily easy runs, long runs, warm-ups |
+| M | Marathon | Steady-state marathon-pace runs |
+| T | Threshold / Tempo | Comfortably hard tempo runs and cruise intervals |
+| I | Interval | Hard VO2 max intervals (3–8 minutes per rep) |
+| R | Repetition | Short fast reps for speed and running economy |
+
+Each zone shows a pace range (faster–slower) in both min/km and min/mile. A brief description of each zone's purpose is shown below each row.
+
+If the entered time is outside the supported VDOT range (20–85), a friendly message is displayed instead of the table.
+
+A link to the VO2 Max Estimator is displayed alongside results.
 
 ---
 
