@@ -42,6 +42,57 @@ describe('HrZones page', () => {
 		expect(screen.getByRole('tab', { name: 'Max HR' })).toHaveAttribute('aria-selected', 'false');
 	});
 
+	it('pressing ArrowRight moves from Max HR to LTHR tab', async () => {
+		render(HrZones);
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(screen.getByRole('tab', { name: 'LTHR' })).toHaveAttribute('aria-selected', 'true');
+		expect(screen.getByRole('tab', { name: 'Max HR' })).toHaveAttribute('aria-selected', 'false');
+	});
+
+	it('pressing ArrowLeft moves from LTHR to Max HR tab', async () => {
+		render(HrZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'LTHR' }));
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowLeft' });
+		expect(screen.getByRole('tab', { name: 'Max HR' })).toHaveAttribute('aria-selected', 'true');
+		expect(screen.getByRole('tab', { name: 'LTHR' })).toHaveAttribute('aria-selected', 'false');
+	});
+
+	it('pressing ArrowRight wraps around from LTHR to Max HR', async () => {
+		render(HrZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'LTHR' }));
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(screen.getByRole('tab', { name: 'Max HR' })).toHaveAttribute('aria-selected', 'true');
+	});
+
+	// ── LTHR zone gap note ────────────────────────────────────────────────────
+
+	it('shows zone gap note when LTHR results are displayed (m1 finding fix)', async () => {
+		render(HrZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'LTHR' }));
+		const bpmInput = screen.getByLabelText(/lactate threshold heart rate/i);
+		await fireEvent.input(bpmInput, { target: { value: 170, valueAsNumber: 170 } });
+		expect(screen.getByText(/joe friel's zone boundaries intentionally have small gaps/i)).toBeInTheDocument();
+	});
+
+	it('does not show zone gap note in Max HR mode', async () => {
+		render(HrZones);
+		const bpmInput = screen.getByLabelText(/max heart rate/i);
+		await fireEvent.input(bpmInput, { target: { value: 185, valueAsNumber: 185 } });
+		expect(screen.queryByText(/joe friel's zone boundaries/i)).toBeNull();
+	});
+
+	it('hides zone gap note when LTHR results are cleared', async () => {
+		render(HrZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'LTHR' }));
+		const bpmInput = screen.getByLabelText(/lactate threshold heart rate/i);
+		await fireEvent.input(bpmInput, { target: { value: 170, valueAsNumber: 170 } });
+		await fireEvent.input(bpmInput, { target: { value: '', valueAsNumber: NaN } });
+		expect(screen.queryByText(/joe friel's zone boundaries/i)).toBeNull();
+	});
+
 	it('info button is present', () => {
 		render(HrZones);
 		expect(screen.getByRole('button', { name: /about these methods/i })).toBeInTheDocument();

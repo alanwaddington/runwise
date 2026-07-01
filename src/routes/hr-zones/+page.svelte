@@ -62,6 +62,18 @@
 		document.addEventListener('click', handleOutsideClick);
 		return () => document.removeEventListener('click', handleOutsideClick);
 	});
+
+	function handleTabKeydown(e: KeyboardEvent) {
+		if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+		e.preventDefault();
+		const methods: HrMethod[] = ['maxhr', 'lthr'];
+		const currentIndex = methods.indexOf(method);
+		if (e.key === 'ArrowRight') {
+			selectMethod(methods[(currentIndex + 1) % methods.length]);
+		} else {
+			selectMethod(methods[(currentIndex - 1 + methods.length) % methods.length]);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -78,7 +90,7 @@
 >
 	<!-- Method selector + info tooltip -->
 	<div class="mb-4 flex items-center gap-3">
-		<div class="flex flex-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800" role="tablist">
+		<div class="flex flex-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800" role="tablist" tabindex="-1" onkeydown={handleTabKeydown}>
 			<button
 				role="tab"
 				aria-selected={method === 'maxhr'}
@@ -328,6 +340,13 @@
 				</tbody>
 			</table>
 		</div>
+
+		<!-- LTHR zone gap note -->
+		{#if method === 'lthr'}
+			<p class="mt-4 text-xs text-gray-400">
+				<span class="font-medium text-ink">Note:</span> Joe Friel's zone boundaries intentionally have small gaps between them. This is by design and doesn't indicate an error.
+			</p>
+		{/if}
 
 		<!-- Footer cross-link -->
 		<p class="mt-6 text-center text-xs text-gray-400">
