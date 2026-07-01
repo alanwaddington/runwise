@@ -1,5 +1,233 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
+	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
+
+	let selectedOption = $state('5K');
+	let customKmRaw = $state('');
+	let timeRaw = $state('');
+
+	let isCustom = $derived(selectedOption === 'Custom');
+
+	let knownDistanceKm = $derived(
+		(() => {
+			if (!isCustom) {
+				return STANDARD_DISTANCES.find((d) => d.name === selectedOption)?.km ?? 5;
+			}
+			const v = parseFloat(customKmRaw);
+			return v > 0 ? v : 0;
+		})()
+	);
+
+	let knownTimeSeconds = $derived(parseTime(timeRaw));
+
+	let customKm = $derived(
+		isCustom && parseFloat(customKmRaw) > 0 ? parseFloat(customKmRaw) : null
+	);
+
+	let predictionRows = $derived(
+		knownTimeSeconds !== null && knownDistanceKm > 0
+			? buildPredictionTable(knownTimeSeconds, knownDistanceKm, customKm)
+			: null
+	);
+
+	function onDistanceChange(e: Event) {
+		selectedOption = (e.target as HTMLSelectElement).value;
+	}
+
+	function onCustomKmInput(e: Event) {
+		customKmRaw = (e.target as HTMLInputElement).value;
+	}
+
+	function onTimeInput(e: Event) {
+		timeRaw = (e.target as HTMLInputElement).value;
+	}
 </script>
 
-<ToolLayout title="Race Time Predictor" description="Predict your race finish time based on a recent result." />
+<svelte:head>
+	<title>Race Time Predictor — Runwise</title>
+	<meta
+		name="description"
+		content="Predict your race finish time using the Riegel formula. Enter any recent result to get predicted times for 5K, 10K, half marathon, marathon and more."
+	/>
+</svelte:head>
+
+<ToolLayout
+	title="Race Time Predictor"
+	pageTitle="Race Time Predictor — Runwise"
+	description="Predict your race finish time based on a recent result."
+>
+	<!-- Known distance select -->
+	<div class="mb-4">
+		<label for="distance-select" class="mb-1.5 block text-sm font-medium text-ink"
+			>Known distance</label
+		>
+		<div class="relative">
+			<select
+				id="distance-select"
+				value={selectedOption}
+				onchange={onDistanceChange}
+				class="h-12 w-full appearance-none rounded-lg border border-gray-300 bg-bg px-3 pr-10 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
+			>
+				{#each STANDARD_DISTANCES as dist (dist.name)}
+					<option value={dist.name}>{dist.name}</option>
+				{/each}
+				<option disabled>──────────</option>
+				<option value="Custom">Custom (km)</option>
+			</select>
+			<span
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500"
+				aria-hidden="true"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="m6 9 6 6 6-6" />
+				</svg>
+			</span>
+		</div>
+	</div>
+
+	<!-- Custom distance input (conditional) -->
+	<div
+		class="overflow-hidden transition-all duration-200"
+		class:max-h-0={!isCustom}
+		class:opacity-0={!isCustom}
+		class:max-h-24={isCustom}
+		class:opacity-100={isCustom}
+		class:mb-4={isCustom}
+	>
+		<div>
+			<label for="custom-km" class="mb-1.5 block text-sm font-medium text-ink"
+				>Custom distance</label
+			>
+			<div class="relative">
+				<input
+					id="custom-km"
+					type="text"
+					inputmode="decimal"
+					placeholder="e.g. 12.5"
+					value={customKmRaw}
+					oninput={onCustomKmInput}
+					aria-describedby="custom-km-unit"
+					class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 pr-14 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
+				/>
+				<span
+					id="custom-km-unit"
+					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+				>
+					km
+				</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Known time input -->
+	<div class="mb-4">
+		<label for="known-time" class="mb-1.5 block text-sm font-medium text-ink">Known time</label>
+		<div class="relative">
+			<input
+				id="known-time"
+				type="text"
+				inputmode="decimal"
+				placeholder="e.g. 25:00 or 1:56:20"
+				value={timeRaw}
+				oninput={onTimeInput}
+				aria-describedby="time-help"
+				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
+			/>
+		</div>
+		<p id="time-help" class="mt-1 text-xs text-gray-400">Enter MM:SS or H:MM:SS</p>
+	</div>
+
+	<hr class="my-6 border-t border-ink/10" />
+
+	<!-- Results -->
+	{#if predictionRows === null}
+		<div class="py-10 text-center">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="32"
+				height="32"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class="mx-auto text-gray-300"
+			>
+				<circle cx="12" cy="13" r="8" />
+				<path d="M12 9v4l2 2" />
+				<path d="M9 3h6" />
+				<path d="M12 3v2" />
+			</svg>
+			<p class="mt-3 text-sm text-gray-400">Enter a race result above to see your predictions.</p>
+		</div>
+	{:else}
+		<div class="overflow-x-auto">
+			<table class="w-full border-collapse text-sm">
+				<thead>
+					<tr class="border-b border-ink/10">
+						<th
+							scope="col"
+							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
+							>Distance</th
+						>
+						<th
+							scope="col"
+							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500"
+							>Time</th
+						>
+						<th
+							scope="col"
+							class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500 sm:table-cell"
+							>Pace/km</th
+						>
+						<th
+							scope="col"
+							class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500 sm:table-cell"
+							>Pace/mile</th
+						>
+					</tr>
+				</thead>
+				<tbody>
+					{#each predictionRows as row (row.name)}
+						{@const isHighlighted = Math.abs(row.km - knownDistanceKm) < 0.001}
+						<tr
+							class="relative border-b border-ink/10 last:border-0 {isHighlighted ? 'bg-accent/10' : ''}"
+							aria-current={isHighlighted ? 'true' : undefined}
+						>
+							<td class="relative py-3 font-medium text-ink">
+								{#if isHighlighted}
+									<span
+										class="absolute inset-y-0 left-0 w-0.5 rounded-r bg-accent"
+										aria-hidden="true"
+									></span>
+								{/if}
+								{row.name}
+							</td>
+							<td class="py-3 text-right tabular-nums text-ink">{row.timeFormatted}</td>
+							<td class="hidden py-3 text-right tabular-nums text-gray-600 sm:table-cell"
+								>{row.paceMinKm}</td
+							>
+							<td class="hidden py-3 text-right tabular-nums text-gray-600 sm:table-cell"
+								>{row.paceMinMile}</td
+							>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p class="mt-4 text-center text-xs text-gray-400">
+			Predictions use the Riegel formula (exponent 1.06). Results are estimates.
+		</p>
+	{/if}
+</ToolLayout>
