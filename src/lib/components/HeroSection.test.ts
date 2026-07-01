@@ -12,6 +12,12 @@ describe('HeroSection', () => {
 		expect(screen.getByRole('heading', { level: 1, name: 'Runwise' })).toBeInTheDocument();
 	});
 
+	it('uses the text-ink design token on the heading', () => {
+		render(HeroSection);
+		const heading = screen.getByRole('heading', { level: 1, name: 'Runwise' });
+		expect(heading.className).toMatch(/text-ink/);
+	});
+
 	it('renders the runner icon with src="/favicon.svg"', () => {
 		const { container } = render(HeroSection);
 		const img = container.querySelector('img');

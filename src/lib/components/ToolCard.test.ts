@@ -45,6 +45,12 @@ describe('ToolCard', () => {
 		expect(screen.getByText('→')).toBeInTheDocument();
 	});
 
+	it('uses border-ink/10 as the base border (dark mode adaptive)', () => {
+		render(ToolCard, { props: defaultProps });
+		const link = screen.getByRole('link');
+		expect(link.className).toMatch(/border-ink\/10/);
+	});
+
 	it('includes hover:border-accent class on the link', () => {
 		render(ToolCard, { props: defaultProps });
 		const link = screen.getByRole('link');

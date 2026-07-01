@@ -7,5 +7,5 @@
 		Running calculators. <span class="text-accent">Fast.</span> Clean. Built for runners.
 	</p>
 	<p class="text-base text-gray-500">Six free tools for runners. No login required.</p>
-	<hr class="mt-2 border-t border-gray-200" />
+	<hr class="mt-2 border-t border-ink/10" />
 </div>
