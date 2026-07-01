@@ -118,14 +118,71 @@
 <p><strong>Output:</strong> A prediction table showing estimated finish time, pace per km, and pace per mile for every standard distance (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon), plus your custom distance if entered. The row matching your known distance is highlighted. All predictions use the Riegel formula (T₂ = T₁ × (D₂/D₁)^1.06).</p>
 <p>A link to the VO2 Max Estimator is displayed alongside results.</p>
 <hr>
-<h3>Training Paces — <code>/training-paces</code></h3>
-<p>Generate a full set of training paces from a recent race result.</p>
+<h3>Training Pace Calculator — <code>/training-paces</code></h3>
+<p>Calculate your optimal training paces for all five intensity zones from a recent race result. Based on Jack Daniels&#39; VDOT methodology.</p>
 <p><strong>Inputs:</strong></p>
-<ul>
-<li>Recent race distance</li>
-<li>Recent race time</li>
-</ul>
-<p><strong>Output:</strong> Easy, marathon, threshold, interval, and repetition paces.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Race distance</td>
+<td>Dropdown (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon, or Custom)</td>
+<td>5K</td>
+</tr>
+<tr>
+<td>Custom distance</td>
+<td>Decimal km — appears when &quot;Custom (km)&quot; is selected</td>
+<td>12.5</td>
+</tr>
+<tr>
+<td>Race time</td>
+<td>MM:SS or H:MM:SS — auto-detected</td>
+<td>25:00 or 1:56:20</td>
+</tr>
+</tbody></table>
+<p><strong>Output:</strong> Your calculated VDOT score (a measure of aerobic fitness) displayed as a headline, followed by a table of training pace ranges for five zones:</p>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Name</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>E</td>
+<td>Easy / Recovery</td>
+<td>Daily easy runs, long runs, warm-ups</td>
+</tr>
+<tr>
+<td>M</td>
+<td>Marathon</td>
+<td>Steady-state marathon-pace runs</td>
+</tr>
+<tr>
+<td>T</td>
+<td>Threshold / Tempo</td>
+<td>Comfortably hard tempo runs and cruise intervals</td>
+</tr>
+<tr>
+<td>I</td>
+<td>Interval</td>
+<td>Hard VO2 max intervals (3–8 minutes per rep)</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Repetition</td>
+<td>Short fast reps for speed and running economy</td>
+</tr>
+</tbody></table>
+<p>Each zone shows a pace range (faster–slower) in both min/km and min/mile. A brief description of each zone&#39;s purpose is shown below each row.</p>
+<p>If the entered time is outside the supported VDOT range (20–85), a friendly message is displayed instead of the table.</p>
+<p>A link to the VO2 Max Estimator is displayed alongside results.</p>
 <hr>
 <h3>HR Zone Calculator — <code>/hr-zones</code></h3>
 <p>Calculate your five heart rate training zones.</p>

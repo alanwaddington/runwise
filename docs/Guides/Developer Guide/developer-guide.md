@@ -57,7 +57,9 @@ src/
 │       ├── pace.ts               # Pace/speed conversion functions
 │       ├── pace.test.ts
 │       ├── race-predictor.ts     # Riegel formula, time parsing/formatting, prediction table
-│       └── race-predictor.test.ts
+│       ├── race-predictor.test.ts
+│       ├── training-paces.ts     # VDOT calculation (Daniels' formula), training zone pace derivation
+│       └── training-paces.test.ts
 └── routes/
     ├── +layout.svelte   # Root layout — header + main wrapper
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid

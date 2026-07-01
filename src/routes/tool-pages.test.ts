@@ -21,7 +21,7 @@ const pages = [
 	{
 		component: TrainingPaces,
 		title: 'Training Pace Calculator',
-		description: 'Find your optimal training paces from your race performance.'
+		description: 'Find your optimal training paces from a recent race result.'
 	},
 	{
 		component: HrZones,
