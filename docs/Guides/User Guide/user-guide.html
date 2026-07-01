@@ -200,13 +200,68 @@
 <p><strong>Note:</strong> Joe Friel&#39;s LTHR zone boundaries intentionally have small gaps between them by design.</p>
 <hr>
 <h3>VO2 Max Estimator — <code>/vo2max</code></h3>
-<p>Estimate your aerobic fitness level from a race performance.</p>
+<p>Estimate your aerobic fitness level (VO2 max) from a recent race performance using the Jack Daniels VDOT method.</p>
 <p><strong>Inputs:</strong></p>
-<ul>
-<li>Race distance</li>
-<li>Race time</li>
-</ul>
-<p><strong>Output:</strong> Estimated VO2 max (ml/kg/min) and fitness category.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Race distance</td>
+<td>Dropdown (5K, 10K, Half Marathon, Marathon, or Custom)</td>
+<td>5K</td>
+</tr>
+<tr>
+<td>Custom distance</td>
+<td>Decimal km — appears when &quot;Custom (km)&quot; is selected</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td>Finish time</td>
+<td>MM:SS or H:MM:SS — auto-detected</td>
+<td>25:00 or 1:52:30</td>
+</tr>
+<tr>
+<td>Age</td>
+<td>Integer (10–100), optional</td>
+<td>35</td>
+</tr>
+<tr>
+<td>Gender</td>
+<td>Male / Female / Prefer not to say, optional</td>
+<td>Male</td>
+</tr>
+</tbody></table>
+<p><strong>Output:</strong></p>
+<p>Your estimated VDOT score is displayed in ml/kg/min to one decimal place. VDOT is a practical proxy for VO2 max derived from race performance rather than a lab test.</p>
+<p><strong>Fitness category</strong> (shown below the VDOT score):</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Display</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Age and gender provided</td>
+<td>Your personalised category (e.g. <em>Fair for a male age 30–39</em>) with a colour-coded badge</td>
+</tr>
+<tr>
+<td>Age provided, gender set to &quot;Prefer not to say&quot;</td>
+<td>Both male and female category ranges for your age bracket</td>
+</tr>
+<tr>
+<td>No age or gender entered</td>
+<td>Full ACSM reference table with norms for both male and female across all age brackets</td>
+</tr>
+</tbody></table>
+<p>Categories follow ACSM norms: Superior, Excellent, Good, Fair, Poor, Very Poor. A note is shown when your age falls outside the published ACSM brackets (20–79) and the nearest bracket is used.</p>
+<p><strong>Race predictions:</strong> A table of predicted finish times for all standard distances (5K, 10K, Half Marathon, Marathon) is shown alongside the VDOT, using the same Riegel formula as the Race Time Predictor.</p>
+<p>Cross-links to the Training Pace Calculator and Race Time Predictor are displayed when results are visible.</p>
 <hr>
 <h3>Parkrun Predictor — <code>/parkrun</code></h3>
 <p>Predict your 5K parkrun time from recent training or racing.</p>
