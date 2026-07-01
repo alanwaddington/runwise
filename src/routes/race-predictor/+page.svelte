@@ -229,5 +229,11 @@
 		<p class="mt-4 text-center text-xs text-gray-400">
 			Predictions use the Riegel formula (exponent 1.06). Results are estimates.
 		</p>
+		<p class="mt-3 text-center text-xs text-gray-400">
+			Want to know your aerobic capacity?
+			<a href="/vo2max" class="text-accent underline-offset-2 hover:underline"
+				>Estimate your VO2 max →</a
+			>
+		</p>
 	{/if}
 </ToolLayout>

@@ -124,4 +124,18 @@ describe('RacePredictor page', () => {
 		await fireEvent.input(timeInput, { target: { value: '25:00' } });
 		expect(screen.getByText('25:00')).toBeInTheDocument();
 	});
+
+	it('shows VO2 max link with href="/vo2max" when results are visible', async () => {
+		render(RacePredictor);
+		const timeInput = screen.getByLabelText(/known time/i);
+		await fireEvent.input(timeInput, { target: { value: '25:00' } });
+		const link = screen.getByRole('link', { name: /vo2 max/i });
+		expect(link).toBeInTheDocument();
+		expect(link).toHaveAttribute('href', '/vo2max');
+	});
+
+	it('does not show VO2 max link in empty state', () => {
+		render(RacePredictor);
+		expect(screen.queryByRole('link', { name: /vo2 max/i })).toBeNull();
+	});
 });
