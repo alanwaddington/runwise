@@ -55,6 +55,20 @@ describe('InputField', () => {
 		expect(input).not.toHaveAttribute('aria-describedby');
 	});
 
+	it('renders inputmode attribute when provided', () => {
+		render(InputField, {
+			props: { label: 'Pace', id: 'pace', value: '', type: 'text', inputmode: 'decimal' }
+		});
+		const input = screen.getByLabelText('Pace');
+		expect(input).toHaveAttribute('inputmode', 'decimal');
+	});
+
+	it('does not render inputmode attribute when not provided', () => {
+		render(InputField, { props: { label: 'Distance', id: 'distance', value: 0 } });
+		const input = screen.getByLabelText('Distance');
+		expect(input).not.toHaveAttribute('inputmode');
+	});
+
 	it('updates the bound value when the user types', async () => {
 		let value = 0;
 		render(InputField, {

@@ -69,7 +69,6 @@ function toPdf(mdPath, mdContent, outPath) {
 
 	const ACCENT = '#1b8a5a';
 	const INK = '#19191a';
-	const MUTED = '#555555';
 
 	const lines = mdContent.split('\n');
 	let inCode = false;

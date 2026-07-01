@@ -40,19 +40,22 @@ src/
 ├── app.css              # Global styles + Tailwind theme tokens
 ├── app.html             # SvelteKit HTML shell
 ├── lib/
-│   └── components/      # Shared UI components
-│       ├── HeroSection.svelte
-│       ├── HeroSection.test.ts
-│       ├── InputField.svelte
-│       ├── InputField.test.ts
-│       ├── ResultDisplay.svelte
-│       ├── ResultDisplay.test.ts
-│       ├── SiteNav.svelte
-│       ├── SiteNav.test.ts
-│       ├── ToolCard.svelte
-│       ├── ToolCard.test.ts
-│       ├── ToolLayout.svelte
-│       └── ToolLayout.test.ts
+│   ├── components/      # Shared UI components
+│   │   ├── HeroSection.svelte
+│   │   ├── HeroSection.test.ts
+│   │   ├── InputField.svelte
+│   │   ├── InputField.test.ts
+│   │   ├── ResultDisplay.svelte
+│   │   ├── ResultDisplay.test.ts
+│   │   ├── SiteNav.svelte
+│   │   ├── SiteNav.test.ts
+│   │   ├── ToolCard.svelte
+│   │   ├── ToolCard.test.ts
+│   │   ├── ToolLayout.svelte
+│   │   └── ToolLayout.test.ts
+│   └── utils/           # Pure utility modules (no Svelte dependency)
+│       ├── pace.ts      # Pace/speed conversion functions
+│       └── pace.test.ts
 └── routes/
     ├── +layout.svelte   # Root layout — header + main wrapper
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid
@@ -88,10 +91,10 @@ Dark mode is applied automatically via `prefers-color-scheme`. Always use design
 |-----------|-------|---------|
 | `HeroSection` | none | Home page hero — icon, tagline, sub-copy, separator |
 | `ToolCard` | `href`, `name`, `description`, `route` | Linked card on the home page |
-| `ToolLayout` | `title`, `description` | Wrapper for tool pages — back link, heading, description |
+| `ToolLayout` | `title`, `description`, `pageTitle?` | Wrapper for tool pages — back link, heading, description. `pageTitle` overrides the default `"{title} \| Runwise"` document title. |
 | `SiteNav` | none | Top navigation — brand + tool links with active-route highlight |
-| `InputField` | `label`, `id`, `value`, `type?`, `unit?` | Labelled input with optional unit suffix |
-| `ResultDisplay` | `value`, `label`, `unit?` | Prominent result block with copy-to-clipboard |
+| `InputField` | `label`, `id`, `value`, `type?`, `unit?`, `step?`, `placeholder?`, `inputmode?` | Labelled input with optional unit suffix. `inputmode` triggers the correct mobile keyboard (e.g. `"decimal"`). |
+| `ResultDisplay` | `value`, `label` | Prominent result block with copy-to-clipboard |
 
 ---
 
@@ -107,12 +110,14 @@ Dark mode is applied automatically via `prefers-color-scheme`. Always use design
 
 ## Testing
 
+### Unit and component tests (Vitest)
+
 ```bash
 npm run test          # Run all tests once
 npm run test -- --watch  # Watch mode
 ```
 
-Tests live alongside their components (`*.test.ts`). Follow the existing pattern:
+Tests live alongside their source files (`*.test.ts`). Follow the existing pattern:
 
 ```ts
 import { describe, it, expect, afterEach } from 'vitest';
@@ -129,14 +134,24 @@ describe('MyComponent', () => {
 });
 ```
 
+### E2E tests (Playwright)
+
+```bash
+npx playwright install chromium  # First time only
+npm run test:e2e                 # Run E2E tests against the production build
+```
+
+E2E tests live in the `e2e/` directory. They run against the production preview server (`npm run build && npm run preview` on port 4173). Configuration is in `playwright.config.ts`.
+
 ---
 
 ## Code Quality
 
 ```bash
-npm run check    # TypeScript / svelte-check
-npm run lint     # ESLint
-npm run format   # Prettier (auto-fix)
+npm run check        # TypeScript / svelte-check
+npm run lint         # ESLint
+npm run format       # Prettier (auto-fix)
+npm run test:e2e     # Playwright E2E tests (requires built app)
 ```
 
 ---

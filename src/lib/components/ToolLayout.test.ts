@@ -56,4 +56,28 @@ describe('ToolLayout', () => {
 		});
 		expect(document.title).toBe('Pace Calculator | Runwise');
 	});
+
+	it('uses pageTitle instead of the default pattern when provided', () => {
+		render(ToolLayout, {
+			props: {
+				title: 'Pace Calculator',
+				description: 'Work out your pace.',
+				pageTitle: 'Pace Calculator — Runwise',
+				children: childSnippet
+			}
+		});
+		expect(document.title).toBe('Pace Calculator — Runwise');
+	});
+
+	it('still renders the h1 from title when pageTitle is provided', () => {
+		render(ToolLayout, {
+			props: {
+				title: 'Pace Calculator',
+				description: 'Work out your pace.',
+				pageTitle: 'Pace Calculator — Runwise',
+				children: childSnippet
+			}
+		});
+		expect(screen.getByRole('heading', { level: 1, name: 'Pace Calculator' })).toBeInTheDocument();
+	});
 });

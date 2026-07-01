@@ -14,15 +14,25 @@ Open [runwise](/) in any browser. The home page lists all six tools — click an
 
 ### Pace Calculator — `/pace`
 
-Convert between the three common pace formats:
+Convert between the three common pace formats. Enter a value in any field and the other two update instantly.
 
-| Input | Output |
-|-------|--------|
-| min/km | min/mile and km/h |
-| min/mile | min/km and km/h |
-| km/h | min/km and min/mile |
+**Editable inputs (any one updates the other two):**
 
-Enter a value in any field and the other two update instantly.
+| Field | Format | Example |
+|-------|--------|---------|
+| Pace (min/km) | M:SS | 5:30 |
+| Pace (min/mile) | M:SS | 8:51 |
+| Speed (km/h) | decimal | 10.9 |
+
+**Read-only outputs (update automatically):**
+
+| Output | Format | Example |
+|--------|--------|---------|
+| mph | one decimal place | 6.8 |
+| per 400 m | M:SS | 2:12 |
+| per 800 m | M:SS | 4:24 |
+
+Each read-only output has a copy-to-clipboard button.
 
 ---
 
