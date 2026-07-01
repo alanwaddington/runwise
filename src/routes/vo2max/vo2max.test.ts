@@ -114,7 +114,10 @@ describe('Vo2max page', () => {
 		render(Vo2max);
 		const timeInput = screen.getByLabelText(/finish time/i);
 		await fireEvent.input(timeInput, { target: { value: '25:00' } });
-		expect(screen.getByText(/ml\/kg\/min/i)).toBeInTheDocument();
+		const vdotEl = screen.getByTestId('vdot-value');
+		// Unit label is the immediate following sibling <p>
+		const unitEl = vdotEl.nextElementSibling;
+		expect(unitEl?.textContent).toContain('ml/kg/min');
 	});
 
 	it('VDOT shows one decimal place (AC6)', async () => {

@@ -346,29 +346,53 @@
 					</div>
 				{/if}
 			{:else}
-				<!-- General ACSM reference (div grid — avoids conflict with predictions table role) -->
+				<!-- General ACSM reference — both male and female norms -->
 				<div data-testid="acsm-reference-table">
-					<p class="mb-2 text-xs text-gray-400">
-						Enter your age and gender above for your personalised category. ACSM reference norms (male):
+					<p class="mb-3 text-xs text-gray-400">
+						Enter your age and gender above for your personalised category. ACSM reference norms (ml/kg/min):
 					</p>
-					<!-- header row -->
-					<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-gray-500">
-						<span>Age</span>
-						{#each CATEGORIES.slice(0, 5) as cat (cat)}
-							<span class="text-right">{cat}</span>
+
+					<!-- Male norms -->
+					<div class="mb-4">
+						<p class="mb-2 text-xs font-medium text-gray-600">Male</p>
+						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-gray-500">
+							<span>Age</span>
+							{#each CATEGORIES.slice(0, 5) as cat (cat)}
+								<span class="text-right">{cat}</span>
+							{/each}
+						</div>
+						{#each acsmTable as bracket (bracket.label)}
+							<div class="grid grid-cols-6 border-b border-ink/10 py-1 text-xs last:border-0">
+								<span class="font-medium text-ink">{bracket.label}</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.male.superior}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.male.excellent}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.male.good}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.male.fair}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.male.poor}+</span>
+							</div>
 						{/each}
 					</div>
-					{#each acsmTable as bracket (bracket.label)}
-						<div class="grid grid-cols-6 border-b border-ink/10 py-1 text-xs last:border-0">
-							<span class="font-medium text-ink">{bracket.label}</span>
-							<span class="text-right tabular-nums text-gray-600">{bracket.male.superior}+</span>
-							<span class="text-right tabular-nums text-gray-600">{bracket.male.excellent}+</span>
-							<span class="text-right tabular-nums text-gray-600">{bracket.male.good}+</span>
-							<span class="text-right tabular-nums text-gray-600">{bracket.male.fair}+</span>
-							<span class="text-right tabular-nums text-gray-600">{bracket.male.poor}+</span>
+
+					<!-- Female norms -->
+					<div>
+						<p class="mb-2 text-xs font-medium text-gray-600">Female</p>
+						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-gray-500">
+							<span>Age</span>
+							{#each CATEGORIES.slice(0, 5) as cat (cat)}
+								<span class="text-right">{cat}</span>
+							{/each}
 						</div>
-					{/each}
-					<p class="mt-1 text-xs text-gray-400">Female thresholds are approximately 5–7 units lower than male.</p>
+						{#each acsmTable as bracket (bracket.label)}
+							<div class="grid grid-cols-6 border-b border-ink/10 py-1 text-xs last:border-0">
+								<span class="font-medium text-ink">{bracket.label}</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.female.superior}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.female.excellent}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.female.good}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.female.fair}+</span>
+								<span class="text-right tabular-nums text-gray-600">{bracket.female.poor}+</span>
+							</div>
+						{/each}
+					</div>
 				</div>
 			{/if}
 		</div>
