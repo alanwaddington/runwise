@@ -54,8 +54,10 @@ src/
 │   │   ├── ToolLayout.svelte
 │   │   └── ToolLayout.test.ts
 │   └── utils/           # Pure utility modules (no Svelte dependency)
-│       ├── pace.ts      # Pace/speed conversion functions
-│       └── pace.test.ts
+│       ├── pace.ts               # Pace/speed conversion functions
+│       ├── pace.test.ts
+│       ├── race-predictor.ts     # Riegel formula, time parsing/formatting, prediction table
+│       └── race-predictor.test.ts
 └── routes/
     ├── +layout.svelte   # Root layout — header + main wrapper
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid
