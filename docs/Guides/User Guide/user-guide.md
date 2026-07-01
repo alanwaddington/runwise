@@ -38,13 +38,19 @@ Each read-only output has a copy-to-clipboard button.
 
 ### Race Time Predictor — `/race-predictor`
 
-Predict your finish time for a half marathon or marathon from a recent race result.
+Predict your finish times across all standard race distances from any recent result.
 
 **Inputs:**
-- Recent race distance (e.g. 10K)
-- Recent race time
 
-**Output:** Predicted half marathon and marathon finish times using the Riegel formula.
+| Field | Format | Example |
+|-------|--------|---------|
+| Known distance | Dropdown (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon, or Custom) | 5K |
+| Custom distance | Decimal km — appears when "Custom (km)" is selected | 12.5 |
+| Known time | MM:SS or H:MM:SS — auto-detected | 25:00 or 1:56:20 |
+
+**Output:** A prediction table showing estimated finish time, pace per km, and pace per mile for every standard distance (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon), plus your custom distance if entered. The row matching your known distance is highlighted. All predictions use the Riegel formula (T₂ = T₁ × (D₂/D₁)^1.06).
+
+A link to the VO2 Max Estimator is displayed alongside results.
 
 ---
 

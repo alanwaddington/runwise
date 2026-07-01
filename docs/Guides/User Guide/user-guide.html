@@ -89,13 +89,34 @@
 <p>Each read-only output has a copy-to-clipboard button.</p>
 <hr>
 <h3>Race Time Predictor — <code>/race-predictor</code></h3>
-<p>Predict your finish time for a half marathon or marathon from a recent race result.</p>
+<p>Predict your finish times across all standard race distances from any recent result.</p>
 <p><strong>Inputs:</strong></p>
-<ul>
-<li>Recent race distance (e.g. 10K)</li>
-<li>Recent race time</li>
-</ul>
-<p><strong>Output:</strong> Predicted half marathon and marathon finish times using the Riegel formula.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Known distance</td>
+<td>Dropdown (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon, or Custom)</td>
+<td>5K</td>
+</tr>
+<tr>
+<td>Custom distance</td>
+<td>Decimal km — appears when &quot;Custom (km)&quot; is selected</td>
+<td>12.5</td>
+</tr>
+<tr>
+<td>Known time</td>
+<td>MM:SS or H:MM:SS — auto-detected</td>
+<td>25:00 or 1:56:20</td>
+</tr>
+</tbody></table>
+<p><strong>Output:</strong> A prediction table showing estimated finish time, pace per km, and pace per mile for every standard distance (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon), plus your custom distance if entered. The row matching your known distance is highlighted. All predictions use the Riegel formula (T₂ = T₁ × (D₂/D₁)^1.06).</p>
+<p>A link to the VO2 Max Estimator is displayed alongside results.</p>
 <hr>
 <h3>Training Paces — <code>/training-paces</code></h3>
 <p>Generate a full set of training paces from a recent race result.</p>
