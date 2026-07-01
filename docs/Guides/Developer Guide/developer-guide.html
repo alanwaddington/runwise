@@ -74,19 +74,22 @@ npm run dev
 ├── app.css              # Global styles + Tailwind theme tokens
 ├── app.html             # SvelteKit HTML shell
 ├── lib/
-│   └── components/      # Shared UI components
-│       ├── HeroSection.svelte
-│       ├── HeroSection.test.ts
-│       ├── InputField.svelte
-│       ├── InputField.test.ts
-│       ├── ResultDisplay.svelte
-│       ├── ResultDisplay.test.ts
-│       ├── SiteNav.svelte
-│       ├── SiteNav.test.ts
-│       ├── ToolCard.svelte
-│       ├── ToolCard.test.ts
-│       ├── ToolLayout.svelte
-│       └── ToolLayout.test.ts
+│   ├── components/      # Shared UI components
+│   │   ├── HeroSection.svelte
+│   │   ├── HeroSection.test.ts
+│   │   ├── InputField.svelte
+│   │   ├── InputField.test.ts
+│   │   ├── ResultDisplay.svelte
+│   │   ├── ResultDisplay.test.ts
+│   │   ├── SiteNav.svelte
+│   │   ├── SiteNav.test.ts
+│   │   ├── ToolCard.svelte
+│   │   ├── ToolCard.test.ts
+│   │   ├── ToolLayout.svelte
+│   │   └── ToolLayout.test.ts
+│   └── utils/           # Pure utility modules (no Svelte dependency)
+│       ├── pace.ts      # Pace/speed conversion functions
+│       └── pace.test.ts
 └── routes/
     ├── +layout.svelte   # Root layout — header + main wrapper
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid
@@ -169,8 +172,8 @@ npm run dev
 </tr>
 <tr>
 <td><code>ToolLayout</code></td>
-<td><code>title</code>, <code>description</code></td>
-<td>Wrapper for tool pages — back link, heading, description</td>
+<td><code>title</code>, <code>description</code>, <code>pageTitle?</code></td>
+<td>Wrapper for tool pages — back link, heading, description. <code>pageTitle</code> overrides the default <code>&quot;{title} | Runwise&quot;</code> document title.</td>
 </tr>
 <tr>
 <td><code>SiteNav</code></td>
@@ -179,12 +182,12 @@ npm run dev
 </tr>
 <tr>
 <td><code>InputField</code></td>
-<td><code>label</code>, <code>id</code>, <code>value</code>, <code>type?</code>, <code>unit?</code></td>
-<td>Labelled input with optional unit suffix</td>
+<td><code>label</code>, <code>id</code>, <code>value</code>, <code>type?</code>, <code>unit?</code>, <code>step?</code>, <code>placeholder?</code>, <code>inputmode?</code></td>
+<td>Labelled input with optional unit suffix. <code>inputmode</code> triggers the correct mobile keyboard (e.g. <code>&quot;decimal&quot;</code>).</td>
 </tr>
 <tr>
 <td><code>ResultDisplay</code></td>
-<td><code>value</code>, <code>label</code>, <code>unit?</code></td>
+<td><code>value</code>, <code>label</code></td>
 <td>Prominent result block with copy-to-clipboard</td>
 </tr>
 </tbody></table>
@@ -199,10 +202,11 @@ npm run dev
 </ol>
 <hr>
 <h2>Testing</h2>
+<h3>Unit and component tests (Vitest)</h3>
 <pre><code class="language-bash">npm run test          # Run all tests once
 npm run test -- --watch  # Watch mode
 </code></pre>
-<p>Tests live alongside their components (<code>*.test.ts</code>). Follow the existing pattern:</p>
+<p>Tests live alongside their source files (<code>*.test.ts</code>). Follow the existing pattern:</p>
 <pre><code class="language-ts">import { describe, it, expect, afterEach } from &#39;vitest&#39;;
 import { render, cleanup, screen } from &#39;@testing-library/svelte&#39;;
 import MyComponent from &#39;./MyComponent.svelte&#39;;
@@ -216,11 +220,17 @@ describe(&#39;MyComponent&#39;, () =&gt; {
   });
 });
 </code></pre>
+<h3>E2E tests (Playwright)</h3>
+<pre><code class="language-bash">npx playwright install chromium  # First time only
+npm run test:e2e                 # Run E2E tests against the production build
+</code></pre>
+<p>E2E tests live in the <code>e2e/</code> directory. They run against the production preview server (<code>npm run build &amp;&amp; npm run preview</code> on port 4173). Configuration is in <code>playwright.config.ts</code>.</p>
 <hr>
 <h2>Code Quality</h2>
-<pre><code class="language-bash">npm run check    # TypeScript / svelte-check
-npm run lint     # ESLint
-npm run format   # Prettier (auto-fix)
+<pre><code class="language-bash">npm run check        # TypeScript / svelte-check
+npm run lint         # ESLint
+npm run format       # Prettier (auto-fix)
+npm run test:e2e     # Playwright E2E tests (requires built app)
 </code></pre>
 <hr>
 <h2>Workflow</h2>

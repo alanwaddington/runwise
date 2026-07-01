@@ -35,28 +35,58 @@
 <hr>
 <h2>Tools</h2>
 <h3>Pace Calculator — <code>/pace</code></h3>
-<p>Convert between the three common pace formats:</p>
+<p>Convert between the three common pace formats. Enter a value in any field and the other two update instantly.</p>
+<p><strong>Editable inputs (any one updates the other two):</strong></p>
 <table>
 <thead>
 <tr>
-<th>Input</th>
-<th>Output</th>
+<th>Field</th>
+<th>Format</th>
+<th>Example</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>min/km</td>
-<td>min/mile and km/h</td>
+<td>Pace (min/km)</td>
+<td>M:SS</td>
+<td>5:30</td>
 </tr>
 <tr>
-<td>min/mile</td>
-<td>min/km and km/h</td>
+<td>Pace (min/mile)</td>
+<td>M:SS</td>
+<td>8:51</td>
 </tr>
 <tr>
-<td>km/h</td>
-<td>min/km and min/mile</td>
+<td>Speed (km/h)</td>
+<td>decimal</td>
+<td>10.9</td>
 </tr>
 </tbody></table>
-<p>Enter a value in any field and the other two update instantly.</p>
+<p><strong>Read-only outputs (update automatically):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Output</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mph</td>
+<td>one decimal place</td>
+<td>6.8</td>
+</tr>
+<tr>
+<td>per 400 m</td>
+<td>M:SS</td>
+<td>2:12</td>
+</tr>
+<tr>
+<td>per 800 m</td>
+<td>M:SS</td>
+<td>4:24</td>
+</tr>
+</tbody></table>
+<p>Each read-only output has a copy-to-clipboard button.</p>
 <hr>
 <h3>Race Time Predictor — <code>/race-predictor</code></h3>
 <p>Predict your finish time for a half marathon or marathon from a recent race result.</p>
