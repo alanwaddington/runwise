@@ -68,7 +68,6 @@
 </script>
 
 <svelte:head>
-	<title>Pace Calculator — Runwise</title>
 	<meta
 		name="description"
 		content="Convert running pace instantly between min/km, min/mile, km/h and mph. Free pace calculator for runners."
@@ -77,6 +76,7 @@
 
 <ToolLayout
 	title="Pace Calculator"
+	pageTitle="Pace Calculator — Runwise"
 	description="Convert between min/km, min/mile, km/h and mph instantly."
 >
 	<!-- min/km -->
