@@ -47,7 +47,7 @@
 	<title>Race Time Predictor — Runwise</title>
 	<meta
 		name="description"
-		content="Predict your race finish time using the Riegel formula. Enter any recent result to get predicted times for 5K, 10K, half marathon, marathon and more."
+		content="Free running time calculator and race predictor. Enter any recent result to get predicted finish times for 5K, 10K, half marathon, marathon and more using the Riegel formula."
 	/>
 </svelte:head>
 
@@ -103,6 +103,7 @@
 		class:max-h-24={isCustom}
 		class:opacity-100={isCustom}
 		class:mb-4={isCustom}
+		aria-hidden={!isCustom ? 'true' : undefined}
 	>
 		<div>
 			<label for="custom-km" class="mb-1.5 block text-sm font-medium text-ink"

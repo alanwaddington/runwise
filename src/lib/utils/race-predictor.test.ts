@@ -47,6 +47,10 @@ describe('parseTime', () => {
 		expect(parseTime('1:99:00')).toBeNull();
 	});
 
+	it('parseTime_NegativeValue_ReturnsNull', () => {
+		expect(parseTime('-5:00')).toBeNull();
+	});
+
 	it('parseTime_RandomText_ReturnsNull', () => {
 		expect(parseTime('abc')).toBeNull();
 	});
@@ -87,6 +91,10 @@ describe('formatTime', () => {
 
 	it('formatTime_SingleDigitSeconds_PadsZero', () => {
 		expect(formatTime(61)).toBe('1:01');
+	});
+
+	it('formatTime_245Seconds_Returns4m05s', () => {
+		expect(formatTime(245)).toBe('4:05');
 	});
 
 	it('formatTime_Zero_ReturnsMmSs', () => {
