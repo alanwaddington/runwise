@@ -86,13 +86,20 @@ A link to the VO2 Max Estimator is displayed alongside results.
 
 ### HR Zone Calculator — `/hr-zones`
 
-Calculate your five heart rate training zones.
+Calculate your five heart rate training zones using either the Max HR percentage method or Joe Friel's lactate threshold (LTHR) method.
 
-**Inputs:**
-- Maximum heart rate (or age for estimated max HR)
-- Resting heart rate (optional — used for Karvonen formula)
+**Method selector:** Toggle between Max HR and LTHR using the segmented control at the top of the page. Use the ⓘ icon to learn which method suits you.
 
-**Output:** HR ranges for zones 1–5.
+**Max HR method inputs:**
+- Maximum heart rate (bpm)
+- Age (optional) — estimates your max HR using the Tanaka formula (208 − 0.7 × age); a caveat is shown as age-based estimates vary between individuals
+
+**LTHR method inputs:**
+- Lactate threshold heart rate (bpm)
+
+**Output:** Five HR training zones with BPM range and training purpose for each zone. In LTHR mode, Zone 5 can be expanded to show sub-zones 5a, 5b, and 5c.
+
+**Note:** Joe Friel's LTHR zone boundaries intentionally have small gaps between them by design.
 
 ---
 

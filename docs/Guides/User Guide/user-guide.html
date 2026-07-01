@@ -185,13 +185,19 @@
 <p>A link to the VO2 Max Estimator is displayed alongside results.</p>
 <hr>
 <h3>HR Zone Calculator — <code>/hr-zones</code></h3>
-<p>Calculate your five heart rate training zones.</p>
-<p><strong>Inputs:</strong></p>
+<p>Calculate your five heart rate training zones using either the Max HR percentage method or Joe Friel&#39;s lactate threshold (LTHR) method.</p>
+<p><strong>Method selector:</strong> Toggle between Max HR and LTHR using the segmented control at the top of the page. Use the ⓘ icon to learn which method suits you.</p>
+<p><strong>Max HR method inputs:</strong></p>
 <ul>
-<li>Maximum heart rate (or age for estimated max HR)</li>
-<li>Resting heart rate (optional — used for Karvonen formula)</li>
+<li>Maximum heart rate (bpm)</li>
+<li>Age (optional) — estimates your max HR using the Tanaka formula (208 − 0.7 × age); a caveat is shown as age-based estimates vary between individuals</li>
 </ul>
-<p><strong>Output:</strong> HR ranges for zones 1–5.</p>
+<p><strong>LTHR method inputs:</strong></p>
+<ul>
+<li>Lactate threshold heart rate (bpm)</li>
+</ul>
+<p><strong>Output:</strong> Five HR training zones with BPM range and training purpose for each zone. In LTHR mode, Zone 5 can be expanded to show sub-zones 5a, 5b, and 5c.</p>
+<p><strong>Note:</strong> Joe Friel&#39;s LTHR zone boundaries intentionally have small gaps between them by design.</p>
 <hr>
 <h3>VO2 Max Estimator — <code>/vo2max</code></h3>
 <p>Estimate your aerobic fitness level from a race performance.</p>
