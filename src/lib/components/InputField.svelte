@@ -13,9 +13,11 @@
 		/** Step increment for number inputs. */
 		step?: number;
 		placeholder?: string;
+		/** Mobile keyboard hint, e.g. "decimal" for numeric input on text fields. */
+		inputmode?: 'decimal' | 'numeric' | 'text' | 'none' | 'tel' | 'search' | 'email' | 'url';
 	}
 
-	let { label, id, value = $bindable(), unit, type = 'number', step, placeholder }: Props =
+	let { label, id, value = $bindable(), unit, type = 'number', step, placeholder, inputmode }: Props =
 		$props();
 </script>
 
@@ -27,6 +29,7 @@
 			{type}
 			{step}
 			{placeholder}
+			{inputmode}
 			bind:value
 			aria-describedby={unit ? `${id}-unit` : undefined}
 			class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none dark:border-gray-700"
