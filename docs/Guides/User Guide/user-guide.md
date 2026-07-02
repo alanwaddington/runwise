@@ -148,13 +148,18 @@ Predict your 5K parkrun finish time from a recent training run or average pace, 
 | Recent Run | Distance (km) + Time (MM:SS or H:MM:SS) |
 | Average Pace | Pace (M:SS per km) |
 
-**Effort level selector:** Choose the effort level of your training run. This controls how the Riegel formula maps your training performance to a 5K prediction.
+**Reference distance slider:** Choose the race distance that best represents your entered pace or time. This controls how the Riegel formula extrapolates your training performance to a 5K prediction — the closer the reference distance is to what you actually ran, the more accurate the prediction.
 
-| Effort | Maps to equivalent race distance |
-|--------|----------------------------------|
-| Easy | Marathon (42.195 km) |
-| Moderate | Half Marathon (21.0975 km) |
-| Hard | 10K |
+| Reference distance | Distance (km) |
+|---------------------|---------------|
+| 1 Mile | 1.60934 |
+| 5K | 5 |
+| 10K | 10 |
+| 15K | 15 |
+| Half Marathon | 21.0975 |
+| Marathon | 42.195 |
+
+Longer reference distances imply more fitness in reserve, so they produce a faster (more optimistic) 5K prediction for the same pace; shorter reference distances produce a more conservative one.
 
 **Optional inputs:**
 

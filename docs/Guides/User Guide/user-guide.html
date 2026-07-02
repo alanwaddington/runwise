@@ -282,27 +282,40 @@
 <td>Pace (M:SS per km)</td>
 </tr>
 </tbody></table>
-<p><strong>Effort level selector:</strong> Choose the effort level of your training run. This controls how the Riegel formula maps your training performance to a 5K prediction.</p>
+<p><strong>Reference distance slider:</strong> Choose the race distance that best represents your entered pace or time. This controls how the Riegel formula extrapolates your training performance to a 5K prediction — the closer the reference distance is to what you actually ran, the more accurate the prediction.</p>
 <table>
 <thead>
 <tr>
-<th>Effort</th>
-<th>Maps to equivalent race distance</th>
+<th>Reference distance</th>
+<th>Distance (km)</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Easy</td>
-<td>Marathon (42.195 km)</td>
+<td>1 Mile</td>
+<td>1.60934</td>
 </tr>
 <tr>
-<td>Moderate</td>
-<td>Half Marathon (21.0975 km)</td>
+<td>5K</td>
+<td>5</td>
 </tr>
 <tr>
-<td>Hard</td>
 <td>10K</td>
+<td>10</td>
+</tr>
+<tr>
+<td>15K</td>
+<td>15</td>
+</tr>
+<tr>
+<td>Half Marathon</td>
+<td>21.0975</td>
+</tr>
+<tr>
+<td>Marathon</td>
+<td>42.195</td>
 </tr>
 </tbody></table>
+<p>Longer reference distances imply more fitness in reserve, so they produce a faster (more optimistic) 5K prediction for the same pace; shorter reference distances produce a more conservative one.</p>
 <p><strong>Optional inputs:</strong></p>
 <table>
 <thead>
