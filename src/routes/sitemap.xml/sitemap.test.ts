@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { GET } from './+server';
-import { BASE_URL, PAGES } from '$lib/seo';
+import { BASE_URL, PAGES, LAST_UPDATED } from '$lib/seo';
 
 const ALL_ROUTES = Object.keys(PAGES);
 
@@ -30,6 +30,13 @@ describe('GET /sitemap.xml', () => {
 			const url = route === '/' ? BASE_URL : `${BASE_URL}${route}`;
 			expect(body).toContain(`<loc>${url}</loc>`);
 		}
+	});
+
+	it('includesLastmodForEachPage', async () => {
+		const response = await GET();
+		const body = await response.text();
+		const lastmodCount = body.split(`<lastmod>${LAST_UPDATED}</lastmod>`).length - 1;
+		expect(lastmodCount).toBe(ALL_ROUTES.length);
 	});
 
 	it('includesChangefreqAndPriorityForEachPage', async () => {
