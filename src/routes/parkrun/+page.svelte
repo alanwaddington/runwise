@@ -18,6 +18,12 @@
 
 	type InputMode = 'recent-run' | 'average-pace';
 
+	const EFFORT_DISTANCE_LABELS: Record<EffortLevel, string> = {
+		easy: 'marathon',
+		moderate: 'half marathon',
+		hard: '10K'
+	};
+
 	const AGE_GRADE_COLOURS: Record<AgeGradeLabel, string> = {
 		World: 'bg-purple-600',
 		National: 'bg-emerald-600',
@@ -245,6 +251,14 @@
 				</button>
 			{/each}
 		</div>
+		{#if mode === 'average-pace'}
+			<p class="mt-2 text-xs text-gray-500">
+				We treat this pace as what you could hold for a full {EFFORT_DISTANCE_LABELS[effort]} effort,
+				then extrapolate down to 5K. Easier efforts imply more fitness in reserve, so they give a
+				faster parkrun prediction for the same pace &mdash; try a harder effort level for a more
+				conservative estimate.
+			</p>
+		{/if}
 	</div>
 
 	<!-- Optional fields: PB, Age, Gender -->
