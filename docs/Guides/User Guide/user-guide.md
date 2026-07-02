@@ -139,13 +139,52 @@ Cross-links to the Training Pace Calculator and Race Time Predictor are displaye
 
 ### Parkrun Predictor — `/parkrun`
 
-Predict your 5K parkrun time from recent training or racing.
+Predict your 5K parkrun finish time from a recent training run or average pace, with pacing splits, PB comparison, and WMA age grading.
 
-**Inputs:**
-- Recent race distance
-- Recent race time
+**Input mode toggle:** Switch between two input modes at the top of the page:
 
-**Output:** Predicted 5K finish time.
+| Mode | Required inputs |
+|------|----------------|
+| Recent Run | Distance (km) + Time (MM:SS or H:MM:SS) |
+| Average Pace | Pace (M:SS per km) |
+
+**Effort level selector:** Choose the effort level of your training run. This controls how the Riegel formula maps your training performance to a 5K prediction.
+
+| Effort | Maps to equivalent race distance |
+|--------|----------------------------------|
+| Easy | Marathon (42.195 km) |
+| Moderate | Half Marathon (21.0975 km) |
+| Hard | 10K |
+
+**Optional inputs:**
+
+| Field | Purpose |
+|-------|---------|
+| PB (MM:SS) | Compare your prediction against your personal best |
+| Age | Required for age grading |
+| Gender | Required for age grading |
+
+**Output:**
+
+- **Predicted parkrun time** — displayed in MM:SS
+- **Pace** — in min/km and min/mile
+- **1K split table** — cumulative time and split pace for each kilometre (1K–5K), based on even pacing
+- **PB comparison** — shown only when a PB is entered; e.g. *"32 seconds faster than your PB"* (green) or *"15 seconds slower than your PB"* (red)
+- **Age grade** — shown only when age and gender are provided; displays your WMA age grade percentage and performance band
+
+**WMA age grade bands:**
+
+| Band | Percentage |
+|------|-----------|
+| World | 100%+ |
+| National | 90–99% |
+| Regional | 80–89% |
+| Local | 70–79% |
+| Recreational | below 70% |
+
+Age grading uses real per-integer-age WMA (World Masters Athletics) factor data for 5K, covering ages 5–100 for both genders.
+
+Cross-links to the Race Time Predictor, Training Pace Calculator, and VO2 Max Estimator are displayed with results.
 
 ---
 

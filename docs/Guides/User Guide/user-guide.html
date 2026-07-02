@@ -264,13 +264,105 @@
 <p>Cross-links to the Training Pace Calculator and Race Time Predictor are displayed when results are visible.</p>
 <hr>
 <h3>Parkrun Predictor — <code>/parkrun</code></h3>
-<p>Predict your 5K parkrun time from recent training or racing.</p>
-<p><strong>Inputs:</strong></p>
+<p>Predict your 5K parkrun finish time from a recent training run or average pace, with pacing splits, PB comparison, and WMA age grading.</p>
+<p><strong>Input mode toggle:</strong> Switch between two input modes at the top of the page:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Required inputs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Recent Run</td>
+<td>Distance (km) + Time (MM:SS or H:MM:SS)</td>
+</tr>
+<tr>
+<td>Average Pace</td>
+<td>Pace (M:SS per km)</td>
+</tr>
+</tbody></table>
+<p><strong>Effort level selector:</strong> Choose the effort level of your training run. This controls how the Riegel formula maps your training performance to a 5K prediction.</p>
+<table>
+<thead>
+<tr>
+<th>Effort</th>
+<th>Maps to equivalent race distance</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Easy</td>
+<td>Marathon (42.195 km)</td>
+</tr>
+<tr>
+<td>Moderate</td>
+<td>Half Marathon (21.0975 km)</td>
+</tr>
+<tr>
+<td>Hard</td>
+<td>10K</td>
+</tr>
+</tbody></table>
+<p><strong>Optional inputs:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PB (MM:SS)</td>
+<td>Compare your prediction against your personal best</td>
+</tr>
+<tr>
+<td>Age</td>
+<td>Required for age grading</td>
+</tr>
+<tr>
+<td>Gender</td>
+<td>Required for age grading</td>
+</tr>
+</tbody></table>
+<p><strong>Output:</strong></p>
 <ul>
-<li>Recent race distance</li>
-<li>Recent race time</li>
+<li><strong>Predicted parkrun time</strong> — displayed in MM:SS</li>
+<li><strong>Pace</strong> — in min/km and min/mile</li>
+<li><strong>1K split table</strong> — cumulative time and split pace for each kilometre (1K–5K), based on even pacing</li>
+<li><strong>PB comparison</strong> — shown only when a PB is entered; e.g. <em>&quot;32 seconds faster than your PB&quot;</em> (green) or <em>&quot;15 seconds slower than your PB&quot;</em> (red)</li>
+<li><strong>Age grade</strong> — shown only when age and gender are provided; displays your WMA age grade percentage and performance band</li>
 </ul>
-<p><strong>Output:</strong> Predicted 5K finish time.</p>
+<p><strong>WMA age grade bands:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Band</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>World</td>
+<td>100%+</td>
+</tr>
+<tr>
+<td>National</td>
+<td>90–99%</td>
+</tr>
+<tr>
+<td>Regional</td>
+<td>80–89%</td>
+</tr>
+<tr>
+<td>Local</td>
+<td>70–79%</td>
+</tr>
+<tr>
+<td>Recreational</td>
+<td>below 70%</td>
+</tr>
+</tbody></table>
+<p>Age grading uses real per-integer-age WMA (World Masters Athletics) factor data for 5K, covering ages 5–100 for both genders.</p>
+<p>Cross-links to the Race Time Predictor, Training Pace Calculator, and VO2 Max Estimator are displayed with results.</p>
 <hr>
 <h2>Tips</h2>
 <ul>
