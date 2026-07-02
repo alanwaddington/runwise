@@ -34,7 +34,7 @@ describe('Parkrun page', () => {
 
 	it('defaults to Recent Run mode showing distance and time inputs', () => {
 		render(Parkrun);
-		expect(screen.getByLabelText(/distance/i)).toBeInTheDocument();
+		expect(screen.getByLabelText('Distance')).toBeInTheDocument();
 		expect(screen.getByLabelText('Time')).toBeInTheDocument();
 	});
 
@@ -42,28 +42,26 @@ describe('Parkrun page', () => {
 		render(Parkrun);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Average Pace' }));
 		expect(screen.getByLabelText('Pace')).toBeInTheDocument();
-		expect(screen.queryByLabelText(/distance/i)).not.toBeInTheDocument();
+		expect(screen.queryByLabelText('Distance')).not.toBeInTheDocument();
 	});
 
-	// ── Effort selector (AC3) ─────────────────────────────────────────────────
+	// ── Reference distance selector (AC3) ─────────────────────────────────────
 
-	it('renders Easy, Moderate, Hard effort buttons (AC3)', () => {
+	it('renders the reference distance slider (AC3)', () => {
 		render(Parkrun);
-		expect(screen.getByRole('button', { name: 'Easy' })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: 'Moderate' })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: 'Hard' })).toBeInTheDocument();
+		expect(screen.getByLabelText('Reference distance')).toBeInTheDocument();
 	});
 
-	it('Moderate effort is selected by default', () => {
+	it('10K is selected by default', () => {
 		render(Parkrun);
-		expect(screen.getByRole('button', { name: 'Moderate' })).toHaveAttribute('aria-pressed', 'true');
+		expect(screen.getByLabelText('Reference distance')).toHaveAttribute('aria-valuetext', '10K');
 	});
 
-	it('selecting Hard effort updates aria-pressed state', async () => {
+	it('moving the slider to Marathon updates aria-valuetext', async () => {
 		render(Parkrun);
-		await fireEvent.click(screen.getByRole('button', { name: 'Hard' }));
-		expect(screen.getByRole('button', { name: 'Hard' })).toHaveAttribute('aria-pressed', 'true');
-		expect(screen.getByRole('button', { name: 'Moderate' })).toHaveAttribute('aria-pressed', 'false');
+		const slider = screen.getByLabelText('Reference distance');
+		await fireEvent.input(slider, { target: { value: '5' } });
+		expect(slider).toHaveAttribute('aria-valuetext', 'Marathon');
 	});
 
 	// ── Empty state (AC13) ────────────────────────────────────────────────────
@@ -80,11 +78,11 @@ describe('Parkrun page', () => {
 
 	// ── Prediction display (AC4, AC5, AC6) ────────────────────────────────────
 
-	it('entering 8K / 48:00 / Easy shows predicted time and pace (AC4, AC5, AC6)', async () => {
+	it('entering 8K / 48:00 with Marathon reference shows predicted time and pace (AC4, AC5, AC6)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
-		await fireEvent.click(screen.getByRole('button', { name: 'Easy' }));
+		await fireEvent.input(screen.getByLabelText('Reference distance'), { target: { value: '5' } });
 
 		expect(screen.getByText('Predicted Parkrun Time')).toBeInTheDocument();
 		expect(screen.getByText(/\/km/)).toBeInTheDocument();
@@ -103,7 +101,7 @@ describe('Parkrun page', () => {
 
 	it('split table displays 5 rows (AC7)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
 
 		const table = screen.getByRole('table');
@@ -115,7 +113,7 @@ describe('Parkrun page', () => {
 
 	it('does not show PB comparison when PB is blank', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
 
 		expect(screen.queryByText(/than your pb/i)).not.toBeInTheDocument();
@@ -123,7 +121,7 @@ describe('Parkrun page', () => {
 
 	it('shows PB comparison when PB entered (AC8)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
 		await fireEvent.input(screen.getByLabelText(/pb/i), { target: { value: '24:30' } });
 
@@ -134,7 +132,7 @@ describe('Parkrun page', () => {
 
 	it('does not show age grade when age/gender blank', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
 
 		expect(screen.queryByText(/age grade/i)).not.toBeInTheDocument();
@@ -142,7 +140,7 @@ describe('Parkrun page', () => {
 
 	it('shows age grade when age and gender provided (AC9, AC10)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
 		await fireEvent.input(screen.getByLabelText(/age/i), { target: { value: 35, valueAsNumber: 35 } });
 		await fireEvent.change(screen.getByLabelText(/gender/i), { target: { value: 'male' } });
@@ -155,7 +153,7 @@ describe('Parkrun page', () => {
 
 	it('optional PB, age, gender fields can be left blank (AC12)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
 
 		expect(screen.getByText('Predicted Parkrun Time')).toBeInTheDocument();
@@ -165,7 +163,7 @@ describe('Parkrun page', () => {
 
 	it('shows cross-links to Race Predictor, Training Paces, VO2 Max', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText(/distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
 		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
 
 		expect(screen.getByRole('link', { name: /race time predictor/i })).toHaveAttribute(

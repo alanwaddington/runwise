@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-	EFFORT_DISTANCES,
-	effortToRaceDistanceKm,
+	REFERENCE_DISTANCES,
 	predictParkrunTime,
 	generateSplits,
 	compareToPb,
@@ -9,66 +8,80 @@ import {
 	getAgeGradeLabel
 } from './parkrun';
 
-describe('EFFORT_DISTANCES', () => {
-	it('contains exactly 3 entries', () => {
-		expect(Object.keys(EFFORT_DISTANCES)).toHaveLength(3);
+describe('REFERENCE_DISTANCES', () => {
+	it('contains exactly 6 entries', () => {
+		expect(REFERENCE_DISTANCES).toHaveLength(6);
 	});
 
-	it('has easy, moderate, hard keys', () => {
-		expect(EFFORT_DISTANCES).toHaveProperty('easy');
-		expect(EFFORT_DISTANCES).toHaveProperty('moderate');
-		expect(EFFORT_DISTANCES).toHaveProperty('hard');
-	});
-});
-
-describe('effortToRaceDistanceKm', () => {
-	it('effortToRaceDistanceKm_Easy_ReturnsMarathonDistance', () => {
-		expect(effortToRaceDistanceKm('easy')).toBeCloseTo(42.195, 3);
+	it('is ordered shortest to longest', () => {
+		const kms = REFERENCE_DISTANCES.map((d) => d.km);
+		expect(kms).toEqual([...kms].sort((a, b) => a - b));
 	});
 
-	it('effortToRaceDistanceKm_Moderate_ReturnsHalfMarathonDistance', () => {
-		expect(effortToRaceDistanceKm('moderate')).toBeCloseTo(21.0975, 4);
-	});
-
-	it('effortToRaceDistanceKm_Hard_Returns10k', () => {
-		expect(effortToRaceDistanceKm('hard')).toBe(10);
+	it('has the expected distance values', () => {
+		expect(REFERENCE_DISTANCES.find((d) => d.name === '1 Mile')!.km).toBeCloseTo(1.60934, 5);
+		expect(REFERENCE_DISTANCES.find((d) => d.name === '5K')!.km).toBe(5);
+		expect(REFERENCE_DISTANCES.find((d) => d.name === '10K')!.km).toBe(10);
+		expect(REFERENCE_DISTANCES.find((d) => d.name === '15K')!.km).toBe(15);
+		expect(REFERENCE_DISTANCES.find((d) => d.name === 'Half Marathon')!.km).toBeCloseTo(
+			21.0975,
+			4
+		);
+		expect(REFERENCE_DISTANCES.find((d) => d.name === 'Marathon')!.km).toBeCloseTo(42.195, 3);
 	});
 });
 
 describe('predictParkrunTime', () => {
-	it('predictParkrunTime_8kIn48MinEasy_FasterThanTrainingPace', () => {
+	it('predictParkrunTime_8kIn48MinMarathonReference_FasterThanTrainingPace', () => {
 		// Training pace: 48:00 / 8km = 6:00/km → 5K at that pace would be 1800s
-		const result = predictParkrunTime(8, 2880, 'easy');
+		const result = predictParkrunTime(8, 2880, 42.195);
 		expect(result).not.toBeNull();
 		expect(result!).toBeLessThan(1800);
 	});
 
-	it('predictParkrunTime_EasyEffort_FasterThanHardEffort', () => {
-		// Same training run: Easy effort implies more fitness in reserve than Hard effort
-		// at the same pace, so Easy produces a more optimistic (faster) prediction.
-		const easyResult = predictParkrunTime(8, 2880, 'easy');
-		const hardResult = predictParkrunTime(8, 2880, 'hard');
-		expect(easyResult!).toBeLessThan(hardResult!);
+	it('predictParkrunTime_LongerReference_FasterThanShorterReference', () => {
+		// Same training run: a longer reference distance implies more fitness in reserve
+		// than a shorter one at the same pace, so it produces a more optimistic (faster) prediction.
+		const marathonResult = predictParkrunTime(8, 2880, 42.195);
+		const tenKResult = predictParkrunTime(8, 2880, 10);
+		expect(marathonResult!).toBeLessThan(tenKResult!);
 	});
 
-	it('predictParkrunTime_AllEfforts_FasterThanNaiveTrainingPace', () => {
+	it('predictParkrunTime_ReferenceLongerThan5k_FasterThanNaiveTrainingPace', () => {
 		// Naive 5K extrapolation of the training pace: (2880 / 8) * 5 = 1800s
+		// Riegel's fatigue exponent (1.06) makes extrapolating DOWN from a longer reference
+		// distance to 5K faster than a flat linear (naive) extrapolation.
 		const naive5k = (2880 / 8) * 5;
-		expect(predictParkrunTime(8, 2880, 'easy')!).toBeLessThan(naive5k);
-		expect(predictParkrunTime(8, 2880, 'moderate')!).toBeLessThan(naive5k);
-		expect(predictParkrunTime(8, 2880, 'hard')!).toBeLessThan(naive5k);
+		for (const { km } of REFERENCE_DISTANCES.filter((d) => d.km > 5)) {
+			expect(predictParkrunTime(8, 2880, km)!).toBeLessThan(naive5k);
+		}
+	});
+
+	it('predictParkrunTime_5kReference_EqualsNaiveTrainingPace', () => {
+		// Reference distance equals the target distance, so Riegel's ratio is 1 and
+		// the prediction collapses to the naive linear extrapolation.
+		const naive5k = (2880 / 8) * 5;
+		expect(predictParkrunTime(8, 2880, 5)!).toBeCloseTo(naive5k, 5);
+	});
+
+	it('predictParkrunTime_ReferenceShorterThan5k_SlowerThanNaiveTrainingPace', () => {
+		// Extrapolating UP from a shorter reference distance (e.g. 1 mile) to 5K applies
+		// Riegel's fatigue exponent in the other direction, predicting a slower time than
+		// a flat linear extrapolation.
+		const naive5k = (2880 / 8) * 5;
+		expect(predictParkrunTime(8, 2880, 1.60934)!).toBeGreaterThan(naive5k);
 	});
 
 	it('predictParkrunTime_ZeroDistance_ReturnsNull', () => {
-		expect(predictParkrunTime(0, 2880, 'easy')).toBeNull();
+		expect(predictParkrunTime(0, 2880, 42.195)).toBeNull();
 	});
 
 	it('predictParkrunTime_ZeroTime_ReturnsNull', () => {
-		expect(predictParkrunTime(8, 0, 'easy')).toBeNull();
+		expect(predictParkrunTime(8, 0, 42.195)).toBeNull();
 	});
 
 	it('predictParkrunTime_NegativeDistance_ReturnsNull', () => {
-		expect(predictParkrunTime(-8, 2880, 'easy')).toBeNull();
+		expect(predictParkrunTime(-8, 2880, 42.195)).toBeNull();
 	});
 });
 

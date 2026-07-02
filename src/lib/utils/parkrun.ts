@@ -1,6 +1,5 @@
 import { formatTime, riegelPredict } from './race-predictor';
 
-export type EffortLevel = 'easy' | 'moderate' | 'hard';
 export type Gender = 'male' | 'female';
 export type AgeGradeLabel = 'World' | 'National' | 'Regional' | 'Local' | 'Recreational';
 
@@ -16,36 +15,39 @@ export interface PbComparison {
 	description: string;
 }
 
-/** Effort level mapped to an equivalent race distance (km) used for Riegel prediction. */
-export const EFFORT_DISTANCES: Record<EffortLevel, number> = {
-	easy: 42.195,
-	moderate: 21.0975,
-	hard: 10
-};
-
-export function effortToRaceDistanceKm(effort: EffortLevel): number {
-	return EFFORT_DISTANCES[effort];
+export interface ReferenceDistance {
+	name: string;
+	short: string;
+	km: number;
 }
 
+/** Discrete reference distances selectable via the Average Pace slider, nearest-to-5K first is not required — order is display order (shortest to longest). */
+export const REFERENCE_DISTANCES: ReferenceDistance[] = [
+	{ name: '1 Mile', short: '1mi', km: 1.60934 },
+	{ name: '5K', short: '5K', km: 5 },
+	{ name: '10K', short: '10K', km: 10 },
+	{ name: '15K', short: '15K', km: 15 },
+	{ name: 'Half Marathon', short: 'HM', km: 21.0975 },
+	{ name: 'Marathon', short: 'M', km: 42.195 }
+];
+
 /**
- * Predict a 5K parkrun time from a training run, distance, and effort level.
- * The training run's per-km pace is treated as the runner's race pace at the
- * effort's mapped distance (Easy → marathon, Moderate → half marathon, Hard → 10K),
- * then Riegel-predicted down to 5K. A slower/easier effort implies more fitness
- * in reserve, so it produces a faster (more optimistic) prediction than a harder effort
- * at the same training pace.
+ * Predict a 5K parkrun time from a training run, distance, and a reference distance (km).
+ * The training run's per-km pace is treated as the runner's race pace at the given
+ * reference distance, then Riegel-predicted down to 5K. Reference distances closer to
+ * 5K extrapolate more accurately; longer reference distances (e.g. marathon) imply more
+ * fitness in reserve, so they tend to produce faster (more optimistic) predictions.
  * Returns null for invalid (zero/negative) distance or time.
  */
 export function predictParkrunTime(
 	distanceKm: number,
 	timeSeconds: number,
-	effort: EffortLevel
+	referenceDistanceKm: number
 ): number | null {
 	if (distanceKm <= 0 || timeSeconds <= 0) return null;
-	const effortDistanceKm = effortToRaceDistanceKm(effort);
 	const paceSecondsPerKm = timeSeconds / distanceKm;
-	const equivalentRaceTimeSeconds = paceSecondsPerKm * effortDistanceKm;
-	return riegelPredict(equivalentRaceTimeSeconds, effortDistanceKm, 5);
+	const equivalentRaceTimeSeconds = paceSecondsPerKm * referenceDistanceKm;
+	return riegelPredict(equivalentRaceTimeSeconds, referenceDistanceKm, 5);
 }
 
 /** Build an even-pacing 1K split table (1K–5K) for a predicted total time. */
