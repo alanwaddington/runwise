@@ -63,7 +63,9 @@ src/
 │       ├── hr-zones.ts           # Max HR zones, Friel LTHR zones, LTHR sub-zones, Tanaka age estimate
 │       ├── hr-zones.test.ts
 │       ├── vo2max.ts             # ACSM normative data, getFitnessCategory, getAcsmTable, CATEGORY_COLOURS
-│       └── vo2max.test.ts
+│       ├── vo2max.test.ts
+│       ├── parkrun.ts            # Effort mapping, Riegel prediction, split generation, PB comparison, WMA age grading
+│       └── parkrun.test.ts
 └── routes/
     ├── +layout.svelte   # Root layout — header + main wrapper
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid
