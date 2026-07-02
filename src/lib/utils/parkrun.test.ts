@@ -4,7 +4,9 @@ import {
 	effortToRaceDistanceKm,
 	predictParkrunTime,
 	generateSplits,
-	compareToPb
+	compareToPb,
+	calculateAgeGrade,
+	getAgeGradeLabel
 } from './parkrun';
 
 describe('EFFORT_DISTANCES', () => {
@@ -128,5 +130,83 @@ describe('compareToPb', () => {
 	it('compareToPb_SingleSecondSlower_UsesSingularWording', () => {
 		const result = compareToPb(1501, 1500);
 		expect(result.description).toBe('1 second slower than your PB');
+	});
+});
+
+describe('calculateAgeGrade', () => {
+	it('calculateAgeGrade_Age35Male_ReturnsPercentageBetween0And100', () => {
+		const result = calculateAgeGrade(1500, 35, 'male');
+		expect(result).not.toBeNull();
+		expect(result!).toBeGreaterThan(0);
+		expect(result!).toBeLessThan(100);
+	});
+
+	it('calculateAgeGrade_PeakAgeMale_FactorNearOne', () => {
+		// At peak age (~25), a time equal to the open standard should grade close to 100%.
+		const result = calculateAgeGrade(769, 25, 'male');
+		expect(result!).toBeCloseTo(100, 0);
+	});
+
+	it('calculateAgeGrade_PeakAgeFemale_FactorNearOne', () => {
+		const result = calculateAgeGrade(834, 25, 'female');
+		expect(result!).toBeCloseTo(100, 0);
+	});
+
+	it('calculateAgeGrade_Age70_HigherGradeThanPeakAgeSameTime', () => {
+		// The same absolute time is a relatively stronger performance for an older
+		// runner, so their age grade percentage should be higher than a peak-age runner's.
+		const peak = calculateAgeGrade(1500, 25, 'male');
+		const senior = calculateAgeGrade(1500, 70, 'male');
+		expect(senior!).toBeGreaterThan(peak!);
+	});
+
+	it('calculateAgeGrade_AgeBelow5_ReturnsNull', () => {
+		expect(calculateAgeGrade(1500, 4, 'male')).toBeNull();
+	});
+
+	it('calculateAgeGrade_AgeAbove100_ReturnsNull', () => {
+		expect(calculateAgeGrade(1500, 101, 'male')).toBeNull();
+	});
+
+	it('calculateAgeGrade_ZeroTime_ReturnsNull', () => {
+		expect(calculateAgeGrade(0, 35, 'male')).toBeNull();
+	});
+
+	it('calculateAgeGrade_NegativeTime_ReturnsNull', () => {
+		expect(calculateAgeGrade(-100, 35, 'male')).toBeNull();
+	});
+});
+
+describe('getAgeGradeLabel', () => {
+	it('getAgeGradeLabel_95Percent_ReturnsNational', () => {
+		expect(getAgeGradeLabel(95)).toBe('National');
+	});
+
+	it('getAgeGradeLabel_55Percent_ReturnsRecreational', () => {
+		expect(getAgeGradeLabel(55)).toBe('Recreational');
+	});
+
+	it('getAgeGradeLabel_100Percent_ReturnsWorld', () => {
+		expect(getAgeGradeLabel(100)).toBe('World');
+	});
+
+	it('getAgeGradeLabel_105Percent_ReturnsWorld', () => {
+		expect(getAgeGradeLabel(105)).toBe('World');
+	});
+
+	it('getAgeGradeLabel_90Percent_ReturnsNational', () => {
+		expect(getAgeGradeLabel(90)).toBe('National');
+	});
+
+	it('getAgeGradeLabel_80Percent_ReturnsRegional', () => {
+		expect(getAgeGradeLabel(80)).toBe('Regional');
+	});
+
+	it('getAgeGradeLabel_70Percent_ReturnsLocal', () => {
+		expect(getAgeGradeLabel(70)).toBe('Local');
+	});
+
+	it('getAgeGradeLabel_69Percent_ReturnsRecreational', () => {
+		expect(getAgeGradeLabel(69)).toBe('Recreational');
 	});
 });
