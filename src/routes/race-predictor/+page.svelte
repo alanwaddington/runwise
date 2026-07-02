@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
+	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 
 	let selectedOption = $state('5K');
@@ -43,19 +44,9 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Race Time Predictor — Runwise</title>
-	<meta
-		name="description"
-		content="Free running time calculator and race predictor. Enter any recent result to get predicted finish times for 5K, 10K, half marathon, marathon and more using the Riegel formula."
-	/>
-</svelte:head>
+<SeoHead route="/race-predictor" />
 
-<ToolLayout
-	title="Race Time Predictor"
-	pageTitle="Race Time Predictor — Runwise"
-	description="Predict your race finish time based on a recent result."
->
+<ToolLayout title="Race Time Predictor" description="Predict your race finish time based on a recent result.">
 	<!-- Known distance select -->
 	<div class="mb-4">
 		<label for="distance-select" class="mb-1.5 block text-sm font-medium text-ink"

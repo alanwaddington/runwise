@@ -45,6 +45,8 @@
 </script>
 
 <svelte:head>
+	<title>{page.title}</title>
+	<meta name="description" content={page.description} />
 	<link rel="canonical" href={canonicalUrl} />
 
 	<meta property="og:title" content={page.title} />

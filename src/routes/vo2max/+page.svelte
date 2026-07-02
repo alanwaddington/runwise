@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
+	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 	import { calculateVdot } from '$lib/utils/training-paces';
 	import {
@@ -82,19 +83,9 @@
 	}
 </script>
 
-<svelte:head>
-	<title>VO2 Max Estimator — Runwise</title>
-	<meta
-		name="description"
-		content="Free VO2 max calculator for runners. Estimate your aerobic fitness from any race result using the Jack Daniels VDOT method. See your fitness category and equivalent race predictions."
-	/>
-</svelte:head>
+<SeoHead route="/vo2max" />
 
-<ToolLayout
-	title="VO2 Max Estimator"
-	pageTitle="VO2 Max Estimator — Runwise"
-	description="Estimate your VO2 max from race times or field tests."
->
+<ToolLayout title="VO2 Max Estimator" description="Estimate your VO2 max from race times or field tests.">
 	<!-- Race distance select -->
 	<div class="mb-4">
 		<label for="distance-select" class="mb-1.5 block text-sm font-medium text-ink"

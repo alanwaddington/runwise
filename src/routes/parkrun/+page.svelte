@@ -2,6 +2,7 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
+	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { parseTime, formatTime, predictedPaceMinPerKm } from '$lib/utils/race-predictor';
 	import { parsePace, formatPace, minPerKmToMinPerMile } from '$lib/utils/pace';
 	import {
@@ -125,19 +126,9 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Parkrun Predictor — Runwise</title>
-	<meta
-		name="description"
-		content="Free parkrun predictor, parkrun pace calculator, and parkrun time calculator for runners. Predict your 5K parkrun time from a recent training run or pace using the Riegel formula, with pacing splits, PB comparison, and WMA age grading."
-	/>
-</svelte:head>
+<SeoHead route="/parkrun" />
 
-<ToolLayout
-	title="Parkrun Predictor"
-	pageTitle="Parkrun Predictor — Runwise"
-	description="Predict your parkrun time from recent race performances."
->
+<ToolLayout title="Parkrun Predictor" description="Predict your parkrun time from recent race performances.">
 	<!-- Input mode toggle -->
 	<div
 		class="mb-4 flex rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
