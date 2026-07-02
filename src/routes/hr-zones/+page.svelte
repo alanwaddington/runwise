@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
+	import SeoHead from '$lib/components/SeoHead.svelte';
 	import {
 		calculateMaxHrZones,
 		calculateLthrZones,
@@ -76,16 +77,10 @@
 	}
 </script>
 
-<svelte:head>
-	<meta
-		name="description"
-		content="Free heart rate zone calculator for runners and triathletes. Calculate your 5 HR training zones using Max HR or Joe Friel LTHR method. Instant results, no login required."
-	/>
-</svelte:head>
+<SeoHead route="/hr-zones" />
 
 <ToolLayout
 	title="Heart Rate Zone Calculator"
-	pageTitle="Heart Rate Zone Calculator — Runwise"
 	description="Calculate your personalised heart rate training zones."
 >
 	<!-- Method selector + info tooltip -->

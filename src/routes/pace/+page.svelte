@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
+	import SeoHead from '$lib/components/SeoHead.svelte';
 	import {
 		parsePace,
 		formatPace,
@@ -67,18 +68,9 @@
 	}
 </script>
 
-<svelte:head>
-	<meta
-		name="description"
-		content="Convert running pace instantly between min/km, min/mile, km/h and mph. Free pace calculator for runners."
-	/>
-</svelte:head>
+<SeoHead route="/pace" />
 
-<ToolLayout
-	title="Pace Calculator"
-	pageTitle="Pace Calculator — Runwise"
-	description="Convert between min/km, min/mile, km/h and mph instantly."
->
+<ToolLayout title="Pace Calculator" description="Convert between min/km, min/mile, km/h and mph instantly.">
 	<!-- min/km -->
 	<div class="mb-4">
 		<label for="pace-minkm" class="mb-1.5 block text-sm font-medium text-ink">Pace</label>

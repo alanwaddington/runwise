@@ -12,7 +12,8 @@
 		"format": "prettier --write .",
 		"test": "vitest run",
 		"test:e2e": "playwright test",
-		"docs:generate": "node scripts/generate-docs.js"
+		"docs:generate": "node scripts/generate-docs.js",
+		"og:generate": "node scripts/generate-og-images.js"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.4",

@@ -6,18 +6,12 @@
 		title: string;
 		/** A short explanation of what the tool does. */
 		description: string;
-		/** Override the default "{title} | Runwise" document title. */
-		pageTitle?: string;
 		/** The tool's input/result content, rendered inside the bordered card. */
 		children?: Snippet;
 	}
 
-	let { title, description, pageTitle, children }: Props = $props();
+	let { title, description, children }: Props = $props();
 </script>
-
-<svelte:head>
-	<title>{pageTitle ?? `${title} | Runwise`}</title>
-</svelte:head>
 
 <div class="mx-auto max-w-2xl">
 	<a

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import HeroSection from '$lib/components/HeroSection.svelte';
 	import ToolCard from '$lib/components/ToolCard.svelte';
+	import SeoHead from '$lib/components/SeoHead.svelte';
 
 	const tools = [
 		{
@@ -42,13 +43,7 @@
 	];
 </script>
 
-<svelte:head>
-	<title>Runwise</title>
-	<meta
-		name="description"
-		content="Free running calculators for pace, race prediction, training zones, HR zones, VO2 max, and parkrun. No login required."
-	/>
-</svelte:head>
+<SeoHead route="/" />
 
 <HeroSection />
 

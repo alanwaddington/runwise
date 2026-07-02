@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Runwise OG Image</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+	href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Archivo:wght@500;600;700&display=swap"
+	rel="stylesheet"
+/>
+<style>
+	:root {
+		--ink: #0b120f;
+		--green: #1b8a5a;
+		--green-bright: #2fd88f;
+		--paper: #fafaf8;
+		--paper-dim: #c4cbc7;
+	}
+
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+
+	html,
+	body {
+		width: 1200px;
+		height: 630px;
+		overflow: hidden;
+		background: var(--ink);
+		font-family: 'Archivo', sans-serif;
+	}
+
+	.og {
+		position: relative;
+		width: 1200px;
+		height: 630px;
+		background:
+			radial-gradient(circle at 88% 8%, rgba(47, 216, 143, 0.22) 0%, rgba(47, 216, 143, 0) 42%),
+			radial-gradient(circle at 6% 100%, rgba(27, 138, 90, 0.28) 0%, rgba(27, 138, 90, 0) 46%),
+			var(--ink);
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	.og::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		opacity: 0.05;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		mix-blend-mode: overlay;
+		pointer-events: none;
+	}
+
+	.watermark {
+		position: absolute;
+		right: -60px;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 620px;
+		height: 620px;
+		opacity: 0.09;
+		pointer-events: none;
+	}
+	.watermark svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	.lanes {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 96px;
+		pointer-events: none;
+		overflow: hidden;
+	}
+	.lanes .line {
+		position: absolute;
+		bottom: -40px;
+		width: 3px;
+		height: 260px;
+		background: linear-gradient(to top, var(--green-bright), rgba(47, 216, 143, 0));
+		opacity: 0.55;
+		transform: skewX(-24deg);
+	}
+
+	.top-bar {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 56px 64px 0 64px;
+	}
+
+	.mark {
+		width: 46px;
+		height: 46px;
+		flex-shrink: 0;
+	}
+
+	.wordmark {
+		font-family: 'Archivo', sans-serif;
+		font-weight: 700;
+		font-size: 26px;
+		letter-spacing: 0.14em;
+		color: var(--paper);
+		text-transform: uppercase;
+	}
+
+	.wordmark span {
+		color: var(--green-bright);
+	}
+
+	.content {
+		position: relative;
+		z-index: 2;
+		padding: 0 64px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		flex: 1;
+	}
+
+	.eyebrow {
+		font-family: 'Archivo', sans-serif;
+		font-weight: 600;
+		font-size: 20px;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--green-bright);
+		margin-bottom: 18px;
+	}
+
+	.headline {
+		font-family: 'Big Shoulders Display', sans-serif;
+		font-weight: 900;
+		font-style: normal;
+		font-size: 128px;
+		line-height: 0.92;
+		letter-spacing: -0.01em;
+		text-transform: uppercase;
+		color: var(--paper);
+		max-width: 880px;
+	}
+
+	.headline .accent {
+		color: var(--green-bright);
+	}
+
+	.tagline {
+		margin-top: 22px;
+		font-family: 'Archivo', sans-serif;
+		font-weight: 500;
+		font-size: 25px;
+		color: var(--paper-dim);
+		max-width: 620px;
+	}
+
+	.bottom-bar {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 64px 44px 64px;
+	}
+
+	.rule {
+		position: relative;
+		z-index: 2;
+		margin: 0 64px;
+		height: 2px;
+		background: linear-gradient(to right, var(--green), rgba(27, 138, 90, 0));
+	}
+
+	.url {
+		font-family: 'Archivo', sans-serif;
+		font-weight: 600;
+		font-size: 20px;
+		letter-spacing: 0.04em;
+		color: var(--paper-dim);
+	}
+
+	.tools-list {
+		font-family: 'Archivo', sans-serif;
+		font-weight: 500;
+		font-size: 18px;
+		color: #6b756f;
+		letter-spacing: 0.02em;
+	}
+</style>
+</head>
+<body>
+	<div class="og">
+		<div class="watermark">
+			<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<circle cx="16" cy="16" r="16" fill="#2fd88f" />
+				<path
+					d="M11 21.55 Q11 21 11.3 20.48 L13.9 16.02 Q14.2 15.5 13.8 15.06 L12.6 13.74 Q12.2 13.3 11.68 13.6 L10.12 14.5 Q9.6 14.8 9.3 14.28 L8.8 13.42 Q8.5 12.9 9.02 12.6 L11.98 10.9 Q12.5 10.6 12.9 11.04 L15.1 13.46 Q15.5 13.9 15.8 13.38 L17.6 10.32 Q17.9 9.8 17.38 9.5 L17.02 9.3 Q16.5 9 16.66 8.42 L16.94 7.48 Q17.1 6.9 17.62 7.2 L20.88 9.1 Q21.4 9.4 21.1 9.92 L18.3 14.68 Q18 15.2 18.6 15.2 L20.5 15.2 Q21.1 15.2 21.4 15.72 L22.2 17.08 Q22.5 17.6 21.9 17.6 L21 17.6 Q20.4 17.6 20.1 17.08 L19.3 15.72 Q19 15.2 18.7 15.72 L16.2 19.98 Q15.9 20.5 15.37 20.21 L13.53 19.19 Q13 18.9 12.7 19.42 L11.3 21.78 Q11 22.3 11 21.75 Z"
+					fill="#0b120f"
+				/>
+			</svg>
+		</div>
+
+		<div class="lanes" id="lanes"></div>
+
+		<div class="top-bar">
+			<svg class="mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<circle cx="16" cy="16" r="16" fill="#1B8A5A" />
+				<path
+					d="M11 21.55 Q11 21 11.3 20.48 L13.9 16.02 Q14.2 15.5 13.8 15.06 L12.6 13.74 Q12.2 13.3 11.68 13.6 L10.12 14.5 Q9.6 14.8 9.3 14.28 L8.8 13.42 Q8.5 12.9 9.02 12.6 L11.98 10.9 Q12.5 10.6 12.9 11.04 L15.1 13.46 Q15.5 13.9 15.8 13.38 L17.6 10.32 Q17.9 9.8 17.38 9.5 L17.02 9.3 Q16.5 9 16.66 8.42 L16.94 7.48 Q17.1 6.9 17.62 7.2 L20.88 9.1 Q21.4 9.4 21.1 9.92 L18.3 14.68 Q18 15.2 18.6 15.2 L20.5 15.2 Q21.1 15.2 21.4 15.72 L22.2 17.08 Q22.5 17.6 21.9 17.6 L21 17.6 Q20.4 17.6 20.1 17.08 L19.3 15.72 Q19 15.2 18.7 15.72 L16.2 19.98 Q15.9 20.5 15.37 20.21 L13.53 19.19 Q13 18.9 12.7 19.42 L11.3 21.78 Q11 22.3 11 21.75 Z"
+					fill="#FAFAF8"
+				/>
+			</svg>
+			<div class="wordmark">RUN<span>WISE</span></div>
+		</div>
+
+		<div class="content">
+			<div class="eyebrow" id="eyebrow">Free Running Calculator</div>
+			<h1 class="headline" id="headline">RUNWISE</h1>
+			<p class="tagline" id="tagline">Free running calculators for every pace, split, and start line.</p>
+		</div>
+
+		<div class="rule"></div>
+
+		<div class="bottom-bar">
+			<div class="url">runwise.app</div>
+			<div class="tools-list">Pace · Race Predictor · Training Paces · HR Zones · VO2 Max · Parkrun</div>
+		</div>
+	</div>
+
+	<script>
+		// Tool-name parameter swap: pass ?tool=Pace%20Calculator on the query string.
+		// No param (or tool=default) renders the shared/home OG image variant.
+		(function () {
+			const params = new URLSearchParams(window.location.search);
+			const tool = params.get('tool');
+
+			const headline = document.getElementById('headline');
+			const eyebrow = document.getElementById('eyebrow');
+			const tagline = document.getElementById('tagline');
+
+			if (tool && tool.toLowerCase() !== 'default') {
+				const words = tool.trim().split(' ');
+				const last = words.pop();
+				const rest = words.join(' ');
+				headline.innerHTML = rest
+					? `${rest}<br /><span class="accent">${last}</span>`
+					: `<span class="accent">${last}</span>`;
+				eyebrow.textContent = 'Free Running Calculator';
+				tagline.textContent = 'Fast, accurate results — no login, no signup, no ads.';
+			}
+
+			const lanes = document.getElementById('lanes');
+			const count = 26;
+			for (let i = 0; i < count; i++) {
+				const line = document.createElement('div');
+				line.className = 'line';
+				line.style.left = (i / (count - 1)) * 1200 + 'px';
+				line.style.opacity = String(0.12 + (i % 4) * 0.08);
+				lanes.appendChild(line);
+			}
+		})();
+	</script>
+</body>
+</html>

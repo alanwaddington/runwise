@@ -114,7 +114,8 @@ Dark mode is applied automatically via `prefers-color-scheme`. Always use design
 2. Import `ToolLayout` and pass `title` and `description` props
 3. Add the tool to the `tools` array in `src/routes/+page.svelte`
 4. Add the tool link to `SiteNav.svelte`
-5. Add tests alongside the page
+5. Register the route in `src/lib/seo.ts` (`PAGES` map) with a title, description, OG image path, and sitemap priority — this drives the page's meta tags, `sitemap.xml` entry, `robots.txt` allow rules, and JSON-LD structured data
+6. Add tests alongside the page
 
 ---
 

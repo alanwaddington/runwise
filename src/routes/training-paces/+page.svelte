@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
+	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
 	import { buildTrainingPaceResult } from '$lib/utils/training-paces';
 
@@ -40,17 +41,10 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Training Pace Calculator — Runwise</title>
-	<meta
-		name="description"
-		content="Free training pace calculator based on Jack Daniels' VDOT methodology. Enter any race result to get Easy, Marathon, Threshold, Interval and Repetition paces."
-	/>
-</svelte:head>
+<SeoHead route="/training-paces" />
 
 <ToolLayout
 	title="Training Pace Calculator"
-	pageTitle="Training Pace Calculator — Runwise"
 	description="Find your optimal training paces from a recent race result."
 >
 	<!-- Race distance select -->
