@@ -129,7 +129,7 @@
 	<title>Parkrun Predictor — Runwise</title>
 	<meta
 		name="description"
-		content="Free parkrun time predictor for runners. Predict your 5K parkrun time from a recent training run or pace using the Riegel formula, with pacing splits, PB comparison, and WMA age grading."
+		content="Free parkrun predictor and parkrun pace calculator for runners. Predict your 5K parkrun time from a recent training run or pace using the Riegel formula, with pacing splits, PB comparison, and WMA age grading."
 	/>
 </svelte:head>
 
