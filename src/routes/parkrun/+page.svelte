@@ -6,24 +6,17 @@
 	import { parseTime, formatTime, predictedPaceMinPerKm } from '$lib/utils/race-predictor';
 	import { parsePace, formatPace, minPerKmToMinPerMile } from '$lib/utils/pace';
 	import {
-		EFFORT_DISTANCES,
+		REFERENCE_DISTANCES,
 		predictParkrunTime,
 		generateSplits,
 		compareToPb,
 		calculateAgeGrade,
 		getAgeGradeLabel,
-		type EffortLevel,
 		type Gender,
 		type AgeGradeLabel
 	} from '$lib/utils/parkrun';
 
 	type InputMode = 'recent-run' | 'average-pace';
-
-	const EFFORT_DISTANCE_LABELS: Record<EffortLevel, string> = {
-		easy: 'marathon',
-		moderate: 'half marathon',
-		hard: '10K'
-	};
 
 	const AGE_GRADE_COLOURS: Record<AgeGradeLabel, string> = {
 		World: 'bg-purple-600',
@@ -34,7 +27,7 @@
 	};
 
 	let mode = $state<InputMode>('recent-run');
-	let effort = $state<EffortLevel>('moderate');
+	let referenceDistanceIndex = $state(2);
 
 	let distanceRaw = $state<number | string>('');
 	let timeRaw = $state('');
@@ -51,20 +44,20 @@
 	let timeSeconds = $derived(parseTime(timeRaw));
 	let paceDecimal = $derived(parsePace(paceRaw));
 
-	let effortDistanceKm = $derived(EFFORT_DISTANCES[effort]);
+	let referenceDistanceKm = $derived(REFERENCE_DISTANCES[referenceDistanceIndex].km);
 
-	let inputDistanceKm = $derived(mode === 'recent-run' ? distanceKm : effortDistanceKm);
+	let inputDistanceKm = $derived(mode === 'recent-run' ? distanceKm : referenceDistanceKm);
 	let inputTimeSeconds = $derived(
 		mode === 'recent-run'
 			? timeSeconds
 			: paceDecimal !== null
-				? paceDecimal * 60 * effortDistanceKm
+				? paceDecimal * 60 * referenceDistanceKm
 				: null
 	);
 
 	let predictedSeconds = $derived(
 		inputDistanceKm !== null && inputTimeSeconds !== null
-			? predictParkrunTime(inputDistanceKm, inputTimeSeconds, effort)
+			? predictParkrunTime(inputDistanceKm, inputTimeSeconds, referenceDistanceKm)
 			: null
 	);
 
@@ -219,37 +212,48 @@
 		</div>
 	{/if}
 
-	<!-- Effort level selector -->
+	<!-- Reference distance slider -->
 	<div class="mb-4">
-		<span class="mb-1.5 block text-sm font-medium text-ink">Effort level</span>
-		<div class="flex gap-2">
-			{#each [{ level: 'easy' as EffortLevel, label: 'Easy' }, { level: 'moderate' as EffortLevel, label: 'Moderate' }, { level: 'hard' as EffortLevel, label: 'Hard' }] as option (option.level)}
-				<button
-					type="button"
-					aria-pressed={effort === option.level}
-					onclick={() => (effort = option.level)}
-					class="flex-1 rounded-lg border py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
-					class:border-accent={effort === option.level}
-					class:bg-accent={effort === option.level}
-					class:text-white={effort === option.level}
-					class:font-semibold={effort === option.level}
-					class:border-gray-300={effort !== option.level}
-					class:text-gray-500={effort !== option.level}
-					class:dark:border-gray-700={effort !== option.level}
-					class:hover:text-ink={effort !== option.level}
+		<label for="reference-distance" class="mb-1.5 block text-sm font-medium text-ink"
+			>Reference distance</label
+		>
+		<p class="mb-2 text-xs text-gray-500">
+			Pick the distance your {mode === 'recent-run' ? 'entered time' : 'pace'} best represents an
+			all-out effort for &mdash; we'll extrapolate from that effort down to a 5K prediction.
+		</p>
+		<input
+			id="reference-distance"
+			type="range"
+			min="0"
+			max={REFERENCE_DISTANCES.length - 1}
+			step="1"
+			bind:value={referenceDistanceIndex}
+			aria-valuetext={REFERENCE_DISTANCES[referenceDistanceIndex].name}
+			class="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-accent
+			       [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5
+			       [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full
+			       [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-transform
+			       [&::-webkit-slider-thumb]:duration-150 hover:[&::-webkit-slider-thumb]:scale-110
+			       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1
+			       dark:bg-gray-700"
+		/>
+		<div class="mt-1 flex justify-between px-0.5 text-xs text-gray-400">
+			{#each REFERENCE_DISTANCES as stop, i (stop.name)}
+				<span
+					class:text-accent={i === referenceDistanceIndex}
+					class:font-semibold={i === referenceDistanceIndex}
 				>
-					{option.label}
-				</button>
+					{stop.short}
+				</span>
 			{/each}
 		</div>
-		{#if mode === 'average-pace'}
-			<p class="mt-2 text-xs text-gray-500">
-				We treat this pace as what you could hold for a full {EFFORT_DISTANCE_LABELS[effort]} effort,
-				then extrapolate down to 5K. Easier efforts imply more fitness in reserve, so they give a
-				faster parkrun prediction for the same pace &mdash; try a harder effort level for a more
-				conservative estimate.
-			</p>
-		{/if}
+		<p class="mt-2 text-center text-sm text-gray-600">
+			{REFERENCE_DISTANCES[referenceDistanceIndex].name} &middot; {referenceDistanceKm.toFixed(1)} km
+		</p>
+		<p class="mt-2 text-xs text-gray-500">
+			Closer reference distances extrapolate more accurately &mdash; try 5K or 10K for the most
+			reliable estimate, or a longer distance if that's what you actually race at.
+		</p>
 	</div>
 
 	<!-- Optional fields: PB, Age, Gender -->
