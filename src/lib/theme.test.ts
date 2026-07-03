@@ -113,9 +113,6 @@ describe('watchSystemTheme', () => {
 			if (event === 'change') listeners.push(listener);
 		});
 		removeEventListenerSpy = vi.fn();
-		if (!window.matchMedia) {
-			window.matchMedia = vi.fn() as unknown as typeof window.matchMedia;
-		}
 		vi.spyOn(window, 'matchMedia').mockReturnValue({
 			matches: false,
 			media: '(prefers-color-scheme: dark)',

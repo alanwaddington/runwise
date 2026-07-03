@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, cleanup } from '@testing-library/svelte';
+import { render, cleanup, fireEvent } from '@testing-library/svelte';
+import { tick } from 'svelte';
 
 const mockPage = { url: new URL('http://localhost/pace') };
 
@@ -10,6 +11,9 @@ vi.mock('$app/state', () => ({
 afterEach(() => {
 	cleanup();
 	mockPage.url = new URL('http://localhost/pace');
+	document.documentElement.classList.remove('light', 'dark');
+	localStorage.clear();
+	vi.restoreAllMocks();
 });
 
 describe('SiteNav', () => {
@@ -57,5 +61,116 @@ describe('SiteNav', () => {
 		const { default: SiteNav } = await import('./SiteNav.svelte');
 		const { getByRole } = render(SiteNav);
 		expect(getByRole('link', { name: 'Runwise' })).not.toHaveAttribute('aria-current');
+	});
+});
+
+describe('SiteNav theme toggle', () => {
+	function mockMatchMedia(matches: boolean) {
+		const addEventListener = vi.fn();
+		const removeEventListener = vi.fn();
+		vi.spyOn(window, 'matchMedia').mockReturnValue({
+			matches,
+			media: '(prefers-color-scheme: dark)',
+			addEventListener,
+			removeEventListener
+		} as unknown as MediaQueryList);
+		return { addEventListener, removeEventListener };
+	}
+
+	it('htmlHasDarkClassOnMount_rendersSwitchToLightLabel', async () => {
+		document.documentElement.classList.add('dark');
+		mockMatchMedia(false);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+		expect(getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
+	});
+
+	it('htmlHasLightClassOnMount_rendersSwitchToDarkLabel', async () => {
+		document.documentElement.classList.add('light');
+		mockMatchMedia(false);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+		expect(getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument();
+	});
+
+	it('toggleClicked_flipsHtmlClassAndPersistsChoice', async () => {
+		document.documentElement.classList.add('light');
+		mockMatchMedia(false);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+
+		await fireEvent.click(getByRole('button', { name: 'Switch to dark mode' }));
+
+		expect(document.documentElement.classList.contains('dark')).toBe(true);
+		expect(document.documentElement.classList.contains('light')).toBe(false);
+		expect(localStorage.getItem('theme')).toBe('dark');
+		expect(getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
+	});
+
+	it('toggleClickedTwice_returnsToOriginalTheme', async () => {
+		document.documentElement.classList.add('light');
+		mockMatchMedia(false);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+
+		await fireEvent.click(getByRole('button', { name: 'Switch to dark mode' }));
+		await fireEvent.click(getByRole('button', { name: 'Switch to light mode' }));
+
+		expect(document.documentElement.classList.contains('light')).toBe(true);
+		expect(localStorage.getItem('theme')).toBe('light');
+	});
+
+	it('noStoredPreference_systemPreferenceChangeUpdatesTheme', async () => {
+		document.documentElement.classList.add('light');
+		const listeners: Array<(event: { matches: boolean }) => void> = [];
+		vi.spyOn(window, 'matchMedia').mockReturnValue({
+			matches: false,
+			media: '(prefers-color-scheme: dark)',
+			addEventListener: (_event: string, listener: (event: { matches: boolean }) => void) => {
+				listeners.push(listener);
+			},
+			removeEventListener: vi.fn()
+		} as unknown as MediaQueryList);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+
+		listeners[0]({ matches: true });
+		await tick();
+
+		expect(document.documentElement.classList.contains('dark')).toBe(true);
+		expect(getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
+	});
+
+	it('storedPreferenceExists_systemPreferenceChangeDoesNotOverrideTheme', async () => {
+		document.documentElement.classList.add('light');
+		localStorage.setItem('theme', 'light');
+		const listeners: Array<(event: { matches: boolean }) => void> = [];
+		vi.spyOn(window, 'matchMedia').mockReturnValue({
+			matches: false,
+			media: '(prefers-color-scheme: dark)',
+			addEventListener: (_event: string, listener: (event: { matches: boolean }) => void) => {
+				listeners.push(listener);
+			},
+			removeEventListener: vi.fn()
+		} as unknown as MediaQueryList);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+
+		listeners[0]({ matches: true });
+		await tick();
+
+		expect(document.documentElement.classList.contains('light')).toBe(true);
+		expect(getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument();
+	});
+
+	it('toggleButton_hasConsistentFocusRingClasses', async () => {
+		document.documentElement.classList.add('light');
+		mockMatchMedia(false);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+		const button = getByRole('button', { name: 'Switch to dark mode' });
+		expect(button.className).toContain('focus-visible:ring-2');
+		expect(button.className).toContain('focus-visible:ring-accent');
+		expect(button.className).toContain('focus-visible:ring-offset-2');
 	});
 });
