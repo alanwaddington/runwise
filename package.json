@@ -45,5 +45,8 @@
 	"type": "module",
 	"engines": {
 		"node": ">=22"
+	},
+	"dependencies": {
+		"@vercel/analytics": "^2.0.1"
 	}
 }
