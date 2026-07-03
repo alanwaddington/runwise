@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://runwise.app';
+export const BASE_URL = import.meta.env?.VITE_SITE_URL || 'https://runwise.app';
 export const SITE_NAME = 'Runwise';
 export const DEFAULT_OG_IMAGE = '/og/og-default.png';
 
