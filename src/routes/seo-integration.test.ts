@@ -25,25 +25,25 @@ const pages = [
 
 describe.each(pages)('SEO integration for $route', ({ component, route }) => {
 	it('setsDocumentTitle_toConfiguredPageTitle', () => {
-		render(component);
+		render(component as typeof Home);
 		expect(document.title).toBe(PAGES[route].title);
 	});
 
 	it('rendersCanonicalLink_matchingRoute', () => {
-		render(component);
+		render(component as typeof Home);
 		const link = document.querySelector('link[rel="canonical"]');
 		const expected = route === '/' ? BASE_URL : `${BASE_URL}${route}`;
 		expect(link?.getAttribute('href')).toBe(expected);
 	});
 
 	it('rendersOgImage_matchingConfiguredImage', () => {
-		render(component);
+		render(component as typeof Home);
 		const meta = document.querySelector('meta[property="og:image"]');
 		expect(meta?.getAttribute('content')).toBe(`${BASE_URL}${PAGES[route].ogImage}`);
 	});
 
 	it('rendersMetaDescription_matchingConfiguredDescription', () => {
-		render(component);
+		render(component as typeof Home);
 		const meta =
 			document.querySelector('meta[property="og:description"]') ??
 			document.querySelector('meta[name="description"]');
