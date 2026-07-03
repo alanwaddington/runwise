@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
 	--color-accent: #1b8a5a;
 	--color-accent-dark: #146344;
@@ -9,11 +11,23 @@
 	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
+/* No-JS fallback: the pre-paint script in app.html normally applies an
+   explicit .light/.dark class before this would ever be needed. */
 @media (prefers-color-scheme: dark) {
 	:root {
 		--color-bg: #19191a;
 		--color-ink: #fafaf8;
 	}
+}
+
+html.light {
+	--color-bg: #fafaf8;
+	--color-ink: #19191a;
+}
+
+html.dark {
+	--color-bg: #19191a;
+	--color-ink: #fafaf8;
 }
 
 body {
