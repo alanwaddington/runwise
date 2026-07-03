@@ -157,6 +157,15 @@ Screenshots always go under the session scratchpad directory, not `/tmp` directl
 - No `.claude/skills` existed for this before 2026-07-03 (PR #32 review) — this file is
   the first. If it's stale (build commands changed, Playwright version bumped, port
   conventions changed), fix it here rather than rediscovering the recipe from scratch.
-- `svelte-check` currently reports 42 pre-existing errors unrelated to any single PR
-  (mostly `hr-zones.test.ts` null-narrowing and a `seo-integration.test.ts` component-type
-  mismatch) — don't treat these as newly introduced unless a diff touches those files.
+- `svelte-check` reports 0 errors on `main` as of PRs #33-#35 (2026-07-03), which fixed
+  the 42 pre-existing errors that used to live in `hr-zones.test.ts` (null-narrowing) and
+  `seo-integration.test.ts` (a `describe.each` component-type-union inference failure).
+  Any error `svelte-check` reports now is newly introduced — don't assume it's baseline
+  noise.
+- Rendering a component that reads `$env/dynamic/public` (e.g. `SeoHead.svelte`) via
+  `@testing-library/svelte`'s `render()` throws `TypeError: Cannot read properties of
+  undefined (reading 'env')` unless mocked — that module's real implementation needs a
+  live SvelteKit request context that doesn't exist outside actual request handling.
+  `vitest-setup.ts` already stubs it globally (`vi.mock('$env/dynamic/public', () => ({
+  env: {} }))`, same pattern as the `window.matchMedia` stub) — a test file that needs to
+  control a specific value should override this mock locally (see `SeoHead.test.ts`).
