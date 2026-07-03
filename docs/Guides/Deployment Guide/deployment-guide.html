@@ -69,6 +69,23 @@
 </tr>
 </tbody></table>
 <hr>
+<h2>Environment Variables</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Required</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PUBLIC_GOOGLE_SITE_VERIFICATION</code></td>
+<td>No</td>
+<td>Google Search Console site-ownership verification token. When set, <code>SeoHead.svelte</code> renders <code>&lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot;&gt;</code> on every page. Omit entirely if not verifying via meta tag (e.g. using DNS TXT verification instead) — the tag is skipped when unset.</td>
+</tr>
+</tbody></table>
+<p>Set optional variables in the Vercel dashboard under <strong>Project Settings → Environment Variables</strong>. See <code>.env.example</code> for the full list with descriptions. No environment variables are required for a first-time deploy.</p>
+<hr>
 <h2>First-Time Setup</h2>
 <ol>
 <li>Import the GitHub repository into Vercel</li>

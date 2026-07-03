@@ -35,6 +35,16 @@ The project uses `@sveltejs/adapter-vercel` with no custom `vercel.json` require
 
 ---
 
+## Environment Variables
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `PUBLIC_GOOGLE_SITE_VERIFICATION` | No | Google Search Console site-ownership verification token. When set, `SeoHead.svelte` renders `<meta name="google-site-verification" content="...">` on every page. Omit entirely if not verifying via meta tag (e.g. using DNS TXT verification instead) — the tag is skipped when unset. |
+
+Set optional variables in the Vercel dashboard under **Project Settings → Environment Variables**. See `.env.example` for the full list with descriptions. No environment variables are required for a first-time deploy.
+
+---
+
 ## First-Time Setup
 
 1. Import the GitHub repository into Vercel
