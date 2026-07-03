@@ -41,7 +41,18 @@
 </code></pre>
 <hr>
 <h2>Vercel Configuration</h2>
-<p>The project uses <code>@sveltejs/adapter-vercel</code> with no custom <code>vercel.json</code> required. Vercel auto-detects SvelteKit.</p>
+<p>The project uses <code>@sveltejs/adapter-vercel</code>. A <code>vercel.json</code> is committed to the repository with the following configuration:</p>
+<ul>
+<li><strong>www → apex redirect</strong> — all requests to <code>www.runwise.app/*</code> are permanently redirected (HTTP 301) to <code>https://runwise.app/*</code> to consolidate SEO link equity on the canonical apex domain.</li>
+<li><strong>Security headers</strong> — applied to all responses:<ul>
+<li><code>X-Content-Type-Options: nosniff</code></li>
+<li><code>X-Frame-Options: DENY</code></li>
+<li><code>Referrer-Policy: strict-origin-when-cross-origin</code></li>
+<li><code>Permissions-Policy: camera=(), microphone=(), geolocation=()</code></li>
+</ul>
+</li>
+</ul>
+<p>Note: <code>Content-Security-Policy</code> is intentionally omitted — it would block Google Fonts (loaded in <code>+layout.svelte</code>) and future ad scripts. <code>Strict-Transport-Security</code> is omitted because the <code>.app</code> TLD enforces HTTPS at the browser level (HSTS preloaded).</p>
 <hr>
 <h2>Environment</h2>
 <table>
@@ -79,12 +90,17 @@
 </tr>
 </thead>
 <tbody><tr>
+<td><code>VITE_SITE_URL</code></td>
+<td>No</td>
+<td>Canonical site URL used for <code>&lt;link rel=&quot;canonical&quot;&gt;</code>, Open Graph tags, JSON-LD, sitemap <code>&lt;loc&gt;</code> entries, and <code>robots.txt</code>. Set to <code>https://runwise.app</code> in the Vercel production environment. Defaults to <code>https://runwise.app</code> if unset, so the site functions correctly without it, but setting it explicitly is recommended.</td>
+</tr>
+<tr>
 <td><code>PUBLIC_GOOGLE_SITE_VERIFICATION</code></td>
 <td>No</td>
 <td>Google Search Console site-ownership verification token. When set, <code>SeoHead.svelte</code> renders <code>&lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot;&gt;</code> on every page. Omit entirely if not verifying via meta tag (e.g. using DNS TXT verification instead) — the tag is skipped when unset.</td>
 </tr>
 </tbody></table>
-<p>Set optional variables in the Vercel dashboard under <strong>Project Settings → Environment Variables</strong>. See <code>.env.example</code> for the full list with descriptions. No environment variables are required for a first-time deploy.</p>
+<p>Set optional variables in the Vercel dashboard under <strong>Environment Variables</strong> (left sidebar). See <code>.env.example</code> for the full list with descriptions. No environment variables are required for a first-time deploy.</p>
 <hr>
 <h2>First-Time Setup</h2>
 <ol>

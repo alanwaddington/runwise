@@ -20,7 +20,16 @@ GitHub (main branch)
 
 ## Vercel Configuration
 
-The project uses `@sveltejs/adapter-vercel` with no custom `vercel.json` required. Vercel auto-detects SvelteKit.
+The project uses `@sveltejs/adapter-vercel`. A `vercel.json` is committed to the repository with the following configuration:
+
+- **www → apex redirect** — all requests to `www.runwise.app/*` are permanently redirected (HTTP 301) to `https://runwise.app/*` to consolidate SEO link equity on the canonical apex domain.
+- **Security headers** — applied to all responses:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+
+Note: `Content-Security-Policy` is intentionally omitted — it would block Google Fonts (loaded in `+layout.svelte`) and future ad scripts. `Strict-Transport-Security` is omitted because the `.app` TLD enforces HTTPS at the browser level (HSTS preloaded).
 
 ---
 
@@ -39,9 +48,10 @@ The project uses `@sveltejs/adapter-vercel` with no custom `vercel.json` require
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
+| `VITE_SITE_URL` | No | Canonical site URL used for `<link rel="canonical">`, Open Graph tags, JSON-LD, sitemap `<loc>` entries, and `robots.txt`. Set to `https://runwise.app` in the Vercel production environment. Defaults to `https://runwise.app` if unset, so the site functions correctly without it, but setting it explicitly is recommended. |
 | `PUBLIC_GOOGLE_SITE_VERIFICATION` | No | Google Search Console site-ownership verification token. When set, `SeoHead.svelte` renders `<meta name="google-site-verification" content="...">` on every page. Omit entirely if not verifying via meta tag (e.g. using DNS TXT verification instead) — the tag is skipped when unset. |
 
-Set optional variables in the Vercel dashboard under **Project Settings → Environment Variables**. See `.env.example` for the full list with descriptions. No environment variables are required for a first-time deploy.
+Set optional variables in the Vercel dashboard under **Environment Variables** (left sidebar). See `.env.example` for the full list with descriptions. No environment variables are required for a first-time deploy.
 
 ---
 
