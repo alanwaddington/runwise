@@ -16,6 +16,7 @@ const TARGET_KEYWORDS: Record<string, string> = {
 describe('seo config constants', () => {
 	it('BASE_URL_isDefined_pointsToProductionDomain', () => {
 		expect(BASE_URL).toBe('https://runwise.app');
+		expect(BASE_URL).toMatch(/^https:\/\//);
 	});
 
 	it('SITE_NAME_isDefined_equalsRunwise', () => {
