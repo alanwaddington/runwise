@@ -1,10 +1,11 @@
-import { BASE_URL, PAGES, LAST_UPDATED } from '$lib/seo';
+import { BASE_URL, PAGES } from '$lib/seo';
+import { routeDates } from 'virtual:git-dates';
 
 export function GET() {
 	const urls = Object.entries(PAGES)
 		.map(([route, page]) => {
 			const url = route === '/' ? BASE_URL : `${BASE_URL}${route}`;
-			return `\t<url>\n\t\t<loc>${url}</loc>\n\t\t<lastmod>${LAST_UPDATED}</lastmod>\n\t\t<changefreq>${page.changefreq}</changefreq>\n\t\t<priority>${page.priority}</priority>\n\t</url>`;
+			return `\t<url>\n\t\t<loc>${url}</loc>\n\t\t<lastmod>${routeDates[route]}</lastmod>\n\t\t<changefreq>${page.changefreq}</changefreq>\n\t\t<priority>${page.priority}</priority>\n\t</url>`;
 		})
 		.join('\n');
 
