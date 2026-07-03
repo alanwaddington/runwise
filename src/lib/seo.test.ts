@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { BASE_URL, SITE_NAME, DEFAULT_OG_IMAGE, LAST_UPDATED, PAGES } from './seo';
+import { BASE_URL, SITE_NAME, DEFAULT_OG_IMAGE, PAGES } from './seo';
 
 const TOOL_ROUTES = ['/pace', '/race-predictor', '/training-paces', '/hr-zones', '/vo2max', '/parkrun'];
 const ALL_ROUTES = ['/', ...TOOL_ROUTES];
@@ -24,11 +24,6 @@ describe('seo config constants', () => {
 
 	it('DEFAULT_OG_IMAGE_isDefined_pointsToSharedOgImage', () => {
 		expect(DEFAULT_OG_IMAGE).toBe('/og/og-default.png');
-	});
-
-	it('LAST_UPDATED_isDefined_isValidDateString', () => {
-		expect(() => new Date(LAST_UPDATED)).not.toThrow();
-		expect(Number.isNaN(new Date(LAST_UPDATED).getTime())).toBe(false);
 	});
 });
 
