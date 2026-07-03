@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { env } from '$env/dynamic/public';
 	import { BASE_URL, SITE_NAME, DEFAULT_OG_IMAGE, PAGES } from '$lib/seo';
 
 	interface Props {
@@ -48,6 +49,10 @@
 	<title>{page.title}</title>
 	<meta name="description" content={page.description} />
 	<link rel="canonical" href={canonicalUrl} />
+
+	{#if env.PUBLIC_GOOGLE_SITE_VERIFICATION}
+		<meta name="google-site-verification" content={env.PUBLIC_GOOGLE_SITE_VERIFICATION} />
+	{/if}
 
 	<meta property="og:title" content={page.title} />
 	<meta property="og:description" content={page.description} />
