@@ -57,8 +57,7 @@ Preview deployments are auto-enabled on all PRs when you connect a GitHub repo.
 **Option A: Buy through Vercel (Recommended — simplest)**
 
 1. Go to **https://vercel.com/dashboard** and click on your Runwise project
-2. Go to **Settings** (gear icon, top right)
-3. Click **Domains** in the left sidebar
+2. In the left sidebar menu, click **Domains**
 4. Click **Add Domain** button
 5. In the input field, type: `runwise.app`
 6. Click the **"Buy Domain"** button
@@ -90,7 +89,7 @@ If you prefer to use an existing registrar:
 
 ### Step 4: Add Domain to Vercel Production
 
-1. Go to your **Runwise project → Settings → Domains**
+1. Go to your **Runwise project → Domains** (left sidebar menu)
 2. If you purchased through Vercel in Step 3, the domain is already listed as "Purchased"
 3. If you bought elsewhere, click **Add Domain** and type `runwise.app` again
 4. **Wait for the domain to resolve** — Vercel will show:
@@ -112,7 +111,7 @@ If you prefer to use an existing registrar:
 
 ### Step 5: Set VITE_SITE_URL in Production
 
-1. Go to your **Runwise project → Settings → Environment Variables**
+1. Go to your **Runwise project → Environment Variables** (left sidebar menu)
 2. Click **Add** button
 3. Fill in the form:
    - **Name:** `VITE_SITE_URL`
@@ -125,7 +124,7 @@ If you prefer to use an existing registrar:
 
 This is used by issue #37 (Google Search Console) — set it now even though it's empty.
 
-1. In **Settings → Environment Variables**, click **Add**
+1. In **Environment Variables**, click **Add**
 2. Fill in:
    - **Name:** `PUBLIC_GOOGLE_SITE_VERIFICATION`
    - **Value:** _(leave empty for now)_
@@ -159,7 +158,7 @@ This is used by issue #37 (Google Search Console) — set it now even though it'
 
 ### Step 8: Enable Vercel Analytics
 
-1. Go to **Runwise project → Settings → Analytics**
+1. Go to **Runwise project → Analytics** (left sidebar menu)
 2. Click **Enable Web Analytics**
 3. Vercel will auto-inject the tracking script on next deployment
 4. It's already live (no redeploy needed — the script was injected during build)
@@ -177,7 +176,8 @@ Choose one method (or both):
 
 #### Option A: Email Notifications (Simplest)
 
-1. Go to **Runwise project → Settings → Notifications**
+1. Go to **Runwise project → Integrations** (left sidebar menu)
+2. Look for **Email** notifications option
 2. Under **Email**, toggle **On**
 3. Select:
    - ✓ **Deployments** 
@@ -191,7 +191,7 @@ Choose one method (or both):
 
 #### Option B: Slack Notifications
 
-1. Go to **Runwise project → Settings → Integrations**
+1. Go to **Runwise project → Integrations** (left sidebar menu)
 2. Find **Slack** in the integrations list
 3. Click **Connect**
 4. Slack will ask for authorization — click **Allow**
@@ -298,12 +298,12 @@ After completing all steps above, run through this final checklist:
    Should show `ns1.vercel-dns.com`, `ns2.vercel-dns.com`, etc.
 
 2. Vercel's domain status might still be "Pending":
-   - Go to **Settings → Domains**
+   - Go to **Domains** (left sidebar)
    - If it says "Pending", click **Refresh** button
    - Wait another 5–10 minutes and refresh again
 
 3. If still pending, try removing and re-adding the domain:
-   - **Settings → Domains**
+   - **Domains** (left sidebar)
    - Click the three-dot menu on the domain
    - Click **Remove**
    - Click **Add Domain** again
@@ -326,9 +326,8 @@ After completing all steps above, run through this final checklist:
 **If** you see certificate warnings or errors:
 
 1. Wait 15–30 minutes — Vercel sometimes takes time to provision certificates
-2. Go to **Settings → Domains** and check the domain status
-3. If status is "Valid Configuration", try removing HTTPS redirect:
-   - Go to **Settings → Edge Middleware**
+2. Go to **Domains** (left sidebar) and check the domain status
+3. If status is "Valid Configuration", check your `vercel.json` for any HTTPS redirect rules
    - Look for any redirect rules that force HTTPS
    - If found, verify they match what's in `vercel.json`
 4. Hard-refresh your browser cache
