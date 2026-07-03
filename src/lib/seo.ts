@@ -1,7 +1,6 @@
 export const BASE_URL = 'https://runwise.app';
 export const SITE_NAME = 'Runwise';
 export const DEFAULT_OG_IMAGE = '/og/og-default.png';
-export const LAST_UPDATED = '2026-07-02';
 
 export interface PageSeo {
 	title: string;
