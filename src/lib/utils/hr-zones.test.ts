@@ -57,42 +57,42 @@ describe('calculateMaxHrZones', () => {
 	});
 
 	it('calculateMaxHrZones_MaxHr185_Z1Is93to111', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		expect(zones[0].bpmLow).toBe(93);
 		expect(zones[0].bpmHigh).toBe(111);
 	});
 
 	it('calculateMaxHrZones_MaxHr185_Z2Is111to130', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		expect(zones[1].bpmLow).toBe(111);
 		expect(zones[1].bpmHigh).toBe(130);
 	});
 
 	it('calculateMaxHrZones_MaxHr185_Z3Is130to148', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		expect(zones[2].bpmLow).toBe(130);
 		expect(zones[2].bpmHigh).toBe(148);
 	});
 
 	it('calculateMaxHrZones_MaxHr185_Z4Is148to167', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		expect(zones[3].bpmLow).toBe(148);
 		expect(zones[3].bpmHigh).toBe(167);
 	});
 
 	it('calculateMaxHrZones_MaxHr185_Z5Is167to185', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		expect(zones[4].bpmLow).toBe(167);
 		expect(zones[4].bpmHigh).toBe(185);
 	});
 
 	it('calculateMaxHrZones_ZonesNumbered1to5', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		expect(zones.map((z) => z.zone)).toEqual([1, 2, 3, 4, 5]);
 	});
 
 	it('calculateMaxHrZones_EachZoneHasNameAndPurpose', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		for (const z of zones) {
 			expect(z.name).toBeTruthy();
 			expect(z.purpose).toBeTruthy();
@@ -100,7 +100,7 @@ describe('calculateMaxHrZones', () => {
 	});
 
 	it('calculateMaxHrZones_NoBpmLowOrHighIsNull', () => {
-		const zones = calculateMaxHrZones(185);
+		const zones = calculateMaxHrZones(185)!;
 		for (const z of zones) {
 			expect(z.bpmLow).not.toBeNull();
 			expect(z.bpmHigh).not.toBeNull();
@@ -108,8 +108,8 @@ describe('calculateMaxHrZones', () => {
 	});
 
 	it('calculateMaxHrZones_HigherMaxHr_HigherBpmValues', () => {
-		const zones180 = calculateMaxHrZones(180);
-		const zones200 = calculateMaxHrZones(200);
+		const zones180 = calculateMaxHrZones(180)!;
+		const zones200 = calculateMaxHrZones(200)!;
 		expect(zones200[0].bpmHigh!).toBeGreaterThan(zones180[0].bpmHigh!);
 	});
 
@@ -146,42 +146,42 @@ describe('calculateLthrZones', () => {
 	});
 
 	it('calculateLthrZones_Lthr170_Z1IsLessThan145', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		expect(zones[0].bpmLow).toBeNull();
 		expect(zones[0].bpmHigh).toBe(145);
 	});
 
 	it('calculateLthrZones_Lthr170_Z2Is145to151', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		expect(zones[1].bpmLow).toBe(145);
 		expect(zones[1].bpmHigh).toBe(151);
 	});
 
 	it('calculateLthrZones_Lthr170_Z3Is153to160', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		expect(zones[2].bpmLow).toBe(153);
 		expect(zones[2].bpmHigh).toBe(160);
 	});
 
 	it('calculateLthrZones_Lthr170_Z4Is162to168', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		expect(zones[3].bpmLow).toBe(162);
 		expect(zones[3].bpmHigh).toBe(168);
 	});
 
 	it('calculateLthrZones_Lthr170_Z5Is170to180', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		expect(zones[4].bpmLow).toBe(170);
 		expect(zones[4].bpmHigh).toBe(180);
 	});
 
 	it('calculateLthrZones_ZonesNumbered1to5', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		expect(zones.map((z) => z.zone)).toEqual([1, 2, 3, 4, 5]);
 	});
 
 	it('calculateLthrZones_EachZoneHasNameAndPurpose', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		for (const z of zones) {
 			expect(z.name).toBeTruthy();
 			expect(z.purpose).toBeTruthy();
@@ -189,7 +189,7 @@ describe('calculateLthrZones', () => {
 	});
 
 	it('calculateLthrZones_Zone1HasNullLow', () => {
-		const zones = calculateLthrZones(170);
+		const zones = calculateLthrZones(170)!;
 		expect(zones[0].bpmLow).toBeNull();
 	});
 
@@ -222,28 +222,28 @@ describe('calculateLthrSubZones', () => {
 	});
 
 	it('calculateLthrSubZones_Lthr170_5aIs170to173', () => {
-		const sub = calculateLthrSubZones(170);
+		const sub = calculateLthrSubZones(170)!;
 		expect(sub[0].zone).toBe('5a');
 		expect(sub[0].bpmLow).toBe(170);
 		expect(sub[0].bpmHigh).toBe(173);
 	});
 
 	it('calculateLthrSubZones_Lthr170_5bIs175to180', () => {
-		const sub = calculateLthrSubZones(170);
+		const sub = calculateLthrSubZones(170)!;
 		expect(sub[1].zone).toBe('5b');
 		expect(sub[1].bpmLow).toBe(175);
 		expect(sub[1].bpmHigh).toBe(180);
 	});
 
 	it('calculateLthrSubZones_Lthr170_5cIsGreaterThan180', () => {
-		const sub = calculateLthrSubZones(170);
+		const sub = calculateLthrSubZones(170)!;
 		expect(sub[2].zone).toBe('5c');
 		expect(sub[2].bpmLow).toBe(180);
 		expect(sub[2].bpmHigh).toBeNull();
 	});
 
 	it('calculateLthrSubZones_EachSubZoneHasNameAndPurpose', () => {
-		const sub = calculateLthrSubZones(170);
+		const sub = calculateLthrSubZones(170)!;
 		for (const z of sub) {
 			expect(z.name).toBeTruthy();
 			expect(z.purpose).toBeTruthy();
