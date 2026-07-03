@@ -14,7 +14,6 @@ afterEach(() => {
 });
 
 const pages = [
-	{ component: Home, route: '/' },
 	{ component: Pace, route: '/pace' },
 	{ component: RacePredictor, route: '/race-predictor' },
 	{ component: TrainingPaces, route: '/training-paces' },
@@ -23,27 +22,53 @@ const pages = [
 	{ component: Parkrun, route: '/parkrun' }
 ];
 
+describe('SEO integration for /', () => {
+	it('setsDocumentTitle_toConfiguredPageTitle', () => {
+		render(Home);
+		expect(document.title).toBe(PAGES['/'].title);
+	});
+
+	it('rendersCanonicalLink_matchingRoute', () => {
+		render(Home);
+		const link = document.querySelector('link[rel="canonical"]');
+		expect(link?.getAttribute('href')).toBe(BASE_URL);
+	});
+
+	it('rendersOgImage_matchingConfiguredImage', () => {
+		render(Home);
+		const meta = document.querySelector('meta[property="og:image"]');
+		expect(meta?.getAttribute('content')).toBe(`${BASE_URL}${PAGES['/'].ogImage}`);
+	});
+
+	it('rendersMetaDescription_matchingConfiguredDescription', () => {
+		render(Home);
+		const meta =
+			document.querySelector('meta[property="og:description"]') ??
+			document.querySelector('meta[name="description"]');
+		expect(meta?.getAttribute('content')).toBe(PAGES['/'].description);
+	});
+});
+
 describe.each(pages)('SEO integration for $route', ({ component, route }) => {
 	it('setsDocumentTitle_toConfiguredPageTitle', () => {
-		render(component as typeof Home);
+		render(component);
 		expect(document.title).toBe(PAGES[route].title);
 	});
 
 	it('rendersCanonicalLink_matchingRoute', () => {
-		render(component as typeof Home);
+		render(component);
 		const link = document.querySelector('link[rel="canonical"]');
-		const expected = route === '/' ? BASE_URL : `${BASE_URL}${route}`;
-		expect(link?.getAttribute('href')).toBe(expected);
+		expect(link?.getAttribute('href')).toBe(`${BASE_URL}${route}`);
 	});
 
 	it('rendersOgImage_matchingConfiguredImage', () => {
-		render(component as typeof Home);
+		render(component);
 		const meta = document.querySelector('meta[property="og:image"]');
 		expect(meta?.getAttribute('content')).toBe(`${BASE_URL}${PAGES[route].ogImage}`);
 	});
 
 	it('rendersMetaDescription_matchingConfiguredDescription', () => {
-		render(component as typeof Home);
+		render(component);
 		const meta =
 			document.querySelector('meta[property="og:description"]') ??
 			document.querySelector('meta[name="description"]');
@@ -52,9 +77,7 @@ describe.each(pages)('SEO integration for $route', ({ component, route }) => {
 });
 
 describe('Tool page titles', () => {
-	const toolPages = pages.filter((p) => p.route !== '/');
-
-	it.each(toolPages)('$route title uses pipe separator, not em-dash', ({ route }) => {
+	it.each(pages)('$route title uses pipe separator, not em-dash', ({ route }) => {
 		expect(PAGES[route].title).toMatch(/ \| Runwise$/);
 		expect(PAGES[route].title).not.toContain('—');
 	});
