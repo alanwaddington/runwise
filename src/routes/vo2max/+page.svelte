@@ -280,6 +280,10 @@
 				<span class="font-medium text-ink">What is VDOT?</span>
 				VDOT is a practical proxy for VO2 max — your body's ability to use oxygen during exercise. Derived from your race performance using Jack Daniels' formula, it accounts for both aerobic capacity and running economy.
 			</p>
+			<p class="mt-2 text-xs text-gray-400">
+				<span class="font-medium text-ink">Why does this differ from my GPS watch?</span>
+				Devices like Garmin and Coros estimate VO2 max from heart rate and pace trends across many runs, and can run several points higher than a race-derived VDOT — especially if your watch's max heart rate is set too high. This estimate reflects what your race result actually demonstrated on the day, so treat both figures as estimates rather than exact measurements.
+			</p>
 		</div>
 
 		<hr class="mb-6 border-t border-ink/10" />
