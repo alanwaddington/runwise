@@ -36,7 +36,8 @@ beforeEach(() => {
 
 afterEach(() => {
 	cleanup();
-	document.querySelectorAll('script[data-adsense]').forEach((el) => el.remove());
+	document.querySelectorAll('script[src*="adsbygoogle"]').forEach((el) => el.remove());
+	delete (window as any).adsbygoogle;
 });
 
 describe('AdUnit consent gating', () => {
@@ -70,7 +71,7 @@ describe('AdUnit AdSense script injection', () => {
 		const { default: AdUnit } = await import('./AdUnit.svelte');
 		render(AdUnit);
 		await tick();
-		const script = document.querySelector('script[data-adsense]');
+		const script = document.querySelector('script[src*="adsbygoogle"]');
 		expect(script).not.toBeNull();
 		expect(script?.getAttribute('src')).toContain('ca-pub-1234567890');
 	});
@@ -79,7 +80,7 @@ describe('AdUnit AdSense script injection', () => {
 		const { default: AdUnit } = await import('./AdUnit.svelte');
 		render(AdUnit);
 		await tick();
-		expect(document.querySelector('script[data-adsense]')).toBeNull();
+		expect(document.querySelector('script[src*="adsbygoogle"]')).toBeNull();
 	});
 
 	it('AdUnit_renderedTwice_injectsScriptOnlyOnce', async () => {
@@ -89,6 +90,6 @@ describe('AdUnit AdSense script injection', () => {
 		render(AdUnit);
 		render(AdUnit);
 		await tick();
-		expect(document.querySelectorAll('script[data-adsense]').length).toBe(1);
+		expect(document.querySelectorAll('script[src*="adsbygoogle"]').length).toBe(1);
 	});
 });
