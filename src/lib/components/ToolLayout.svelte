@@ -8,9 +8,11 @@
 		description: string;
 		/** The tool's input/result content, rendered inside the bordered card. */
 		children?: Snippet;
+		/** Optional content rendered below the bordered card (e.g. ads, affiliate links). */
+		afterCard?: Snippet;
 	}
 
-	let { title, description, children }: Props = $props();
+	let { title, description, children, afterCard }: Props = $props();
 </script>
 
 <div class="mx-auto max-w-2xl">
@@ -27,4 +29,6 @@
 	<div class="mt-8 rounded-2xl border border-gray-200 bg-bg p-6 dark:border-gray-700">
 		{@render children?.()}
 	</div>
+
+	{@render afterCard?.()}
 </div>

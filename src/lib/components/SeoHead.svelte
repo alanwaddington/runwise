@@ -54,6 +54,10 @@
 		<meta name="google-site-verification" content={env.PUBLIC_GOOGLE_SITE_VERIFICATION} />
 	{/if}
 
+	{#if env.PUBLIC_GOOGLE_ADSENSE_ACCOUNT}
+		<meta name="google-adsense-account" content={env.PUBLIC_GOOGLE_ADSENSE_ACCOUNT} />
+	{/if}
+
 	<meta property="og:title" content={page.title} />
 	<meta property="og:description" content={page.description} />
 	<meta property="og:url" content={canonicalUrl} />

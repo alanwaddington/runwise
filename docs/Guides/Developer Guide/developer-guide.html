@@ -74,19 +74,35 @@ npm run dev
 ├── app.css              # Global styles + Tailwind theme tokens
 ├── app.html             # SvelteKit HTML shell
 ├── lib/
+│   ├── affiliates.ts    # Affiliate product definitions per route (Amazon Associates)
+│   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images
 │   ├── components/      # Shared UI components
+│   │   ├── AdUnit.svelte            # Consent-gated Google AdSense ad unit
+│   │   ├── AdUnit.test.ts
+│   │   ├── AffiliateLinks.svelte    # Per-route affiliate product cards (Amazon)
+│   │   ├── AffiliateLinks.test.ts
+│   │   ├── CookieBanner.svelte      # GDPR cookie consent banner (fixed bottom)
+│   │   ├── CookieBanner.test.ts
 │   │   ├── HeroSection.svelte
 │   │   ├── HeroSection.test.ts
 │   │   ├── InputField.svelte
 │   │   ├── InputField.test.ts
 │   │   ├── ResultDisplay.svelte
 │   │   ├── ResultDisplay.test.ts
+│   │   ├── SeoHead.svelte           # Per-page meta tags, OG, JSON-LD, AdSense account verification
+│   │   ├── SeoHead.test.ts
+│   │   ├── SiteFooter.svelte        # Footer with Privacy Policy link and Manage Cookies button
+│   │   ├── SiteFooter.test.ts
 │   │   ├── SiteNav.svelte
 │   │   ├── SiteNav.test.ts
 │   │   ├── ToolCard.svelte
 │   │   ├── ToolCard.test.ts
 │   │   ├── ToolLayout.svelte
 │   │   └── ToolLayout.test.ts
+│   ├── stores/          # Svelte stores for cross-component state
+│   │   ├── consent.ts               # GDPR consent read/write (localStorage)
+│   │   ├── consent.test.ts
+│   │   └── consentBannerVisible.ts  # Writable store: true = show banner
 │   └── utils/           # Pure utility modules (no Svelte dependency)
 │       ├── pace.ts               # Pace/speed conversion functions
 │       ├── pace.test.ts
@@ -101,7 +117,7 @@ npm run dev
 │       ├── parkrun.ts            # Reference distance list, Riegel prediction, split generation, PB comparison, WMA age grading
 │       └── parkrun.test.ts
 └── routes/
-    ├── +layout.svelte   # Root layout — header + main wrapper
+    ├── +layout.svelte   # Root layout — CookieBanner + header + main + SiteFooter
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid
     ├── +error.svelte    # Error page
     ├── pace/
@@ -109,7 +125,8 @@ npm run dev
     ├── training-paces/
     ├── hr-zones/
     ├── vo2max/
-    └── parkrun/
+    ├── parkrun/
+    └── privacy/         # Privacy Policy page
 </code></pre>
 <hr>
 <h2>Design System</h2>
@@ -182,13 +199,38 @@ npm run dev
 </tr>
 <tr>
 <td><code>ToolLayout</code></td>
-<td><code>title</code>, <code>description</code>, <code>pageTitle?</code></td>
-<td>Wrapper for tool pages — back link, heading, description. <code>pageTitle</code> overrides the default <code>&quot;{title} | Runwise&quot;</code> document title.</td>
+<td><code>title</code>, <code>description</code>, <code>pageTitle?</code>, <code>afterCard?</code></td>
+<td>Wrapper for tool pages — back link, heading, description. <code>pageTitle</code> overrides the default <code>&quot;{title} | Runwise&quot;</code> document title. <code>afterCard</code> is an optional named snippet rendered below the tool card (used to inject <code>AdUnit</code> and <code>AffiliateLinks</code>).</td>
 </tr>
 <tr>
 <td><code>SiteNav</code></td>
 <td>none</td>
 <td>Top navigation — brand + tool links with active-route highlight</td>
+</tr>
+<tr>
+<td><code>SiteFooter</code></td>
+<td>none</td>
+<td>Page footer — Privacy Policy link and Manage Cookies button</td>
+</tr>
+<tr>
+<td><code>SeoHead</code></td>
+<td><code>route</code></td>
+<td>Per-page <code>&lt;head&gt;</code> content: title, description, canonical, OG, JSON-LD, AdSense account meta tag</td>
+</tr>
+<tr>
+<td><code>CookieBanner</code></td>
+<td>none</td>
+<td>Fixed-bottom GDPR consent banner — accept all, necessary-only, or granular preferences</td>
+</tr>
+<tr>
+<td><code>AdUnit</code></td>
+<td>none</td>
+<td>Consent-gated Google AdSense <code>&lt;ins&gt;</code> — only renders when marketing consent is granted and <code>PUBLIC_ADSENSE_CLIENT_ID</code> is set</td>
+</tr>
+<tr>
+<td><code>AffiliateLinks</code></td>
+<td><code>route</code></td>
+<td>Per-route affiliate product cards — calls <code>getAffiliateLinks(route)</code> from <code>affiliates.ts</code></td>
 </tr>
 <tr>
 <td><code>InputField</code></td>

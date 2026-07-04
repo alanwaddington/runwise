@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import AdUnit from '$lib/components/AdUnit.svelte';
+	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
 	import { buildTrainingPaceResult } from '$lib/utils/training-paces';
 
@@ -266,4 +268,9 @@
 			>
 		</p>
 	{/if}
+
+	{#snippet afterCard()}
+		<AdUnit />
+		<AffiliateLinks route="/training-paces" />
+	{/snippet}
 </ToolLayout>
