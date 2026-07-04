@@ -40,19 +40,35 @@ src/
 ├── app.css              # Global styles + Tailwind theme tokens
 ├── app.html             # SvelteKit HTML shell
 ├── lib/
+│   ├── affiliates.ts    # Affiliate product definitions per route (Amazon Associates)
+│   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images
 │   ├── components/      # Shared UI components
+│   │   ├── AdUnit.svelte            # Consent-gated Google AdSense ad unit
+│   │   ├── AdUnit.test.ts
+│   │   ├── AffiliateLinks.svelte    # Per-route affiliate product cards (Amazon)
+│   │   ├── AffiliateLinks.test.ts
+│   │   ├── CookieBanner.svelte      # GDPR cookie consent banner (fixed bottom)
+│   │   ├── CookieBanner.test.ts
 │   │   ├── HeroSection.svelte
 │   │   ├── HeroSection.test.ts
 │   │   ├── InputField.svelte
 │   │   ├── InputField.test.ts
 │   │   ├── ResultDisplay.svelte
 │   │   ├── ResultDisplay.test.ts
+│   │   ├── SeoHead.svelte           # Per-page meta tags, OG, JSON-LD, AdSense account verification
+│   │   ├── SeoHead.test.ts
+│   │   ├── SiteFooter.svelte        # Footer with Privacy Policy link and Manage Cookies button
+│   │   ├── SiteFooter.test.ts
 │   │   ├── SiteNav.svelte
 │   │   ├── SiteNav.test.ts
 │   │   ├── ToolCard.svelte
 │   │   ├── ToolCard.test.ts
 │   │   ├── ToolLayout.svelte
 │   │   └── ToolLayout.test.ts
+│   ├── stores/          # Svelte stores for cross-component state
+│   │   ├── consent.ts               # GDPR consent read/write (localStorage)
+│   │   ├── consent.test.ts
+│   │   └── consentBannerVisible.ts  # Writable store: true = show banner
 │   └── utils/           # Pure utility modules (no Svelte dependency)
 │       ├── pace.ts               # Pace/speed conversion functions
 │       ├── pace.test.ts
@@ -67,7 +83,7 @@ src/
 │       ├── parkrun.ts            # Reference distance list, Riegel prediction, split generation, PB comparison, WMA age grading
 │       └── parkrun.test.ts
 └── routes/
-    ├── +layout.svelte   # Root layout — header + main wrapper
+    ├── +layout.svelte   # Root layout — CookieBanner + header + main + SiteFooter
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid
     ├── +error.svelte    # Error page
     ├── pace/
@@ -75,7 +91,8 @@ src/
     ├── training-paces/
     ├── hr-zones/
     ├── vo2max/
-    └── parkrun/
+    ├── parkrun/
+    └── privacy/         # Privacy Policy page
 ```
 
 ---
@@ -101,8 +118,13 @@ Dark mode is applied automatically via `prefers-color-scheme`. Always use design
 |-----------|-------|---------|
 | `HeroSection` | none | Home page hero — icon, tagline, sub-copy, separator |
 | `ToolCard` | `href`, `name`, `description`, `route` | Linked card on the home page |
-| `ToolLayout` | `title`, `description`, `pageTitle?` | Wrapper for tool pages — back link, heading, description. `pageTitle` overrides the default `"{title} \| Runwise"` document title. |
+| `ToolLayout` | `title`, `description`, `pageTitle?`, `afterCard?` | Wrapper for tool pages — back link, heading, description. `pageTitle` overrides the default `"{title} \| Runwise"` document title. `afterCard` is an optional named snippet rendered below the tool card (used to inject `AdUnit` and `AffiliateLinks`). |
 | `SiteNav` | none | Top navigation — brand + tool links with active-route highlight |
+| `SiteFooter` | none | Page footer — Privacy Policy link and Manage Cookies button |
+| `SeoHead` | `route` | Per-page `<head>` content: title, description, canonical, OG, JSON-LD, AdSense account meta tag |
+| `CookieBanner` | none | Fixed-bottom GDPR consent banner — accept all, necessary-only, or granular preferences |
+| `AdUnit` | none | Consent-gated Google AdSense `<ins>` — only renders when marketing consent is granted and `PUBLIC_ADSENSE_CLIENT_ID` is set |
+| `AffiliateLinks` | `route` | Per-route affiliate product cards — calls `getAffiliateLinks(route)` from `affiliates.ts` |
 | `InputField` | `label`, `id`, `value`, `type?`, `unit?`, `step?`, `placeholder?`, `inputmode?` | Labelled input with optional unit suffix. `inputmode` triggers the correct mobile keyboard (e.g. `"decimal"`). |
 | `ResultDisplay` | `value`, `label` | Prominent result block with copy-to-clipboard |
 

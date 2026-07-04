@@ -99,6 +99,16 @@
 <td>No</td>
 <td>Google Search Console site-ownership verification token. When set, <code>SeoHead.svelte</code> renders <code>&lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot;&gt;</code> on every page. Omit entirely if not verifying via meta tag (e.g. using DNS TXT verification instead) — the tag is skipped when unset.</td>
 </tr>
+<tr>
+<td><code>PUBLIC_GOOGLE_ADSENSE_ACCOUNT</code></td>
+<td>No</td>
+<td>Google AdSense Publisher ID (e.g. <code>ca-pub-XXXXXXXXX</code>). When set, <code>SeoHead.svelte</code> renders <code>&lt;meta name=&quot;google-adsense-account&quot; content=&quot;...&quot;&gt;</code> on every page — this is the meta-tag ownership verification method required by AdSense. Set this once AdSense is connected; no ads will serve until <code>PUBLIC_ADSENSE_CLIENT_ID</code> is also set and the site passes Google&#39;s review.</td>
+</tr>
+<tr>
+<td><code>PUBLIC_ADSENSE_CLIENT_ID</code></td>
+<td>No</td>
+<td>Google AdSense publisher client ID (same value as <code>PUBLIC_GOOGLE_ADSENSE_ACCOUNT</code>, e.g. <code>ca-pub-XXXXXXXXX</code>). When set, <code>AdUnit.svelte</code> injects the AdSense script and renders ad slots for users who have granted marketing consent. Set only after the site has passed AdSense review — leaving this unset disables all ad rendering.</td>
+</tr>
 </tbody></table>
 <p>Set optional variables in the Vercel dashboard under <strong>Environment Variables</strong> (left sidebar). See <code>.env.example</code> for the full list with descriptions. No environment variables are required for a first-time deploy.</p>
 <hr>

@@ -193,6 +193,30 @@ Cross-links to the Race Time Predictor, Training Pace Calculator, and VO2 Max Es
 
 ---
 
+## Recommended Gear
+
+Each tool page shows a small section of affiliate product recommendations below the tool card — GPS watches and heart rate monitors relevant to the tool you're using. These link to Amazon search results. As an Amazon Associate, Runwise may earn a small commission from qualifying purchases at no extra cost to you.
+
+---
+
+## Privacy and Cookies
+
+### Cookie Consent
+
+When you first visit Runwise, a cookie consent banner appears at the bottom of the page. You can choose:
+
+- **Accept All** — enables all cookies (necessary + analytics + marketing)
+- **Necessary Only** — enables only cookies required for the site to function
+- **Customise** — expands toggles so you can enable or disable each category individually
+
+Your choice is saved in your browser's local storage and remembered for future visits. You can change your preferences at any time via the **Manage Cookies** link in the footer.
+
+### Privacy Policy
+
+The full Privacy Policy is available at [/privacy](/privacy). It covers what data is collected, how cookies are used, Google AdSense, affiliate links, and your rights under GDPR.
+
+---
+
 ## Tips
 
 - All calculators work on mobile — tap any input field and your keyboard will appear.
