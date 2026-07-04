@@ -17,13 +17,13 @@
 		if (!consented || !browser) return;
 		const clientId = env.PUBLIC_ADSENSE_CLIENT_ID;
 		if (!clientId) return;
-		if (document.querySelector('script[data-adsense]')) return;
+		if (document.querySelector('script[src*="adsbygoogle"]')) return;
+		if ((window as any).adsbygoogle) return;
 
 		const script = document.createElement('script');
 		script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
 		script.async = true;
 		script.crossOrigin = 'anonymous';
-		script.dataset.adsense = 'true';
 		document.head.appendChild(script);
 	});
 </script>
