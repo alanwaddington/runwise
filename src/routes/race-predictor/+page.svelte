@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import AdUnit from '$lib/components/AdUnit.svelte';
+	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 
 	let selectedOption = $state('5K');
@@ -228,4 +230,9 @@
 			>
 		</p>
 	{/if}
+
+	{#snippet afterCard()}
+		<AdUnit />
+		<AffiliateLinks route="/race-predictor" />
+	{/snippet}
 </ToolLayout>

@@ -50,4 +50,30 @@ describe('ToolLayout', () => {
 		expect(screen.getByRole('heading', { level: 1, name: 'Pace Calculator' })).toBeInTheDocument();
 	});
 
+	it('renders afterCard snippet content below the bordered card', () => {
+		const afterCardSnippet = createRawSnippet(() => ({
+			render: () => '<div data-testid="after-card-content">After card</div>'
+		}));
+		render(ToolLayout, {
+			props: {
+				title: 'Pace Calculator',
+				description: 'Work out your pace.',
+				children: childSnippet,
+				afterCard: afterCardSnippet
+			}
+		});
+		const afterCardContent = screen.getByTestId('after-card-content');
+		expect(afterCardContent).toBeInTheDocument();
+		const toolContent = screen.getByTestId('tool-content');
+		expect(afterCardContent.compareDocumentPosition(toolContent)).toBe(
+			Node.DOCUMENT_POSITION_PRECEDING
+		);
+	});
+
+	it('renders without afterCard when prop is not provided', () => {
+		render(ToolLayout, {
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', children: childSnippet }
+		});
+		expect(screen.queryByTestId('after-card-content')).toBeNull();
+	});
 });

@@ -2,6 +2,8 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import AdUnit from '$lib/components/AdUnit.svelte';
+	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import {
 		parsePace,
 		formatPace,
@@ -148,4 +150,9 @@
 		<ResultDisplay value={per400mDisplay} label="per 400 m" />
 		<ResultDisplay value={per800mDisplay} label="per 800 m" />
 	</div>
+
+	{#snippet afterCard()}
+		<AdUnit />
+		<AffiliateLinks route="/pace" />
+	{/snippet}
 </ToolLayout>

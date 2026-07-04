@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
+	import AdUnit from '$lib/components/AdUnit.svelte';
+	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { parseTime, formatTime, predictedPaceMinPerKm } from '$lib/utils/race-predictor';
@@ -436,4 +438,9 @@
 			>
 		</p>
 	{/if}
+
+	{#snippet afterCard()}
+		<AdUnit />
+		<AffiliateLinks route="/parkrun" />
+	{/snippet}
 </ToolLayout>

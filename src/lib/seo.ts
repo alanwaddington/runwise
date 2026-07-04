@@ -74,5 +74,14 @@ export const PAGES: Record<string, PageSeo> = {
 		jsonLdType: 'WebApplication',
 		changefreq: 'monthly',
 		priority: 0.8
+	},
+	'/privacy': {
+		title: 'Privacy Policy | Runwise',
+		description:
+			'Privacy policy for Runwise. Learn how we use cookies, Google AdSense, affiliate links, and Vercel Analytics — and how to manage your preferences.',
+		ogImage: DEFAULT_OG_IMAGE,
+		jsonLdType: 'WebSite',
+		changefreq: 'yearly',
+		priority: 0.3
 	}
 };

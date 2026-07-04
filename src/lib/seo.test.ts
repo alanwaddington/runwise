@@ -94,4 +94,13 @@ describe('PAGES config', () => {
 			expect(PAGES[route].title).not.toContain('—');
 		}
 	});
+
+	it('PAGES_privacyRoute_existsWithCorrectConfig', () => {
+		expect(PAGES['/privacy']).toBeDefined();
+		expect(PAGES['/privacy'].title).toBe('Privacy Policy | Runwise');
+		expect(PAGES['/privacy'].jsonLdType).toBe('WebSite');
+		expect(PAGES['/privacy'].changefreq).toBe('yearly');
+		expect(PAGES['/privacy'].priority).toBe(0.3);
+		expect(PAGES['/privacy'].ogImage).toBe(DEFAULT_OG_IMAGE);
+	});
 });

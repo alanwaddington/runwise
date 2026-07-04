@@ -2,6 +2,8 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import AdUnit from '$lib/components/AdUnit.svelte';
+	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import {
 		calculateMaxHrZones,
 		calculateLthrZones,
@@ -351,4 +353,9 @@
 			>
 		</p>
 	{/if}
+
+	{#snippet afterCard()}
+		<AdUnit />
+		<AffiliateLinks route="/hr-zones" />
+	{/snippet}
 </ToolLayout>

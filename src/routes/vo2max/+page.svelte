@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
+	import AdUnit from '$lib/components/AdUnit.svelte';
+	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 	import { calculateVdot } from '$lib/utils/training-paces';
@@ -441,4 +443,9 @@
 			<a href="/race-predictor" class="text-accent underline-offset-2 hover:underline">Race Time Predictor</a>
 		</p>
 	{/if}
+
+	{#snippet afterCard()}
+		<AdUnit />
+		<AffiliateLinks route="/vo2max" />
+	{/snippet}
 </ToolLayout>
