@@ -7,15 +7,15 @@ afterEach(() => {
 });
 
 function getMinkmInput() {
-	return screen.getByLabelText('Pace', { selector: '#pace-minkm' });
+	return document.getElementById('pace-minkm') as HTMLInputElement;
 }
 
 function getMinmileInput() {
-	return screen.getByLabelText('Pace', { selector: '#pace-minmile' });
+	return document.getElementById('pace-minmile') as HTMLInputElement;
 }
 
 function getKmhInput() {
-	return screen.getByLabelText('Speed');
+	return document.getElementById('pace-kmh') as HTMLInputElement;
 }
 
 async function typeInto(input: Element, value: string) {

@@ -23,9 +23,13 @@
 		error?: string | null;
 		/** Whether the field has been interacted with. Controls error message visibility. */
 		touched?: boolean;
+		/** oninput event handler */
+		oninput?: (e: Event) => void;
+		/** onblur event handler */
+		onblur?: (e: Event) => void;
 	}
 
-	let { label, id, value = $bindable(), unit, type = 'number', step, placeholder, inputmode, required, error, touched }: Props =
+	let { label, id, value = $bindable(), unit, type = 'number', step, placeholder, inputmode, required, error, touched, oninput, onblur }: Props =
 		$props();
 
 	const descriptionIds = $derived.by(() => {
@@ -57,6 +61,8 @@
 			{placeholder}
 			{inputmode}
 			bind:value
+			{oninput}
+			{onblur}
 			aria-describedby={descriptionIds}
 			aria-invalid={hasError ? 'true' : undefined}
 			class="h-12 w-full rounded-lg border bg-bg px-3 text-ink focus:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none dark:border-gray-700"
