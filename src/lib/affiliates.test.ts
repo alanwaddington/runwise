@@ -31,10 +31,10 @@ describe('AFFILIATE_LINKS config', () => {
 		}
 	});
 
-	it('AFFILIATE_LINKS_hrZones_hasGarminProduct', () => {
+	it('AFFILIATE_LINKS_hrZones_allAmazonProducts', () => {
 		const hrProducts = AFFILIATE_LINKS['/hr-zones'];
-		const garminProduct = hrProducts.find((p) => p.program === 'garmin');
-		expect(garminProduct).toBeDefined();
+		const allAmazon = hrProducts.every((p) => p.program === 'amazon');
+		expect(allAmazon).toBe(true);
 	});
 
 	it('AFFILIATE_LINKS_noHomepageEntry', () => {
