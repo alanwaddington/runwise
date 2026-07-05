@@ -1,8 +1,6 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
-	import AdUnit from '$lib/components/AdUnit.svelte';
-	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 
 	let selectedOption = $state('5K');
@@ -48,7 +46,7 @@
 
 <SeoHead route="/race-predictor" />
 
-<ToolLayout title="Race Time Predictor" description="Predict your race finish time based on a recent result.">
+<ToolLayout title="Race Time Predictor" description="Predict your race finish time based on a recent result." route="/race-predictor">
 	<!-- Known distance select -->
 	<div class="mb-4">
 		<label for="distance-select" class="mb-1.5 block text-sm font-medium text-ink"
@@ -231,8 +229,4 @@
 		</p>
 	{/if}
 
-	{#snippet afterCard()}
-		<AdUnit />
-		<AffiliateLinks route="/race-predictor" />
-	{/snippet}
 </ToolLayout>

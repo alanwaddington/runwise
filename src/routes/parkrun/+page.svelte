@@ -1,8 +1,6 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
-	import AdUnit from '$lib/components/AdUnit.svelte';
-	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { parseTime, formatTime, predictedPaceMinPerKm } from '$lib/utils/race-predictor';
@@ -129,7 +127,7 @@
 
 <SeoHead route="/parkrun" />
 
-<ToolLayout title="Parkrun Predictor" description="Predict your parkrun time from recent race performances.">
+<ToolLayout title="Parkrun Predictor" description="Predict your parkrun time from recent race performances." route="/parkrun">
 	<!-- Input mode toggle -->
 	<div
 		class="mb-4 flex rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
@@ -439,8 +437,4 @@
 		</p>
 	{/if}
 
-	{#snippet afterCard()}
-		<AdUnit />
-		<AffiliateLinks route="/parkrun" />
-	{/snippet}
 </ToolLayout>

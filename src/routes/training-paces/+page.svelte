@@ -1,8 +1,6 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
-	import AdUnit from '$lib/components/AdUnit.svelte';
-	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
 	import { buildTrainingPaceResult } from '$lib/utils/training-paces';
 
@@ -48,6 +46,7 @@
 <ToolLayout
 	title="Training Pace Calculator"
 	description="Find your optimal training paces from a recent race result."
+	route="/training-paces"
 >
 	<!-- Race distance select -->
 	<div class="mb-4">
@@ -269,8 +268,4 @@
 		</p>
 	{/if}
 
-	{#snippet afterCard()}
-		<AdUnit />
-		<AffiliateLinks route="/training-paces" />
-	{/snippet}
 </ToolLayout>

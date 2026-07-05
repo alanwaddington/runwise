@@ -2,8 +2,6 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
-	import AdUnit from '$lib/components/AdUnit.svelte';
-	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import {
 		calculateMaxHrZones,
 		calculateLthrZones,
@@ -84,6 +82,7 @@
 <ToolLayout
 	title="Heart Rate Zone Calculator"
 	description="Calculate your personalised heart rate training zones."
+	route="/hr-zones"
 >
 	<!-- Method selector + info tooltip -->
 	<div class="mb-4 flex items-center gap-3">
@@ -354,8 +353,4 @@
 		</p>
 	{/if}
 
-	{#snippet afterCard()}
-		<AdUnit />
-		<AffiliateLinks route="/hr-zones" />
-	{/snippet}
 </ToolLayout>

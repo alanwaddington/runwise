@@ -2,8 +2,6 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
-	import AdUnit from '$lib/components/AdUnit.svelte';
-	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import {
 		parsePace,
 		formatPace,
@@ -72,7 +70,7 @@
 
 <SeoHead route="/pace" />
 
-<ToolLayout title="Pace Calculator" description="Convert between min/km, min/mile, km/h and mph instantly.">
+<ToolLayout title="Pace Calculator" description="Convert between min/km, min/mile, km/h and mph instantly." route="/pace">
 	<!-- min/km -->
 	<div class="mb-4">
 		<label for="pace-minkm" class="mb-1.5 block text-sm font-medium text-ink">Pace</label>
@@ -151,8 +149,4 @@
 		<ResultDisplay value={per800mDisplay} label="per 800 m" />
 	</div>
 
-	{#snippet afterCard()}
-		<AdUnit />
-		<AffiliateLinks route="/pace" />
-	{/snippet}
 </ToolLayout>
