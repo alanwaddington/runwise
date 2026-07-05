@@ -95,7 +95,7 @@
 				class:bg-accent={method === 'maxhr'}
 				class:text-white={method === 'maxhr'}
 				class:font-semibold={method === 'maxhr'}
-				class:text-gray-600={method !== 'maxhr'}
+				class:text-muted={method !== 'maxhr'}
 				class:hover:text-ink={method !== 'maxhr'}
 			>
 				Max HR
@@ -108,7 +108,7 @@
 				class:bg-accent={method === 'lthr'}
 				class:text-white={method === 'lthr'}
 				class:font-semibold={method === 'lthr'}
-				class:text-gray-600={method !== 'lthr'}
+				class:text-muted={method !== 'lthr'}
 				class:hover:text-ink={method !== 'lthr'}
 			>
 				LTHR
@@ -124,7 +124,7 @@
 					e.stopPropagation();
 					showTooltip = !showTooltip;
 				}}
-				class="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:hover:bg-gray-800"
+				class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-gray-100 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:hover:bg-gray-800"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -149,11 +149,11 @@
 					role="tooltip"
 					class="absolute right-0 top-10 z-10 w-72 rounded-lg border border-gray-200 bg-bg p-3 text-sm shadow-lg dark:border-gray-700"
 				>
-					<p class="mb-2 text-gray-600">
+					<p class="mb-2 text-muted">
 						<span class="font-semibold text-ink">Max HR</span> — Simple percentage-based zones using
 						your maximum heart rate. Easy to use without specialist testing.
 					</p>
-					<p class="text-gray-600">
+					<p class="text-muted">
 						<span class="font-semibold text-ink">LTHR</span> — Joe Friel's lactate threshold method.
 						More precise for coached athletes and triathletes.
 					</p>
@@ -187,7 +187,7 @@
 		{#if estimatedHr !== null}
 			<div class="mb-4 -mt-2" aria-live="polite">
 				<p class="text-sm font-medium text-ink">Estimated max HR: {estimatedHr} bpm</p>
-				<p class="mt-0.5 text-xs text-gray-600">
+				<p class="mt-0.5 text-xs text-muted">
 					Age-based formulas vary significantly between individuals and are not a reliable
 					substitute for a measured max HR test.
 				</p>
@@ -217,7 +217,7 @@
 					d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
 				/>
 			</svg>
-			<p class="mt-3 text-sm text-gray-600">
+			<p class="mt-3 text-sm text-muted">
 				Enter your heart rate above to see your training zones.
 			</p>
 		</div>
@@ -229,22 +229,22 @@
 					<tr class="border-b border-ink/10">
 						<th
 							scope="col"
-							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-600"
+							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-muted"
 							>Zone</th
 						>
 						<th
 							scope="col"
-							class="hidden pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-600 sm:table-cell"
+							class="hidden pb-2 text-left text-xs font-medium uppercase tracking-wide text-muted sm:table-cell"
 							>Name</th
 						>
 						<th
 							scope="col"
-							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600"
+							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-muted"
 							>BPM range</th
 						>
 						<th
 							scope="col"
-							class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600 sm:table-cell"
+							class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-muted sm:table-cell"
 						></th>
 					</tr>
 				</thead>
@@ -279,7 +279,7 @@
 										stroke-width="2"
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										class="ml-auto text-gray-600 transition-transform duration-200"
+										class="ml-auto text-muted transition-transform duration-200"
 										class:rotate-180={zone5Expanded}
 										aria-hidden="true"
 									>
@@ -292,7 +292,7 @@
 							class="border-b border-ink/10"
 							class:last:border-0={!isExpandable || !zone5Expanded}
 						>
-							<td colspan="4" class="pb-3 pt-0.5 text-xs leading-relaxed text-gray-600">
+							<td colspan="4" class="pb-3 pt-0.5 text-xs leading-relaxed text-muted">
 								<span class="mr-1 font-medium text-ink sm:hidden">{zone.name}.</span>
 								{zone.purpose}
 								{#if isExpandable}
@@ -316,7 +316,7 @@
 							{#each subZones as sub (sub.zone)}
 								<tr class="border-b border-ink/10 bg-gray-50 dark:bg-gray-800/40">
 									<td class="py-2 pl-1 pr-2">
-										<span class="font-mono text-xs font-medium text-gray-600">{sub.zone}</span>
+										<span class="font-mono text-xs font-medium text-muted">{sub.zone}</span>
 									</td>
 									<td class="hidden py-2 pr-4 font-medium text-ink sm:table-cell">{sub.name}</td>
 									<td class="py-2 text-right tabular-nums text-ink">{formatBpmRange(sub)}</td>
@@ -325,7 +325,7 @@
 								<tr
 									class="border-b border-ink/10 last:border-0 bg-gray-50 dark:bg-gray-800/40"
 								>
-									<td colspan="4" class="pb-2 pt-0.5 pl-1 text-xs leading-relaxed text-gray-600">
+									<td colspan="4" class="pb-2 pt-0.5 pl-1 text-xs leading-relaxed text-muted">
 										<span class="mr-1 font-medium text-ink sm:hidden">{sub.name}.</span>
 										{sub.purpose}
 									</td>
@@ -339,13 +339,13 @@
 
 		<!-- LTHR zone gap note -->
 		{#if method === 'lthr'}
-			<p class="mt-4 text-xs text-gray-600">
+			<p class="mt-4 text-xs text-muted">
 				<span class="font-medium text-ink">Note:</span> Joe Friel's zone boundaries intentionally have small gaps between them. This is by design and doesn't indicate an error.
 			</p>
 		{/if}
 
 		<!-- Footer cross-link -->
-		<p class="mt-6 text-center text-xs text-gray-600">
+		<p class="mt-6 text-center text-xs text-muted">
 			Want to find your training paces?
 			<a href="/training-paces" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Training Pace Calculator →</a

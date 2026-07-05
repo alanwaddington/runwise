@@ -25,13 +25,13 @@
 	<div class="min-w-0">
 		<a
 			href="/"
-			class="rounded-sm text-sm text-gray-600 transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+			class="rounded-sm text-sm text-muted transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
 		>
 			← All tools
 		</a>
 
 		<h1 class="mt-4 text-2xl font-bold text-ink md:text-3xl">{title}</h1>
-		<p class="mt-2 text-gray-600 dark:text-gray-400">{description}</p>
+		<p class="mt-2 text-muted dark:text-gray-400">{description}</p>
 
 		<div class="mt-8 rounded-2xl border border-gray-200 bg-bg p-6 dark:border-gray-700">
 			{@render children?.()}

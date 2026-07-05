@@ -67,7 +67,7 @@
 				<option value="Custom">Custom (km)</option>
 			</select>
 			<span
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-600"
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted"
 				aria-hidden="true"
 			>
 				<svg
@@ -114,7 +114,7 @@
 				/>
 				<span
 					id="custom-km-unit"
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
+					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted"
 				>
 					km
 				</span>
@@ -137,7 +137,7 @@
 				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
 			/>
 		</div>
-		<p id="time-help" class="mt-1 text-xs text-gray-600">Enter MM:SS or H:MM:SS</p>
+		<p id="time-help" class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
 	</div>
 
 	<hr class="my-6 border-t border-ink/10" />
@@ -163,7 +163,7 @@
 				<path d="M9 3h6" />
 				<path d="M12 3v2" />
 			</svg>
-			<p class="mt-3 text-sm text-gray-600">
+			<p class="mt-3 text-sm text-muted">
 				Enter a race result above to see your training paces.
 			</p>
 		</div>
@@ -189,7 +189,7 @@
 			<p class="mt-3 text-sm font-medium text-ink">
 				That time is outside the supported range (VDOT 20–85).
 			</p>
-			<p class="mt-1 text-sm text-gray-600">
+			<p class="mt-1 text-sm text-muted">
 				Try entering a time closer to a recent race performance.
 			</p>
 		</div>
@@ -198,7 +198,7 @@
 
 		<!-- VDOT headline -->
 		<div class="mb-6 text-center">
-			<p class="text-xs font-medium uppercase tracking-wide text-gray-600">Your VDOT</p>
+			<p class="text-xs font-medium uppercase tracking-wide text-muted">Your VDOT</p>
 			<p class="text-4xl font-bold tabular-nums text-accent">{result.vdot}</p>
 		</div>
 
@@ -209,22 +209,22 @@
 					<tr class="border-b border-ink/10">
 						<th
 							scope="col"
-							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-600"
+							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-muted"
 							>Zone</th
 						>
 						<th
 							scope="col"
-							class="hidden pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-600 sm:table-cell"
+							class="hidden pb-2 text-left text-xs font-medium uppercase tracking-wide text-muted sm:table-cell"
 							>Name</th
 						>
 						<th
 							scope="col"
-							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600"
+							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-muted"
 							>Pace/km</th
 						>
 						<th
 							scope="col"
-							class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600 sm:table-cell"
+							class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-muted sm:table-cell"
 							>Pace/mile</th
 						>
 					</tr>
@@ -244,12 +244,12 @@
 							<td class="py-3 text-right tabular-nums text-ink"
 								>{zone.paceMinKmHigh}–{zone.paceMinKmLow}</td
 							>
-							<td class="hidden py-3 text-right tabular-nums text-gray-600 sm:table-cell"
+							<td class="hidden py-3 text-right tabular-nums text-muted sm:table-cell"
 								>{zone.paceMinMileHigh}–{zone.paceMinMileLow}</td
 							>
 						</tr>
 						<tr class="border-b border-ink/10 last:border-0">
-							<td colspan="4" class="pb-3 pt-0.5 text-xs leading-relaxed text-gray-600">
+							<td colspan="4" class="pb-3 pt-0.5 text-xs leading-relaxed text-muted">
 								<span class="mr-1 font-medium text-ink sm:hidden">{zone.name}.</span>
 								{zone.description}
 							</td>
@@ -260,7 +260,7 @@
 		</div>
 
 		<!-- Footer link -->
-		<p class="mt-6 text-center text-xs text-gray-600">
+		<p class="mt-6 text-center text-xs text-muted">
 			Want to know your aerobic capacity?
 			<a href="/vo2max" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Estimate your VO2 max →</a
