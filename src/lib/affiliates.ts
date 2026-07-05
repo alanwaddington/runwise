@@ -60,7 +60,7 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 			name: 'Garmin HRM-Pro Plus',
 			description: 'Premium chest strap heart rate monitor for precise zone training.',
 			url: 'https://www.amazon.co.uk/s?k=Garmin+HRM-Pro+Plus&tag=runwise-21',
-			program: 'garmin',
+			program: 'amazon',
 			tag: 'runwise21-21'
 		},
 		{
