@@ -217,7 +217,9 @@
 			touched={timeTouched}
 			oninput={onTimeInput}
 			onblur={() => (timeTouched = true)}
+			aria-describedby="time-help"
 		/>
+		<p id="time-help" class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
 	{:else}
 		<!-- Average Pace input -->
 		<InputField
@@ -233,7 +235,9 @@
 			touched={paceTouched}
 			oninput={onPaceInput}
 			onblur={() => (paceTouched = true)}
+			aria-describedby="pace-help"
 		/>
+		<p id="pace-help" class="mt-1 text-xs text-muted">Enter pace as M:SS (e.g., 5:30)</p>
 	{/if}
 
 	<!-- Reference distance slider -->

@@ -168,4 +168,67 @@ describe('InputField', () => {
 		expect(input).toHaveAttribute('aria-describedby', expect.stringContaining('distance-error'));
 		expect(input).toHaveAttribute('aria-describedby', expect.stringContaining('distance-unit'));
 	});
+
+	it('accepts custom aria-describedby prop', () => {
+		render(InputField, {
+			props: { label: 'Time', id: 'time', value: '', 'aria-describedby': 'time-help' }
+		});
+		const input = screen.getByLabelText('Time');
+		expect(input).toHaveAttribute('aria-describedby', 'time-help');
+	});
+
+	it('prepends custom aria-describedby when unit is provided', () => {
+		render(InputField, {
+			props: {
+				label: 'Pace',
+				id: 'pace',
+				value: '',
+				unit: '/km',
+				'aria-describedby': 'pace-help'
+			}
+		});
+		const input = screen.getByLabelText('Pace');
+		const describedBy = input.getAttribute('aria-describedby');
+		expect(describedBy).toContain('pace-help');
+		expect(describedBy).toContain('pace-unit');
+		expect(describedBy).toBe('pace-help pace-unit');
+	});
+
+	it('prepends custom aria-describedby when error exists', () => {
+		render(InputField, {
+			props: {
+				label: 'Distance',
+				id: 'distance',
+				value: 0,
+				error: 'Must be greater than 0',
+				touched: true,
+				'aria-describedby': 'distance-help'
+			}
+		});
+		const input = screen.getByLabelText('Distance');
+		const describedBy = input.getAttribute('aria-describedby');
+		expect(describedBy).toContain('distance-help');
+		expect(describedBy).toContain('distance-error');
+		expect(describedBy).toBe('distance-help distance-error');
+	});
+
+	it('combines custom aria-describedby with error and unit', () => {
+		render(InputField, {
+			props: {
+				label: 'Pace',
+				id: 'pace',
+				value: '',
+				unit: '/km',
+				error: 'Invalid format',
+				touched: true,
+				'aria-describedby': 'pace-help'
+			}
+		});
+		const input = screen.getByLabelText('Pace');
+		const describedBy = input.getAttribute('aria-describedby');
+		expect(describedBy).toContain('pace-help');
+		expect(describedBy).toContain('pace-error');
+		expect(describedBy).toContain('pace-unit');
+		expect(describedBy).toBe('pace-help pace-error pace-unit');
+	});
 });
