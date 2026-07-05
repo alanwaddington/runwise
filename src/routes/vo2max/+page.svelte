@@ -2,6 +2,7 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import { validatePositive } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 	import { calculateVdot } from '$lib/utils/training-paces';
 	import {
@@ -17,6 +18,12 @@
 	let timeRaw = $state('');
 	let ageRaw = $state<number | string>('');
 	let genderRaw = $state('prefer-not-to-say');
+
+	let customKmTouched = $state(false);
+	let timeTouched = $state(false);
+
+	let customKmError = $state<string | null>(null);
+	let timeError = $state<string | null>(null);
 
 	let isCustom = $derived(selectedOption === 'Custom');
 
@@ -71,11 +78,16 @@
 	}
 
 	function onCustomKmInput(e: Event) {
-		customKmRaw = (e.target as HTMLInputElement).value;
+		const raw = (e.target as HTMLInputElement).value;
+		customKmRaw = raw;
+		const validation = validatePositive(raw ? parseFloat(raw) : null);
+		customKmError = validation.type === 'invalid' ? validation.error : null;
 	}
 
 	function onTimeInput(e: Event) {
-		timeRaw = (e.target as HTMLInputElement).value;
+		const raw = (e.target as HTMLInputElement).value;
+		timeRaw = raw;
+		timeError = raw && parseTime(raw) === null ? 'Enter MM:SS or H:MM:SS' : null;
 	}
 
 	function onGenderChange(e: Event) {
@@ -126,49 +138,38 @@
 	</div>
 
 	<!-- Custom distance input -->
-	<div hidden={!isCustom} class="mb-4">
-		<div>
-			<label for="custom-km" class="mb-1.5 block text-sm font-medium text-ink"
-				>Custom distance</label
-			>
-			<div class="relative">
-				<input
-					id="custom-km"
-					type="text"
-					inputmode="decimal"
-					placeholder="e.g. 12.5"
-					value={customKmRaw}
-					oninput={onCustomKmInput}
-					aria-describedby="custom-km-unit"
-					class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 pr-14 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
-				/>
-				<span
-					id="custom-km-unit"
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted"
-				>
-					km
-				</span>
-			</div>
-		</div>
+	<div hidden={!isCustom}>
+		<InputField
+			id="custom-km"
+			label="Custom distance"
+			bind:value={customKmRaw}
+			unit="km"
+			type="text"
+			inputmode="decimal"
+			placeholder="e.g. 12.5"
+			required={isCustom}
+			error={customKmError}
+			touched={customKmTouched}
+			oninput={onCustomKmInput}
+			onblur={() => (customKmTouched = true)}
+		/>
 	</div>
 
 	<!-- Finish time input -->
-	<div class="mb-4">
-		<label for="finish-time" class="mb-1.5 block text-sm font-medium text-ink">Finish time</label>
-		<div class="relative">
-			<input
-				id="finish-time"
-				type="text"
-				inputmode="decimal"
-				placeholder="e.g. 25:00 or 1:56:20"
-				value={timeRaw}
-				oninput={onTimeInput}
-				aria-describedby="time-help"
-				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
-			/>
-		</div>
-		<p id="time-help" class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
-	</div>
+	<InputField
+		id="finish-time"
+		label="Finish time"
+		bind:value={timeRaw}
+		type="text"
+		inputmode="decimal"
+		placeholder="e.g. 25:00 or 1:56:20"
+		required
+		error={timeError}
+		touched={timeTouched}
+		oninput={onTimeInput}
+		onblur={() => (timeTouched = true)}
+	/>
+	<p class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
 
 	<!-- Optional: Age + Gender -->
 	<div class="mb-4 grid grid-cols-2 gap-3">
