@@ -37,7 +37,7 @@ beforeEach(() => {
 afterEach(() => {
 	cleanup();
 	document.querySelectorAll('script[src*="adsbygoogle"]').forEach((el) => el.remove());
-	delete (window as any).adsbygoogle;
+	delete (window as { adsbygoogle?: unknown }).adsbygoogle;
 });
 
 describe('AdUnit consent gating', () => {

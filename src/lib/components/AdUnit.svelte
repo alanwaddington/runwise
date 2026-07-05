@@ -18,7 +18,7 @@
 		const clientId = env.PUBLIC_ADSENSE_CLIENT_ID;
 		if (!clientId) return;
 		if (document.querySelector('script[src*="adsbygoogle"]')) return;
-		if ((window as any).adsbygoogle) return;
+		if ((window as { adsbygoogle?: unknown }).adsbygoogle) return;
 
 		const script = document.createElement('script');
 		script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
