@@ -18,7 +18,7 @@
 	</a>
 
 	<h1 class="mt-4 text-2xl font-bold text-ink md:text-3xl">Privacy Policy</h1>
-	<p class="mt-2 text-sm text-gray-400">Last updated: 4 July 2026</p>
+	<p class="mt-2 text-sm text-gray-400">Last updated: 5 July 2026</p>
 
 	<div class="mt-8 space-y-8 text-gray-600 dark:text-gray-400">
 		<section>
@@ -81,10 +81,10 @@
 		<section>
 			<h2 class="mb-3 text-lg font-semibold text-ink">Affiliate links</h2>
 			<p class="text-sm">
-				Some pages include links to products on Amazon and Garmin. These are affiliate links — if
-				you click a link and make a purchase, we may earn a small commission at no extra cost to
-				you. Affiliate links do not set cookies on runwise.app. Cookies may be set by Amazon or
-				Garmin once you follow a link to their site, subject to their own privacy policies.
+				Some pages include links to products on Amazon. These are affiliate links — if you click a
+				link and make a purchase, we may earn a small commission at no extra cost to you. Affiliate
+				links do not set cookies on runwise.app. Cookies may be set by Amazon once you follow a
+				link to their site, subject to their privacy policy.
 			</p>
 		</section>
 

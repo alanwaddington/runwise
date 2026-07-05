@@ -49,7 +49,7 @@
 		</div>
 
 		<p class="mt-3 text-xs text-gray-400">
-			As an Amazon Associate and Garmin partner, we may earn from qualifying purchases.
+			As an Amazon Associate, we may earn from qualifying purchases.
 		</p>
 	</div>
 {/if}
