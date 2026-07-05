@@ -87,4 +87,85 @@ describe('InputField', () => {
 		await fireEvent.input(input, { target: { value: '5' } });
 		expect(value).toBe(5);
 	});
+
+	it('renders a red asterisk when required prop is true', () => {
+		const { container } = render(InputField, { props: { label: 'Distance', id: 'distance', value: 0, required: true } });
+		const label = container.querySelector('label');
+		expect(label?.textContent).toContain('*');
+	});
+
+	it('does not render an asterisk when required prop is false or undefined', () => {
+		const { container } = render(InputField, {
+			props: { label: 'Distance', id: 'distance', value: 0, required: false }
+		});
+		const label = container.querySelector('label');
+		expect(label?.textContent).not.toContain('*');
+	});
+
+	it('does not show error message when error prop is null', () => {
+		render(InputField, { props: { label: 'Distance', id: 'distance', value: 0, error: null } });
+		expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+	});
+
+	it('does not show error message when touched is false even if error prop exists', () => {
+		render(InputField, {
+			props: { label: 'Distance', id: 'distance', value: 0, error: 'Must be greater than 0', touched: false }
+		});
+		expect(screen.queryByText('Must be greater than 0')).not.toBeInTheDocument();
+	});
+
+	it('shows error message when error is set and touched is true', () => {
+		render(InputField, {
+			props: { label: 'Distance', id: 'distance', value: 0, error: 'Must be greater than 0', touched: true }
+		});
+		expect(screen.getByText('Must be greater than 0')).toBeInTheDocument();
+	});
+
+	it('has aria-describedby pointing to error message id when error and touched are both true', () => {
+		render(InputField, {
+			props: { label: 'Distance', id: 'distance', value: 0, error: 'Must be greater than 0', touched: true }
+		});
+		const input = screen.getByLabelText('Distance');
+		expect(input).toHaveAttribute('aria-describedby', 'distance-error');
+	});
+
+	it('error message element has aria-live polite attribute', () => {
+		const { container } = render(InputField, {
+			props: { label: 'Distance', id: 'distance', value: 0, error: 'Must be greater than 0', touched: true }
+		});
+		const errorElement = container.querySelector('[id="distance-error"]');
+		expect(errorElement).toHaveAttribute('aria-live', 'polite');
+	});
+
+	it('applies red border styling when error and touched are both true', () => {
+		const { container } = render(InputField, {
+			props: { label: 'Distance', id: 'distance', value: 0, error: 'Must be greater than 0', touched: true }
+		});
+		const input = container.querySelector('input');
+		expect(input?.className).toContain('border-[color:var(--color-error)]');
+	});
+
+	it('does not apply red border when touched is false', () => {
+		const { container } = render(InputField, {
+			props: { label: 'Distance', id: 'distance', value: 0, error: 'Must be greater than 0', touched: false }
+		});
+		const input = container.querySelector('input');
+		expect(input?.className).not.toMatch(/border-\[color:var\(--color-error\)\]/);
+	});
+
+	it('combines aria-describedby with unit id when both unit and error exist', () => {
+		render(InputField, {
+			props: {
+				label: 'Distance',
+				id: 'distance',
+				value: 0,
+				unit: 'km',
+				error: 'Must be greater than 0',
+				touched: true
+			}
+		});
+		const input = screen.getByLabelText('Distance');
+		expect(input).toHaveAttribute('aria-describedby', expect.stringContaining('distance-error'));
+		expect(input).toHaveAttribute('aria-describedby', expect.stringContaining('distance-unit'));
+	});
 });
