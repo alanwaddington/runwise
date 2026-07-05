@@ -235,7 +235,9 @@
 			touched={paceTouched}
 			oninput={onPaceInput}
 			onblur={() => (paceTouched = true)}
+			aria-describedby="pace-help"
 		/>
+		<p id="pace-help" class="mt-1 text-xs text-muted">Enter pace as M:SS (e.g., 5:30)</p>
 	{/if}
 
 	<!-- Reference distance slider -->
