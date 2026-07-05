@@ -27,13 +27,18 @@
 		oninput?: (e: Event) => void;
 		/** onblur event handler */
 		onblur?: (e: Event) => void;
+		/** Custom aria-describedby value(s) to associate with help text or other descriptions. */
+		'aria-describedby'?: string;
 	}
 
-	let { label, id, value = $bindable(), unit, type = 'number', step, placeholder, inputmode, required, error, touched, oninput, onblur }: Props =
+	let { label, id, value = $bindable(), unit, type = 'number', step, placeholder, inputmode, required, error, touched, oninput, onblur, 'aria-describedby': ariaDescribedBy }: Props =
 		$props();
 
 	const descriptionIds = $derived.by(() => {
 		const ids: string[] = [];
+		if (ariaDescribedBy) {
+			ids.push(ariaDescribedBy);
+		}
 		if (error && touched) {
 			ids.push(`${id}-error`);
 		}
