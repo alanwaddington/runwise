@@ -7,6 +7,8 @@
 	--color-accent-dark: #146344;
 	--color-bg: #fafaf8;
 	--color-ink: #19191a;
+	--text-muted: #6b7280;
+	--text-subtle: #4b5563;
 	--font-sans: 'Manrope', system-ui, sans-serif;
 	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
