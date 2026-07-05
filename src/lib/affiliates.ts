@@ -9,16 +9,16 @@ export interface AffiliateProduct {
 export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 	'/pace': [
 		{
-			name: 'Garmin Forerunner 165',
-			description: 'GPS running watch with pace alerts and training load tracking.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+165&tag=runwise-21',
+			name: 'Garmin Forerunner 170',
+			description: 'AMOLED running watch with barometric altimeter, offline music, and 10-day battery.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+170&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		},
 		{
 			name: 'Garmin Forerunner 265',
-			description: 'Advanced GPS watch with AMOLED display and real-time stamina tracking.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+265&tag=runwise-21',
+			description: 'Dual-frequency GPS with AMOLED display, SatIQ satellite selection, and music storage.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+265&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
@@ -26,15 +26,15 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 	'/race-predictor': [
 		{
 			name: 'Garmin Forerunner 265',
-			description: 'Advanced GPS watch with race predictor and performance condition metrics.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+265&tag=runwise-21',
+			description: 'Dual-frequency GPS with race predictor, performance metrics, and 10+ day battery.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+265&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		},
 		{
-			name: 'Garmin Forerunner 965',
-			description: 'Premium GPS watch with race-day weather forecasting and pace strategy.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+965&tag=runwise-21',
+			name: 'Garmin Forerunner 970',
+			description: 'Flagship running watch with topographic maps, dual-frequency GPS, and automatic race transitions.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+970&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
@@ -42,15 +42,15 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 	'/training-paces': [
 		{
 			name: 'Garmin Forerunner 265',
-			description: 'GPS watch with daily suggested workouts based on your training load.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+265&tag=runwise-21',
+			description: 'AMOLED watch with daily suggested workouts and training load monitoring.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+265&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		},
 		{
-			name: 'Garmin Forerunner 955 Solar',
-			description: 'Endurance GPS watch with training status and VO2 max tracking.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+955+Solar&tag=runwise-21',
+			name: 'Garmin Forerunner 570',
+			description: 'Multi-sport watch with skin temperature tracking, built-in speaker, and triathlon support.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+570&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
@@ -58,47 +58,47 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 	'/hr-zones': [
 		{
 			name: 'Garmin HRM-Pro Plus',
-			description: 'Premium chest strap heart rate monitor for precise zone training.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+HRM-Pro+Plus&tag=runwise-21',
+			description: 'Mid-range chest strap with running dynamics, running power, and swim data logging.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+HRM-Pro+Plus&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		},
 		{
-			name: 'Garmin HRM-Dual',
-			description: 'Dual-band heart rate monitor compatible with most GPS watches and apps.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+HRM-Dual&tag=runwise-21',
+			name: 'Garmin HRM 600',
+			description: 'Premium rechargeable strap with running power metrics, standalone recording, and 2-month battery.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+HRM+600&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
 	],
 	'/vo2max': [
 		{
-			name: 'Garmin Forerunner 965',
-			description: 'Premium GPS watch with VO2 max estimation and HRV status tracking.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+965&tag=runwise-21',
+			name: 'Garmin Forerunner 970',
+			description: 'Flagship watch with VO2 max tracking, HRV status, and complete aerobic metrics.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+970&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		},
 		{
-			name: 'Garmin Fenix 7',
-			description: 'Multisport GPS watch with VO2 max, training load, and acclimatisation data.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Fenix+7&tag=runwise-21',
+			name: 'Garmin Fenix 8',
+			description: 'Premium multisport watch with AMOLED display, VO2 max, and topographic maps.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Fenix+8&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
 	],
 	'/parkrun': [
 		{
-			name: 'Garmin Forerunner 165',
-			description: 'Lightweight GPS watch ideal for 5K parkrun pacing and lap splits.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+165&tag=runwise-21',
+			name: 'Garmin Forerunner 170',
+			description: 'Lightweight AMOLED watch ideal for 5K running with smart features and music support.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+170&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		},
 		{
-			name: 'Garmin Forerunner 55',
-			description: 'Entry-level GPS running watch perfect for parkrun tracking and personal bests.',
-			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+55&tag=runwise-21',
+			name: 'Garmin Forerunner 70',
+			description: 'Entry-level GPS watch with Garmin Coach workouts and 13-day battery for casual runners.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+70&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
