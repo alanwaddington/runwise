@@ -1,8 +1,6 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
-	import AdUnit from '$lib/components/AdUnit.svelte';
-	import AffiliateLinks from '$lib/components/AffiliateLinks.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 	import { calculateVdot } from '$lib/utils/training-paces';
@@ -87,7 +85,7 @@
 
 <SeoHead route="/vo2max" />
 
-<ToolLayout title="VO2 Max Estimator" description="Estimate your VO2 max from race times or field tests.">
+<ToolLayout title="VO2 Max Estimator" description="Estimate your VO2 max from race times or field tests." route="/vo2max">
 	<!-- Race distance select -->
 	<div class="mb-4">
 		<label for="distance-select" class="mb-1.5 block text-sm font-medium text-ink"
@@ -444,8 +442,4 @@
 		</p>
 	{/if}
 
-	{#snippet afterCard()}
-		<AdUnit />
-		<AffiliateLinks route="/vo2max" />
-	{/snippet}
 </ToolLayout>

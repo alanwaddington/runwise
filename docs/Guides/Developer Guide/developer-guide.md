@@ -118,7 +118,7 @@ Dark mode is applied automatically via `prefers-color-scheme`. Always use design
 |-----------|-------|---------|
 | `HeroSection` | none | Home page hero — icon, tagline, sub-copy, separator |
 | `ToolCard` | `href`, `name`, `description`, `route` | Linked card on the home page |
-| `ToolLayout` | `title`, `description`, `pageTitle?`, `afterCard?` | Wrapper for tool pages — back link, heading, description. `pageTitle` overrides the default `"{title} \| Runwise"` document title. `afterCard` is an optional named snippet rendered below the tool card (used to inject `AdUnit` and `AffiliateLinks`). |
+| `ToolLayout` | `title`, `description`, `route` | Wrapper for tool pages — back link, heading, description, and a sticky sidebar containing `AdUnit` and `AffiliateLinks`. The `route` prop is passed to `AffiliateLinks` to look up relevant products for that page. On desktop (lg+) the sidebar appears as a fixed-width right column; on mobile it stacks below the tool card. |
 | `SiteNav` | none | Top navigation — brand + tool links with active-route highlight |
 | `SiteFooter` | none | Page footer — Privacy Policy link and Manage Cookies button |
 | `SeoHead` | `route` | Per-page `<head>` content: title, description, canonical, OG, JSON-LD, AdSense account meta tag |
@@ -133,7 +133,7 @@ Dark mode is applied automatically via `prefers-color-scheme`. Always use design
 ## Adding a New Tool
 
 1. Create `src/routes/<tool-name>/+page.svelte`
-2. Import `ToolLayout` and pass `title` and `description` props
+2. Import `ToolLayout` and pass `title`, `description`, and `route` props
 3. Add the tool to the `tools` array in `src/routes/+page.svelte`
 4. Add the tool link to `SiteNav.svelte`
 5. Register the route in `src/lib/seo.ts` (`PAGES` map) with a title, description, OG image path, and sitemap priority — this drives the page's meta tags, `sitemap.xml` entry, `robots.txt` allow rules, and JSON-LD structured data

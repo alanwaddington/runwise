@@ -1,10 +1,54 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { render, cleanup, screen } from '@testing-library/svelte';
-import { createRawSnippet } from 'svelte';
+import { createRawSnippet, tick } from 'svelte';
 import ToolLayout from './ToolLayout.svelte';
+
+vi.mock('$app/environment', () => ({ browser: true }));
+
+const { mockHasConsent } = vi.hoisted(() => ({
+	mockHasConsent: vi.fn(() => false)
+}));
+
+vi.mock('$lib/stores/consent', () => ({
+	hasConsent: mockHasConsent
+}));
+
+const { mockConsentBannerVisible } = vi.hoisted(() => ({
+	mockConsentBannerVisible: {
+		subscribe: vi.fn((fn: (v: boolean) => void) => {
+			fn(false);
+			return () => {};
+		})
+	}
+}));
+
+vi.mock('$lib/stores/consentBannerVisible', () => ({
+	consentBannerVisible: mockConsentBannerVisible
+}));
+
+const { mockEnv } = vi.hoisted(() => ({
+	mockEnv: {} as Record<string, string>
+}));
+vi.mock('$env/dynamic/public', () => ({ env: mockEnv }));
+
+const { mockGetAffiliateLinks } = vi.hoisted(() => ({
+	mockGetAffiliateLinks: vi.fn(() => [])
+}));
+
+vi.mock('$lib/affiliates', () => ({
+	getAffiliateLinks: mockGetAffiliateLinks
+}));
+
+beforeEach(() => {
+	mockHasConsent.mockReturnValue(false);
+	delete mockEnv.PUBLIC_ADSENSE_CLIENT_ID;
+	mockGetAffiliateLinks.mockReturnValue([]);
+});
 
 afterEach(() => {
 	cleanup();
+	document.querySelectorAll('script[src*="adsbygoogle"]').forEach((el) => el.remove());
+	delete (window as Window & { adsbygoogle?: unknown }).adsbygoogle;
 });
 
 const childSnippet = createRawSnippet(() => ({
@@ -14,21 +58,21 @@ const childSnippet = createRawSnippet(() => ({
 describe('ToolLayout', () => {
 	it('renders the title as a heading', () => {
 		render(ToolLayout, {
-			props: { title: 'Pace Calculator', description: 'Work out your pace.', children: childSnippet }
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
 		});
 		expect(screen.getByRole('heading', { level: 1, name: 'Pace Calculator' })).toBeInTheDocument();
 	});
 
 	it('renders the description', () => {
 		render(ToolLayout, {
-			props: { title: 'Pace Calculator', description: 'Work out your pace.', children: childSnippet }
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
 		});
 		expect(screen.getByText('Work out your pace.')).toBeInTheDocument();
 	});
 
 	it('renders a back-to-home link', () => {
 		render(ToolLayout, {
-			props: { title: 'Pace Calculator', description: 'Work out your pace.', children: childSnippet }
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
 		});
 		const back = screen.getByRole('link', { name: /all tools/i });
 		expect(back).toHaveAttribute('href', '/');
@@ -36,7 +80,7 @@ describe('ToolLayout', () => {
 
 	it('renders the default slot content inside a bordered card', () => {
 		render(ToolLayout, {
-			props: { title: 'Pace Calculator', description: 'Work out your pace.', children: childSnippet }
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
 		});
 		const content = screen.getByTestId('tool-content');
 		expect(content).toBeInTheDocument();
@@ -46,34 +90,69 @@ describe('ToolLayout', () => {
 	});
 
 	it('renders without crashing when no child content is provided', () => {
-		render(ToolLayout, { props: { title: 'Pace Calculator', description: 'Work out your pace.' } });
+		render(ToolLayout, { props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace' } });
 		expect(screen.getByRole('heading', { level: 1, name: 'Pace Calculator' })).toBeInTheDocument();
 	});
 
-	it('renders afterCard snippet content below the bordered card', () => {
-		const afterCardSnippet = createRawSnippet(() => ({
-			render: () => '<div data-testid="after-card-content">After card</div>'
-		}));
-		render(ToolLayout, {
-			props: {
-				title: 'Pace Calculator',
-				description: 'Work out your pace.',
-				children: childSnippet,
-				afterCard: afterCardSnippet
-			}
+	describe('sidebar', () => {
+		it('renders a sidebar aside element', () => {
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			expect(document.querySelector('aside')).toBeInTheDocument();
 		});
-		const afterCardContent = screen.getByTestId('after-card-content');
-		expect(afterCardContent).toBeInTheDocument();
-		const toolContent = screen.getByTestId('tool-content');
-		expect(afterCardContent.compareDocumentPosition(toolContent)).toBe(
-			Node.DOCUMENT_POSITION_PRECEDING
-		);
-	});
 
-	it('renders without afterCard when prop is not provided', () => {
-		render(ToolLayout, {
-			props: { title: 'Pace Calculator', description: 'Work out your pace.', children: childSnippet }
+		it('sidebar has lg:sticky and print:hidden classes', () => {
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			const aside = document.querySelector('aside');
+			expect(aside?.className).toMatch(/lg:sticky/);
+			expect(aside?.className).toMatch(/print:hidden/);
 		});
-		expect(screen.queryByTestId('after-card-content')).toBeNull();
+
+		it('sidebar appears after the main content column in DOM order', () => {
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			const toolContent = screen.getByTestId('tool-content');
+			const aside = document.querySelector('aside');
+			expect(aside?.compareDocumentPosition(toolContent)).toBe(Node.DOCUMENT_POSITION_PRECEDING);
+		});
+
+		it('renders AdUnit in sidebar when marketing consent and client ID are set', async () => {
+			mockHasConsent.mockReturnValue(true);
+			mockEnv.PUBLIC_ADSENSE_CLIENT_ID = 'ca-pub-1234567890';
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			await tick();
+			const adUnit = screen.getByTestId('ad-unit');
+			const aside = document.querySelector('aside');
+			expect(aside?.contains(adUnit)).toBe(true);
+		});
+
+		it('renders AffiliateLinks in sidebar when products exist for route', () => {
+			mockGetAffiliateLinks.mockReturnValue([
+				{
+					name: 'Forerunner 165',
+					description: 'GPS running watch',
+					url: 'https://amazon.com/test',
+					program: 'amazon'
+				}
+			]);
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			const aside = document.querySelector('aside');
+			expect(aside?.textContent).toContain('Recommended gear');
+		});
+
+		it('passes route prop to AffiliateLinks', () => {
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			expect(mockGetAffiliateLinks).toHaveBeenCalledWith('/pace');
+		});
 	});
 });

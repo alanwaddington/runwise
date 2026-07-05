@@ -195,7 +195,7 @@ Cross-links to the Race Time Predictor, Training Pace Calculator, and VO2 Max Es
 
 ## Recommended Gear
 
-Each tool page shows a small section of affiliate product recommendations below the tool card — GPS watches and heart rate monitors relevant to the tool you're using. These link to Amazon search results. As an Amazon Associate, Runwise may earn a small commission from qualifying purchases at no extra cost to you.
+Each tool page shows affiliate product recommendations alongside the tool — GPS watches and heart rate monitors relevant to the tool you're using. On desktop the recommendations appear in a sidebar to the right of the tool; on mobile they appear below it. These link to Amazon search results. As an Amazon Associate, Runwise may earn a small commission from qualifying purchases at no extra cost to you.
 
 ---
 
