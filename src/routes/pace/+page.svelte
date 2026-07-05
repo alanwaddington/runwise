@@ -87,7 +87,7 @@
 			/>
 			<span
 				id="pace-minkm-unit"
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
 			>
 				min/km
 			</span>
@@ -110,7 +110,7 @@
 			/>
 			<span
 				id="pace-minmile-unit"
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
 			>
 				min/mile
 			</span>
@@ -134,7 +134,7 @@
 			/>
 			<span
 				id="pace-kmh-unit"
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
 			>
 				km/h
 			</span>

@@ -12,13 +12,13 @@
 <div class="mx-auto max-w-2xl">
 	<a
 		href="/"
-		class="rounded-sm text-sm text-gray-500 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+		class="rounded-sm text-sm text-gray-600 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 	>
 		← Home
 	</a>
 
 	<h1 class="mt-4 text-2xl font-bold text-ink md:text-3xl">Privacy Policy</h1>
-	<p class="mt-2 text-sm text-gray-400">Last updated: 5 July 2026</p>
+	<p class="mt-2 text-sm text-gray-600">Last updated: 5 July 2026</p>
 
 	<div class="mt-8 space-y-8 text-gray-600 dark:text-gray-400">
 		<section>

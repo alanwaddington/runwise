@@ -143,7 +143,7 @@
 			class:bg-accent={mode === 'recent-run'}
 			class:text-white={mode === 'recent-run'}
 			class:font-semibold={mode === 'recent-run'}
-			class:text-gray-500={mode !== 'recent-run'}
+			class:text-gray-600={mode !== 'recent-run'}
 			class:hover:text-ink={mode !== 'recent-run'}
 		>
 			Recent Run
@@ -156,7 +156,7 @@
 			class:bg-accent={mode === 'average-pace'}
 			class:text-white={mode === 'average-pace'}
 			class:font-semibold={mode === 'average-pace'}
-			class:text-gray-500={mode !== 'average-pace'}
+			class:text-gray-600={mode !== 'average-pace'}
 			class:hover:text-ink={mode !== 'average-pace'}
 		>
 			Average Pace
@@ -204,7 +204,7 @@
 				/>
 				<span
 					id="pace-unit"
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
 				>
 					/km
 				</span>
@@ -217,7 +217,7 @@
 		<label for="reference-distance" class="mb-1.5 block text-sm font-medium text-ink"
 			>Reference distance</label
 		>
-		<p class="mb-2 text-xs text-gray-500">
+		<p class="mb-2 text-xs text-gray-600">
 			Pick the distance your {mode === 'recent-run' ? 'entered time' : 'pace'} best represents an
 			all-out effort for &mdash; we'll extrapolate from that effort down to a 5K prediction.
 		</p>
@@ -237,7 +237,7 @@
 			       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1
 			       dark:bg-gray-700"
 		/>
-		<div class="mt-1 flex justify-between px-0.5 text-xs text-gray-400">
+		<div class="mt-1 flex justify-between px-0.5 text-xs text-gray-600">
 			{#each REFERENCE_DISTANCES as stop, i (stop.name)}
 				<span
 					class:text-accent={i === referenceDistanceIndex}
@@ -250,7 +250,7 @@
 		<p class="mt-2 text-center text-sm text-gray-600">
 			{REFERENCE_DISTANCES[referenceDistanceIndex].name} &middot; {referenceDistanceKm.toFixed(1)} km
 		</p>
-		<p class="mt-2 text-xs text-gray-500">
+		<p class="mt-2 text-xs text-gray-600">
 			Closer reference distances extrapolate more accurately &mdash; try 5K or 10K for the most
 			reliable estimate, or a longer distance if that's what you actually race at.
 		</p>
@@ -295,7 +295,7 @@
 					<option value="female">Female</option>
 				</select>
 				<span
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500"
+					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-600"
 					aria-hidden="true"
 				>
 					<svg
@@ -339,7 +339,7 @@
 				<path d="M12 2v2" />
 				<path d="M9 2h6" />
 			</svg>
-			<p class="mt-3 text-sm text-gray-400">
+			<p class="mt-3 text-sm text-gray-600">
 				{#if mode === 'recent-run'}
 					Enter a distance and time above to predict your parkrun.
 				{:else}
@@ -351,7 +351,7 @@
 		<ResultDisplay value={formatTime(predictedSeconds)} label="Predicted Parkrun Time" />
 
 		{#if paceMinPerKm !== null}
-			<p class="mt-3 text-center text-sm text-gray-500">
+			<p class="mt-3 text-center text-sm text-gray-600">
 				{formatPace(paceMinPerKm)} /km · {formatPace(minPerKmToMinPerMile(paceMinPerKm))} /mile
 			</p>
 		{/if}
@@ -365,17 +365,17 @@
 					<tr class="border-b border-ink/10">
 						<th
 							scope="col"
-							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
+							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-600"
 							>KM</th
 						>
 						<th
 							scope="col"
-							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500"
+							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600"
 							>Cumulative</th
 						>
 						<th
 							scope="col"
-							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500"
+							class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600"
 							>Split Pace</th
 						>
 					</tr>
@@ -398,7 +398,7 @@
 				class="mt-4 text-center text-sm"
 				class:text-emerald-600={pbComparison.deltaSeconds > 0}
 				class:text-red-500={pbComparison.deltaSeconds < 0}
-				class:text-gray-500={pbComparison.deltaSeconds === 0}
+				class:text-gray-600={pbComparison.deltaSeconds === 0}
 			>
 				{pbComparison.description}
 			</p>
@@ -408,7 +408,7 @@
 		{#if ageGradePercent !== null}
 			{@const label = getAgeGradeLabel(ageGradePercent)}
 			<div class="mt-4 flex items-center justify-center gap-3">
-				<span class="text-sm text-gray-500">Age grade:</span>
+				<span class="text-sm text-gray-600">Age grade:</span>
 				<span class="text-sm font-semibold tabular-nums text-ink">
 					{ageGradePercent.toFixed(1)}%
 				</span>
@@ -423,7 +423,7 @@
 		{/if}
 
 		<!-- Footer cross-links -->
-		<p class="mt-6 text-center text-xs text-gray-400">
+		<p class="mt-6 text-center text-xs text-gray-600">
 			<a href="/race-predictor" class="text-accent underline-offset-2 hover:underline"
 				>Race Time Predictor</a
 			>
