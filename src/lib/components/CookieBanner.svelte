@@ -43,27 +43,27 @@
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<p class="text-sm text-gray-600 dark:text-gray-400">
 					We use cookies to serve ads and understand site usage.
-					<a href="/privacy" class="text-accent underline hover:no-underline">Privacy Policy</a>
+					<a href="/privacy" class="rounded-sm text-accent underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Privacy Policy</a>
 				</p>
 
 				<div class="flex flex-col gap-2 sm:items-end">
 					<div class="flex flex-wrap gap-2">
 						<button
 							onclick={necessaryOnly}
-							class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-ink dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+							class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
 						>
 							Necessary Only
 						</button>
 						<button
 							onclick={acceptAll}
-							class="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+							class="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 						>
 							Accept All
 						</button>
 					</div>
 					<button
 						onclick={() => (expanded = !expanded)}
-						class="text-left text-xs text-gray-600 transition-colors hover:text-ink dark:hover:text-gray-200"
+						class="rounded-sm text-left text-xs text-gray-600 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:hover:text-gray-200"
 					>
 						Customise {expanded ? '▴' : '▾'}
 					</button>
@@ -117,7 +117,7 @@
 
 					<button
 						onclick={savePreferences}
-						class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+						class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						Save Preferences
 					</button>

@@ -424,15 +424,15 @@
 
 		<!-- Footer cross-links -->
 		<p class="mt-6 text-center text-xs text-gray-600">
-			<a href="/race-predictor" class="text-accent underline-offset-2 hover:underline"
+			<a href="/race-predictor" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Race Time Predictor</a
 			>
 			&nbsp;·&nbsp;
-			<a href="/training-paces" class="text-accent underline-offset-2 hover:underline"
+			<a href="/training-paces" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Training Pace Calculator</a
 			>
 			&nbsp;·&nbsp;
-			<a href="/vo2max" class="text-accent underline-offset-2 hover:underline">VO2 Max Estimator</a
+			<a href="/vo2max" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">VO2 Max Estimator</a
 			>
 		</p>
 	{/if}

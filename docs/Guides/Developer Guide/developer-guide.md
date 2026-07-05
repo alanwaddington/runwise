@@ -125,6 +125,33 @@ Secondary text (help hints, labels, table headers, footer) uses `text-gray-600` 
 
 An ESLint rule in `eslint.config.js` errors on `text-gray-400` and `text-gray-500` in Svelte files. The rule uses a negative lookbehind so `dark:text-gray-400` (which passes AA against `#19191a`) is correctly exempted.
 
+### Focus Rings (WCAG AA — SC 2.4.7)
+
+All interactive elements (`<button>` and `<a>`) must have visible focus indicators for keyboard and assistive-technology users (WCAG 2.1 SC 2.4.7 Focus Visible).
+
+**Standard pattern:**
+
+```html
+<!-- Buttons -->
+<button class="... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+
+<!-- Inline links (inside text) — add rounded-sm for clean ring shape -->
+<a href="..." class="rounded-sm ... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+```
+
+**Ring offset note:** Most elements use `ring-offset-2`. Tab buttons inside tight tablist containers use `ring-offset-1` — choose whichever fits the layout.
+
+**Enforcement:** The custom ESLint plugin `eslint-plugin-runwise` (in `eslint-plugin-runwise/`) provides the `require-focus-visible` rule, which errors on any `<button>` or `<a>` in Svelte files missing the full focus-visible pattern. The rule skips elements with fully dynamic class attributes.
+
+```
+eslint-plugin-runwise/
+├── index.js                       # Plugin entry point
+└── rules/
+    └── require-focus-visible.js   # Checks button and a elements for focus-visible classes
+```
+
+The rule is registered in `eslint.config.js` for all `**/*.svelte` files at `'error'` severity — lint will fail if a new interactive element is added without focus-visible styling.
+
 ### Components
 
 | Component | Props | Purpose |

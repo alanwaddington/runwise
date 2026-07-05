@@ -112,7 +112,7 @@
 			<h2 class="mb-3 text-lg font-semibold text-ink">Contact</h2>
 			<p class="text-sm">
 				For privacy-related enquiries, contact us at
-				<a href="mailto:privacy@runwise.app" class="text-accent hover:underline"
+				<a href="mailto:privacy@runwise.app" class="rounded-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>privacy@runwise.app</a
 				>.
 			</p>
@@ -122,7 +122,7 @@
 	<div class="mt-10 border-t border-gray-200 pt-6 dark:border-gray-700">
 		<button
 			onclick={manageCookies}
-			class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-ink dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+			class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
 		>
 			Manage cookie preferences
 		</button>

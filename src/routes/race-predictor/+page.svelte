@@ -223,7 +223,7 @@
 		</p>
 		<p class="mt-3 text-center text-xs text-gray-600">
 			Want to know your aerobic capacity?
-			<a href="/vo2max" class="text-accent underline-offset-2 hover:underline"
+			<a href="/vo2max" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Estimate your VO2 max →</a
 			>
 		</p>

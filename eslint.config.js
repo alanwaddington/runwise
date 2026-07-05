@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
+import runwise from './eslint-plugin-runwise/index.js';
 
 export default ts.config(
 	js.configs.recommended,
@@ -21,6 +22,9 @@ export default ts.config(
 			parserOptions: {
 				parser: ts.parser
 			}
+		},
+		plugins: {
+			runwise
 		}
 	},
 	{
@@ -44,7 +48,8 @@ export default ts.config(
 					selector: 'Literal[value=/(?<![\\w-])text-gray-500(?![\\w-])/]',
 					message: 'text-gray-500 fails WCAG AA contrast (4.2:1). Use text-gray-600 instead.'
 				}
-			]
+			],
+			'runwise/require-focus-visible': 'error'
 		}
 	},
 	{
