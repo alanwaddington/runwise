@@ -20,7 +20,7 @@
 
 {#if products.length > 0}
 	<div class="print:hidden">
-		<p class="mb-3 mt-6 text-xs font-medium uppercase tracking-wide text-gray-600">
+		<p class="mb-3 mt-6 text-xs font-medium uppercase tracking-wide text-muted">
 			Recommended gear
 		</p>
 
@@ -30,12 +30,12 @@
 					class="rounded-xl border border-gray-200 bg-bg p-4 dark:border-gray-700"
 				>
 					<span
-						class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800"
+						class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-muted dark:bg-gray-800"
 					>
 						{badgeLabel(product.program)}
 					</span>
 					<p class="mt-2 text-sm font-medium text-ink">{product.name}</p>
-					<p class="mt-1 text-xs text-gray-600">{product.description}</p>
+					<p class="mt-1 text-xs text-muted">{product.description}</p>
 					<a
 						href={product.url}
 						target="_blank"
@@ -48,7 +48,7 @@
 			{/each}
 		</div>
 
-		<p class="mt-3 text-xs text-gray-600">
+		<p class="mt-3 text-xs text-muted">
 			As an Amazon Associate, we may earn from qualifying purchases.
 		</p>
 	</div>

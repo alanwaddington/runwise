@@ -62,7 +62,7 @@
 						tool.href
 					)
 						? 'border-b-2 border-accent text-ink'
-						: 'border-b-2 border-transparent text-gray-600 hover:text-ink'}"
+						: 'border-b-2 border-transparent text-muted hover:text-ink'}"
 				>
 					{tool.label}
 				</a>
@@ -73,7 +73,7 @@
 		type="button"
 		onclick={toggleTheme}
 		aria-label="Switch to dark mode"
-		class="rounded-sm p-2 text-gray-600 transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none dark:hidden"
+		class="rounded-sm p-2 text-muted transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none dark:hidden"
 	>
 		<svg
 			aria-hidden="true"
@@ -94,7 +94,7 @@
 		type="button"
 		onclick={toggleTheme}
 		aria-label="Switch to light mode"
-		class="hidden rounded-sm p-2 text-gray-600 transition-colors dark:inline-flex hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+		class="hidden rounded-sm p-2 text-muted transition-colors dark:inline-flex hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
 	>
 		<svg
 			aria-hidden="true"

@@ -41,7 +41,7 @@
 	>
 		<div class="mx-auto max-w-5xl px-4 py-4">
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-				<p class="text-sm text-gray-600 dark:text-gray-400">
+				<p class="text-sm text-muted dark:text-gray-400">
 					We use cookies to serve ads and understand site usage.
 					<a href="/privacy" class="rounded-sm text-accent underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Privacy Policy</a>
 				</p>
@@ -50,7 +50,7 @@
 					<div class="flex flex-wrap gap-2">
 						<button
 							onclick={necessaryOnly}
-							class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+							class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:border-gray-300 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
 						>
 							Necessary Only
 						</button>
@@ -63,7 +63,7 @@
 					</div>
 					<button
 						onclick={() => (expanded = !expanded)}
-						class="rounded-sm text-left text-xs text-gray-600 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:hover:text-gray-200"
+						class="rounded-sm text-left text-xs text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:hover:text-gray-200"
 					>
 						Customise {expanded ? '▴' : '▾'}
 					</button>
@@ -75,7 +75,7 @@
 					<div class="flex items-start justify-between gap-4">
 						<div>
 							<p class="text-sm font-medium text-ink">Necessary</p>
-							<p class="text-xs text-gray-600">Required for the site to function.</p>
+							<p class="text-xs text-muted">Required for the site to function.</p>
 						</div>
 						<div
 							class="relative mt-0.5 h-5 w-9 flex-shrink-0 rounded-full bg-accent opacity-50 after:absolute after:right-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:content-['']"
@@ -86,7 +86,7 @@
 					<div class="flex items-start justify-between gap-4">
 						<div>
 							<p class="text-sm font-medium text-ink">Analytics</p>
-							<p class="text-xs text-gray-600">Helps us understand how the site is used.</p>
+							<p class="text-xs text-muted">Helps us understand how the site is used.</p>
 						</div>
 						<label class="mt-0.5 flex-shrink-0 cursor-pointer">
 							<span class="sr-only">Enable analytics cookies</span>
@@ -102,7 +102,7 @@
 					<div class="flex items-start justify-between gap-4">
 						<div>
 							<p class="text-sm font-medium text-ink">Marketing</p>
-							<p class="text-xs text-gray-600">Used to serve relevant ads via Google AdSense.</p>
+							<p class="text-xs text-muted">Used to serve relevant ads via Google AdSense.</p>
 						</div>
 						<label class="mt-0.5 flex-shrink-0 cursor-pointer">
 							<span class="sr-only">Enable marketing cookies</span>
