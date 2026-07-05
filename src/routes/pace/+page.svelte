@@ -1,7 +1,9 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
+	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import { validatePositive } from '$lib/utils/validation';
 	import {
 		parsePace,
 		formatPace,
@@ -19,8 +21,18 @@
 	let minmileRaw = $state('');
 	let kmhRaw = $state('');
 
+	// Touched state for each field
+	let minkmTouched = $state(false);
+	let minmileTouched = $state(false);
+	let kmhTouched = $state(false);
+
 	// Canonical internal representation — decimal minutes per km
 	let minPerKm = $state<number | null>(null);
+
+	// Error messages for each field
+	let minkmError = $state<string | null>(null);
+	let minmileError = $state<string | null>(null);
+	let kmhError = $state<string | null>(null);
 
 	// Read-only derived outputs
 	let mphDisplay = $derived(
@@ -50,96 +62,79 @@
 	function onMinkmInput(e: Event) {
 		const raw = (e.target as HTMLInputElement).value;
 		minkmRaw = raw;
-		update('minkm', parsePace(raw));
+		const parsed = parsePace(raw);
+		const validation = validatePositive(parsed);
+		minkmError = validation.type === 'invalid' ? validation.error : null;
+		update('minkm', validation.type === 'valid' ? validation.value : null);
 	}
 
 	function onMinmileInput(e: Event) {
 		const raw = (e.target as HTMLInputElement).value;
 		minmileRaw = raw;
 		const parsed = parsePace(raw);
-		update('minmile', parsed !== null ? minPerMileToMinPerKm(parsed) : null);
+		const validation = validatePositive(parsed);
+		minmileError = validation.type === 'invalid' ? validation.error : null;
+		update('minmile', validation.type === 'valid' ? minPerMileToMinPerKm(validation.value) : null);
 	}
 
 	function onKmhInput(e: Event) {
 		const raw = (e.target as HTMLInputElement).value;
 		kmhRaw = raw;
 		const kmh = parseFloat(raw);
-		update('kmh', raw && !isNaN(kmh) ? kmhToMinPerKm(kmh) : null);
+		const validation = validatePositive(kmh);
+		kmhError = validation.type === 'invalid' ? validation.error : null;
+		update('kmh', validation.type === 'valid' ? kmhToMinPerKm(validation.value) : null);
 	}
 </script>
 
 <SeoHead route="/pace" />
 
 <ToolLayout title="Pace Calculator" description="Convert between min/km, min/mile, km/h and mph instantly." route="/pace">
-	<!-- min/km -->
-	<div class="mb-4">
-		<label for="pace-minkm" class="mb-1.5 block text-sm font-medium text-ink">Pace</label>
-		<div class="relative">
-			<input
-				id="pace-minkm"
-				type="text"
-				inputmode="decimal"
-				placeholder="e.g. 5:30"
-				value={minkmRaw}
-				oninput={onMinkmInput}
-				aria-describedby="pace-minkm-unit"
-				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 pr-16 text-ink focus:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none dark:border-gray-700"
-			/>
-			<span
-				id="pace-minkm-unit"
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted"
-			>
-				min/km
-			</span>
-		</div>
-	</div>
+	<InputField
+		id="pace-minkm"
+		label="Pace"
+		bind:value={minkmRaw}
+		unit="min/km"
+		type="text"
+		inputmode="decimal"
+		placeholder="e.g. 5:30"
+		required
+		error={minkmError}
+		touched={minkmTouched}
+		oninput={onMinkmInput}
+		onblur={() => (minkmTouched = true)}
+	/>
 
-	<!-- min/mile -->
-	<div class="mb-4">
-		<label for="pace-minmile" class="mb-1.5 block text-sm font-medium text-ink">Pace</label>
-		<div class="relative">
-			<input
-				id="pace-minmile"
-				type="text"
-				inputmode="decimal"
-				placeholder="e.g. 8:51"
-				value={minmileRaw}
-				oninput={onMinmileInput}
-				aria-describedby="pace-minmile-unit"
-				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 pr-20 text-ink focus:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none dark:border-gray-700"
-			/>
-			<span
-				id="pace-minmile-unit"
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted"
-			>
-				min/mile
-			</span>
-		</div>
-	</div>
+	<InputField
+		id="pace-minmile"
+		label="Pace"
+		bind:value={minmileRaw}
+		unit="min/mile"
+		type="text"
+		inputmode="decimal"
+		placeholder="e.g. 8:51"
+		required
+		error={minmileError}
+		touched={minmileTouched}
+		oninput={onMinmileInput}
+		onblur={() => (minmileTouched = true)}
+	/>
 
-	<!-- km/h -->
-	<div class="mb-4">
-		<label for="pace-kmh" class="mb-1.5 block text-sm font-medium text-ink">Speed</label>
-		<div class="relative">
-			<input
-				id="pace-kmh"
-				type="number"
-				inputmode="decimal"
-				step="0.1"
-				placeholder="e.g. 10.9"
-				value={kmhRaw}
-				oninput={onKmhInput}
-				aria-describedby="pace-kmh-unit"
-				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 pr-14 text-ink focus:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none dark:border-gray-700"
-			/>
-			<span
-				id="pace-kmh-unit"
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted"
-			>
-				km/h
-			</span>
-		</div>
-	</div>
+	<InputField
+		id="pace-kmh"
+		label="Speed"
+		bind:value={kmhRaw}
+		unit="km/h"
+		type="number"
+		inputmode="decimal"
+		step={0.1}
+		placeholder="e.g. 10.9"
+		required
+		error={kmhError}
+		touched={kmhTouched}
+		oninput={onKmhInput}
+		onblur={() => (kmhTouched = true)}
+	/>
 
 	<hr class="my-6 border-t border-ink/10" />
 

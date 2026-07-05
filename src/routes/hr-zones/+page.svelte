@@ -2,6 +2,7 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import { validatePositive, validateRange } from '$lib/utils/validation';
 	import {
 		calculateMaxHrZones,
 		calculateLthrZones,
@@ -17,6 +18,12 @@
 	let showTooltip = $state(false);
 	let zone5Expanded = $state(false);
 	let tooltipContainer: HTMLElement | null = null;
+
+	let bpmTouched = $state(false);
+	let ageTouched = $state(false);
+
+	let bpmError = $state<string | null>(null);
+	let ageError = $state<string | null>(null);
 
 	let bpm = $derived(
 		typeof bpmRaw === 'number' && isFinite(bpmRaw) && bpmRaw > 0 ? bpmRaw : null
@@ -46,10 +53,26 @@
 		return `${zone.bpmLow}-${zone.bpmHigh}`;
 	}
 
+	function onBpmInput(e: Event) {
+		const raw = (e.target as HTMLInputElement).value;
+		bpmRaw = raw ? parseFloat(raw) : '';
+		const validation = validatePositive(raw ? parseFloat(raw) : null);
+		bpmError = validation.type === 'invalid' ? validation.error : null;
+	}
+
+	function onAgeInput(e: Event) {
+		const raw = (e.target as HTMLInputElement).value;
+		ageRaw = raw ? parseFloat(raw) : '';
+		const validation = validateRange(raw ? parseFloat(raw) : null, 10, 100);
+		ageError = validation.type === 'invalid' ? validation.error : null;
+	}
+
 	function selectMethod(m: HrMethod) {
 		method = m;
 		bpmRaw = '';
 		ageRaw = '';
+		bpmError = null;
+		ageError = null;
 		zone5Expanded = false;
 	}
 
@@ -171,6 +194,11 @@
 		type="number"
 		inputmode="numeric"
 		placeholder={method === 'maxhr' ? 'e.g. 185' : 'e.g. 170'}
+		required
+		error={bpmError}
+		touched={bpmTouched}
+		oninput={onBpmInput}
+		onblur={() => (bpmTouched = true)}
 	/>
 
 	<!-- Age input (Max HR mode only) -->
@@ -183,6 +211,10 @@
 			type="number"
 			inputmode="numeric"
 			placeholder="e.g. 35"
+			error={ageError}
+			touched={ageTouched}
+			oninput={onAgeInput}
+			onblur={() => (ageTouched = true)}
 		/>
 		{#if estimatedHr !== null}
 			<div class="mb-4 -mt-2" aria-live="polite">

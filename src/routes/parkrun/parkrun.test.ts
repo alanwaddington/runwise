@@ -34,15 +34,15 @@ describe('Parkrun page', () => {
 
 	it('defaults to Recent Run mode showing distance and time inputs', () => {
 		render(Parkrun);
-		expect(screen.getByLabelText('Distance')).toBeInTheDocument();
-		expect(screen.getByLabelText('Time')).toBeInTheDocument();
+		expect(screen.getByLabelText(/^distance/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/time/i)).toBeInTheDocument();
 	});
 
 	it('switching to Average Pace mode shows pace input (AC2)', async () => {
 		render(Parkrun);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Average Pace' }));
-		expect(screen.getByLabelText('Pace')).toBeInTheDocument();
-		expect(screen.queryByLabelText('Distance')).not.toBeInTheDocument();
+		expect(screen.getByLabelText(/pace/i)).toBeInTheDocument();
+		expect(screen.queryByLabelText(/^distance/i)).not.toBeInTheDocument();
 	});
 
 	// ── Reference distance selector (AC3) ─────────────────────────────────────
@@ -80,8 +80,8 @@ describe('Parkrun page', () => {
 
 	it('entering 8K / 48:00 with Marathon reference shows predicted time and pace (AC4, AC5, AC6)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 		await fireEvent.input(screen.getByLabelText('Reference distance'), { target: { value: '5' } });
 
 		expect(screen.getByText('Predicted Parkrun Time')).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('Parkrun page', () => {
 	it('Average Pace mode produces a prediction from pace alone', async () => {
 		render(Parkrun);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Average Pace' }));
-		await fireEvent.input(screen.getByLabelText('Pace'), { target: { value: '6:00' } });
+		await fireEvent.input(screen.getByLabelText(/pace/i), { target: { value: '6:00' } });
 
 		expect(screen.getByText('Predicted Parkrun Time')).toBeInTheDocument();
 	});
@@ -101,8 +101,8 @@ describe('Parkrun page', () => {
 
 	it('split table displays 5 rows (AC7)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 
 		const table = screen.getByRole('table');
 		const rows = table.querySelectorAll('tbody tr');
@@ -113,16 +113,16 @@ describe('Parkrun page', () => {
 
 	it('does not show PB comparison when PB is blank', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 
 		expect(screen.queryByText(/than your pb/i)).not.toBeInTheDocument();
 	});
 
 	it('shows PB comparison when PB entered (AC8)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 		await fireEvent.input(screen.getByLabelText(/pb/i), { target: { value: '24:30' } });
 
 		expect(screen.getByText(/than your pb/i)).toBeInTheDocument();
@@ -132,16 +132,16 @@ describe('Parkrun page', () => {
 
 	it('does not show age grade when age/gender blank', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 
 		expect(screen.queryByText(/age grade/i)).not.toBeInTheDocument();
 	});
 
 	it('shows age grade when age and gender provided (AC9, AC10)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 		await fireEvent.input(screen.getByLabelText(/age/i), { target: { value: 35, valueAsNumber: 35 } });
 		await fireEvent.change(screen.getByLabelText(/gender/i), { target: { value: 'male' } });
 
@@ -153,8 +153,8 @@ describe('Parkrun page', () => {
 
 	it('optional PB, age, gender fields can be left blank (AC12)', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 
 		expect(screen.getByText('Predicted Parkrun Time')).toBeInTheDocument();
 	});
@@ -163,8 +163,8 @@ describe('Parkrun page', () => {
 
 	it('shows cross-links to Race Predictor, Training Paces, VO2 Max', async () => {
 		render(Parkrun);
-		await fireEvent.input(screen.getByLabelText('Distance'), { target: { value: '8' } });
-		await fireEvent.input(screen.getByLabelText('Time'), { target: { value: '48:00' } });
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
 
 		expect(screen.getByRole('link', { name: /race time predictor/i })).toHaveAttribute(
 			'href',

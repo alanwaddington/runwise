@@ -3,6 +3,7 @@
 	import InputField from '$lib/components/InputField.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import { validatePositive } from '$lib/utils/validation';
 	import { parseTime, formatTime, predictedPaceMinPerKm } from '$lib/utils/race-predictor';
 	import { parsePace, formatPace, minPerKmToMinPerMile } from '$lib/utils/pace';
 	import {
@@ -29,7 +30,7 @@
 	let mode = $state<InputMode>('recent-run');
 	let referenceDistanceIndex = $state(2);
 
-	let distanceRaw = $state<number | string>('');
+	let distanceRaw = $state('');
 	let timeRaw = $state('');
 	let paceRaw = $state('');
 
@@ -37,8 +38,19 @@
 	let ageRaw = $state<number | string>('');
 	let genderRaw = $state('prefer-not-to-say');
 
+	let distanceTouched = $state(false);
+	let timeTouched = $state(false);
+	let paceTouched = $state(false);
+
+	let distanceError = $state<string | null>(null);
+	let timeError = $state<string | null>(null);
+	let paceError = $state<string | null>(null);
+
 	let distanceKm = $derived(
-		typeof distanceRaw === 'number' && isFinite(distanceRaw) && distanceRaw > 0 ? distanceRaw : null
+		(() => {
+			const v = parseFloat(distanceRaw);
+			return isFinite(v) && v > 0 ? v : null;
+		})()
 	);
 
 	let timeSeconds = $derived(parseTime(timeRaw));
@@ -94,6 +106,9 @@
 		distanceRaw = '';
 		timeRaw = '';
 		paceRaw = '';
+		distanceError = null;
+		timeError = null;
+		paceError = null;
 	}
 
 	function handleTabKeydown(e: KeyboardEvent) {
@@ -108,12 +123,23 @@
 		}
 	}
 
+	function onDistanceInput(e: Event) {
+		const raw = (e.target as HTMLInputElement).value;
+		distanceRaw = raw;
+		const validation = validatePositive(raw ? parseFloat(raw) : null);
+		distanceError = validation.type === 'invalid' ? validation.error : null;
+	}
+
 	function onTimeInput(e: Event) {
-		timeRaw = (e.target as HTMLInputElement).value;
+		const raw = (e.target as HTMLInputElement).value;
+		timeRaw = raw;
+		timeError = raw && parseTime(raw) === null ? 'Enter MM:SS or H:MM:SS' : null;
 	}
 
 	function onPaceInput(e: Event) {
-		paceRaw = (e.target as HTMLInputElement).value;
+		const raw = (e.target as HTMLInputElement).value;
+		paceRaw = raw;
+		paceError = raw && parsePace(raw) === null ? 'Enter pace as M:SS (e.g., 5:30)' : null;
 	}
 
 	function onPbInput(e: Event) {
@@ -170,46 +196,44 @@
 			label="Distance"
 			bind:value={distanceRaw}
 			unit="km"
-			type="number"
+			type="text"
 			inputmode="decimal"
-			step={0.1}
 			placeholder="e.g. 8"
+			required
+			error={distanceError}
+			touched={distanceTouched}
+			oninput={onDistanceInput}
+			onblur={() => (distanceTouched = true)}
 		/>
-		<div class="mb-4">
-			<label for="time" class="mb-1.5 block text-sm font-medium text-ink">Time</label>
-			<input
-				id="time"
-				type="text"
-				inputmode="decimal"
-				placeholder="e.g. 48:00"
-				value={timeRaw}
-				oninput={onTimeInput}
-				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
-			/>
-		</div>
+		<InputField
+			id="time"
+			label="Time"
+			bind:value={timeRaw}
+			type="text"
+			inputmode="decimal"
+			placeholder="e.g. 48:00"
+			required
+			error={timeError}
+			touched={timeTouched}
+			oninput={onTimeInput}
+			onblur={() => (timeTouched = true)}
+		/>
 	{:else}
 		<!-- Average Pace input -->
-		<div class="mb-4">
-			<label for="pace" class="mb-1.5 block text-sm font-medium text-ink">Pace</label>
-			<div class="relative">
-				<input
-					id="pace"
-					type="text"
-					inputmode="decimal"
-					placeholder="e.g. 6:00"
-					value={paceRaw}
-					oninput={onPaceInput}
-					aria-describedby="pace-unit"
-					class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 pr-14 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
-				/>
-				<span
-					id="pace-unit"
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted"
-				>
-					/km
-				</span>
-			</div>
-		</div>
+		<InputField
+			id="pace"
+			label="Pace"
+			bind:value={paceRaw}
+			unit="/km"
+			type="text"
+			inputmode="decimal"
+			placeholder="e.g. 6:00"
+			required
+			error={paceError}
+			touched={paceTouched}
+			oninput={onPaceInput}
+			onblur={() => (paceTouched = true)}
+		/>
 	{/if}
 
 	<!-- Reference distance slider -->
