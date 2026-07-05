@@ -217,7 +217,9 @@
 			touched={timeTouched}
 			oninput={onTimeInput}
 			onblur={() => (timeTouched = true)}
+			aria-describedby="time-help"
 		/>
+		<p id="time-help" class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
 	{:else}
 		<!-- Average Pace input -->
 		<InputField
