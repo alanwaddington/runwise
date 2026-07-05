@@ -105,7 +105,7 @@
 				<option value="Custom">Custom (km)</option>
 			</select>
 			<span
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500"
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-600"
 				aria-hidden="true"
 			>
 				<svg
@@ -144,7 +144,7 @@
 				/>
 				<span
 					id="custom-km-unit"
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
 				>
 					km
 				</span>
@@ -167,7 +167,7 @@
 				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
 			/>
 		</div>
-		<p id="time-help" class="mt-1 text-xs text-gray-400">Enter MM:SS or H:MM:SS</p>
+		<p id="time-help" class="mt-1 text-xs text-gray-600">Enter MM:SS or H:MM:SS</p>
 	</div>
 
 	<!-- Optional: Age + Gender -->
@@ -199,7 +199,7 @@
 					<option value="female">Female</option>
 				</select>
 				<span
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500"
+					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-600"
 					aria-hidden="true"
 				>
 					<svg
@@ -240,7 +240,7 @@
 			>
 				<path d="M22 12h-4l-3 9L9 3l-3 9H2" />
 			</svg>
-			<p class="mt-3 text-sm text-gray-400">
+			<p class="mt-3 text-sm text-gray-600">
 				Enter a race result above to see your VO2 max.
 			</p>
 		</div>
@@ -266,21 +266,21 @@
 			<p class="mt-3 text-sm font-medium text-ink">
 				That time is outside the supported range (VDOT 20–85).
 			</p>
-			<p class="mt-1 text-sm text-gray-400">
+			<p class="mt-1 text-sm text-gray-600">
 				Try entering a time closer to a recent race performance.
 			</p>
 		</div>
 	{:else}
 		<!-- VDOT headline -->
 		<div class="mb-6 text-center">
-			<p class="text-xs font-medium uppercase tracking-wide text-gray-500">Your VDOT / VO2 max</p>
+			<p class="text-xs font-medium uppercase tracking-wide text-gray-600">Your VDOT / VO2 max</p>
 			<p class="text-4xl font-bold tabular-nums text-accent" data-testid="vdot-value">{vdotState.vdot}</p>
-			<p class="mt-1 text-sm text-gray-500">ml/kg/min</p>
-			<p class="mt-3 text-xs text-gray-400">
+			<p class="mt-1 text-sm text-gray-600">ml/kg/min</p>
+			<p class="mt-3 text-xs text-gray-600">
 				<span class="font-medium text-ink">What is VDOT?</span>
 				VDOT is a practical proxy for VO2 max — your body's ability to use oxygen during exercise. Derived from your race performance using Jack Daniels' formula, it accounts for both aerobic capacity and running economy.
 			</p>
-			<p class="mt-2 text-xs text-gray-400">
+			<p class="mt-2 text-xs text-gray-600">
 				<span class="font-medium text-ink">Why does this differ from my GPS watch?</span>
 				Devices like Garmin and Coros estimate VO2 max from heart rate and pace trends across many runs, and can run several points higher than a race-derived VDOT — especially if your watch's max heart rate is set too high. This estimate reflects what your race result actually demonstrated on the day, so treat both figures as estimates rather than exact measurements.
 			</p>
@@ -290,7 +290,7 @@
 
 		<!-- Fitness category -->
 		<div class="mb-6">
-			<p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">Fitness Category</p>
+			<p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-600">Fitness Category</p>
 
 			{#if fitnessResult !== null}
 				<!-- Personalised result -->
@@ -302,12 +302,12 @@
 						>
 							{fitnessResult.category}
 						</span>
-						<p class="text-sm text-gray-500">
+						<p class="text-sm text-gray-600">
 							for a {fitnessResult.gender} age {fitnessResult.bracket}
 						</p>
 					</div>
 					{#if fitnessResult.isApproximate}
-						<p class="mt-2 text-xs text-gray-400">
+						<p class="mt-2 text-xs text-gray-600">
 							Based on nearest available bracket ({fitnessResult.bracket}) — ACSM norms cover ages 20–79.
 						</p>
 					{/if}
@@ -318,23 +318,23 @@
 				{@const femaleBracketResult = getFitnessCategory(vdotState.vdot, age, 'female')}
 				{#if bracketResult !== null && femaleBracketResult !== null}
 					<div data-testid="fitness-both-genders" class="rounded-lg border border-ink/10 p-4">
-						<p class="mb-3 text-xs text-gray-500">Age {bracketResult.bracket} reference ranges:</p>
+						<p class="mb-3 text-xs text-gray-600">Age {bracketResult.bracket} reference ranges:</p>
 						<div class="flex gap-4">
 							<div>
-								<p class="mb-1 text-xs font-medium text-gray-500">Male</p>
+								<p class="mb-1 text-xs font-medium text-gray-600">Male</p>
 								<span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-white {CATEGORY_COLOURS[bracketResult.category]}">
 									{bracketResult.category}
 								</span>
 							</div>
 							<div>
-								<p class="mb-1 text-xs font-medium text-gray-500">Female</p>
+								<p class="mb-1 text-xs font-medium text-gray-600">Female</p>
 								<span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-white {CATEGORY_COLOURS[femaleBracketResult.category]}">
 									{femaleBracketResult.category}
 								</span>
 							</div>
 						</div>
 						{#if bracketResult.isApproximate}
-							<p class="mt-2 text-xs text-gray-400">
+							<p class="mt-2 text-xs text-gray-600">
 								Based on nearest available bracket ({bracketResult.bracket}) — ACSM norms cover ages 20–79.
 							</p>
 						{/if}
@@ -343,14 +343,14 @@
 			{:else}
 				<!-- General ACSM reference — both male and female norms -->
 				<div data-testid="acsm-reference-table">
-					<p class="mb-3 text-xs text-gray-400">
+					<p class="mb-3 text-xs text-gray-600">
 						Enter your age and gender above for your personalised category. ACSM reference norms (ml/kg/min):
 					</p>
 
 					<!-- Male norms -->
 					<div class="mb-4">
 						<p class="mb-2 text-xs font-medium text-gray-600">Male</p>
-						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-gray-500">
+						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-gray-600">
 							<span>Age</span>
 							{#each CATEGORIES.slice(0, 5) as cat (cat)}
 								<span class="text-right">{cat}</span>
@@ -371,7 +371,7 @@
 					<!-- Female norms -->
 					<div>
 						<p class="mb-2 text-xs font-medium text-gray-600">Female</p>
-						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-gray-500">
+						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-gray-600">
 							<span>Age</span>
 							{#each CATEGORIES.slice(0, 5) as cat (cat)}
 								<span class="text-right">{cat}</span>
@@ -397,15 +397,15 @@
 		<!-- Race predictions table -->
 		{#if predictionRows}
 			<div class="mb-6">
-				<p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">Equivalent Race Times</p>
+				<p class="mb-3 text-xs font-medium uppercase tracking-wide text-gray-600">Equivalent Race Times</p>
 				<div class="overflow-x-auto">
 					<table class="w-full border-collapse text-sm">
 						<thead>
 							<tr class="border-b border-ink/10">
-								<th scope="col" class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Distance</th>
-								<th scope="col" class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500">Time</th>
-								<th scope="col" class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500 sm:table-cell">Pace/km</th>
-								<th scope="col" class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-500 sm:table-cell">Pace/mile</th>
+								<th scope="col" class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-gray-600">Distance</th>
+								<th scope="col" class="pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600">Time</th>
+								<th scope="col" class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600 sm:table-cell">Pace/km</th>
+								<th scope="col" class="hidden pb-2 text-right text-xs font-medium uppercase tracking-wide text-gray-600 sm:table-cell">Pace/mile</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -429,12 +429,12 @@
 						</tbody>
 					</table>
 				</div>
-				<p class="mt-2 text-xs text-gray-400">Predictions use the Riegel formula (exponent 1.06). Results are estimates.</p>
+				<p class="mt-2 text-xs text-gray-600">Predictions use the Riegel formula (exponent 1.06). Results are estimates.</p>
 			</div>
 		{/if}
 
 		<!-- Footer cross-links -->
-		<p class="mt-6 text-center text-xs text-gray-400">
+		<p class="mt-6 text-center text-xs text-gray-600">
 			Find your training paces →
 			<a href="/training-paces" class="text-accent underline-offset-2 hover:underline">Training Pace Calculator</a>
 			&nbsp;·&nbsp;

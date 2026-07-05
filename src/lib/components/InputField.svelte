@@ -38,7 +38,7 @@
 		{#if unit}
 			<span
 				id="{id}-unit"
-				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+				class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
 			>
 				{unit}
 			</span>

@@ -21,10 +21,10 @@
 	<div class="flex items-start justify-between gap-4">
 		<div class="flex flex-col gap-2">
 			<span class="font-sans text-base font-semibold text-ink">{name}</span>
-			<span class="text-sm text-gray-500">{description}</span>
+			<span class="text-sm text-gray-600">{description}</span>
 			<span class="font-mono text-xs text-accent">{route}</span>
 		</div>
-		<span class="mt-0.5 shrink-0 text-gray-400 transition-colors duration-150 group-hover:text-accent"
+		<span class="mt-0.5 shrink-0 text-gray-600 transition-colors duration-150 group-hover:text-accent"
 			>→</span
 		>
 	</div>

@@ -27,7 +27,7 @@
 </script>
 
 <div class="flex flex-col items-center text-center">
-	<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">{label}</p>
+	<p class="text-xs font-medium tracking-wide text-gray-600 uppercase">{label}</p>
 	<p class="mt-2 font-mono text-5xl font-bold tabular-nums text-accent md:text-6xl lg:text-7xl">
 		{value}
 	</p>
@@ -37,7 +37,7 @@
 			type="button"
 			onclick={copy}
 			aria-label={copied ? 'Copied' : 'Copy'}
-			class="mt-4 inline-flex items-center gap-1.5 rounded-sm text-sm text-gray-500 transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+			class="mt-4 inline-flex items-center gap-1.5 rounded-sm text-sm text-gray-600 transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
 		>
 			{#if copied}
 				<svg

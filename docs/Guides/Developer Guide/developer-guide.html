@@ -177,7 +177,44 @@ npm run dev
 <td>Result values, route labels</td>
 </tr>
 </tbody></table>
-<p>Dark mode is applied automatically via <code>prefers-color-scheme</code>. Always use design tokens (<code>text-ink</code>, <code>bg-bg</code>, <code>border-ink/10</code>) rather than hardcoded Tailwind colours.</p>
+<p>Dark mode is applied automatically via <code>prefers-color-scheme</code>. Always use design tokens (<code>text-ink</code>, <code>bg-bg</code>, <code>border-ink/10</code>) rather than hardcoded Tailwind colours where tokens exist.</p>
+<h3>Text Contrast (WCAG AA)</h3>
+<p>Secondary text (help hints, labels, table headers, footer) uses <code>text-gray-600</code> (#4b5563), which achieves ~6.4:1 contrast against the light background (<code>#fafaf8</code>) and passes WCAG 2.1 AA (4.5:1 minimum).</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Contrast (light)</th>
+<th>WCAG AA</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>text-gray-400</code></td>
+<td>~2.8:1</td>
+<td>❌ Fail</td>
+<td><strong>Banned by ESLint</strong></td>
+</tr>
+<tr>
+<td><code>text-gray-500</code></td>
+<td>~4.2:1</td>
+<td>❌ Fail</td>
+<td><strong>Banned by ESLint</strong></td>
+</tr>
+<tr>
+<td><code>text-gray-600</code></td>
+<td>~6.4:1</td>
+<td>✅ Pass</td>
+<td>Use for secondary text</td>
+</tr>
+<tr>
+<td><code>dark:text-gray-400</code></td>
+<td>~6.3:1 (dark bg)</td>
+<td>✅ Pass</td>
+<td>Permitted in dark-only context</td>
+</tr>
+</tbody></table>
+<p>An ESLint rule in <code>eslint.config.js</code> errors on <code>text-gray-400</code> and <code>text-gray-500</code> in Svelte files. The rule uses a negative lookbehind so <code>dark:text-gray-400</code> (which passes AA against <code>#19191a</code>) is correctly exempted.</p>
 <h3>Components</h3>
 <table>
 <thead>
