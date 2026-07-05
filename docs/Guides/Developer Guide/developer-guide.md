@@ -110,7 +110,20 @@ src/
 | `--font-sans` | Manrope | — | UI and body text |
 | `--font-mono` | IBM Plex Mono | — | Result values, route labels |
 
-Dark mode is applied automatically via `prefers-color-scheme`. Always use design tokens (`text-ink`, `bg-bg`, `border-ink/10`) rather than hardcoded Tailwind colours.
+Dark mode is applied automatically via `prefers-color-scheme`. Always use design tokens (`text-ink`, `bg-bg`, `border-ink/10`) rather than hardcoded Tailwind colours where tokens exist.
+
+### Text Contrast (WCAG AA)
+
+Secondary text (help hints, labels, table headers, footer) uses `text-gray-600` (#4b5563), which achieves ~6.4:1 contrast against the light background (`#fafaf8`) and passes WCAG 2.1 AA (4.5:1 minimum).
+
+| Class | Contrast (light) | WCAG AA | Status |
+|-------|-----------------|---------|--------|
+| `text-gray-400` | ~2.8:1 | ❌ Fail | **Banned by ESLint** |
+| `text-gray-500` | ~4.2:1 | ❌ Fail | **Banned by ESLint** |
+| `text-gray-600` | ~6.4:1 | ✅ Pass | Use for secondary text |
+| `dark:text-gray-400` | ~6.3:1 (dark bg) | ✅ Pass | Permitted in dark-only context |
+
+An ESLint rule in `eslint.config.js` errors on `text-gray-400` and `text-gray-500` in Svelte files. The rule uses a negative lookbehind so `dark:text-gray-400` (which passes AA against `#19191a`) is correctly exempted.
 
 ### Components
 
