@@ -199,8 +199,8 @@ npm run dev
 </tr>
 <tr>
 <td><code>ToolLayout</code></td>
-<td><code>title</code>, <code>description</code>, <code>pageTitle?</code>, <code>afterCard?</code></td>
-<td>Wrapper for tool pages — back link, heading, description. <code>pageTitle</code> overrides the default <code>&quot;{title} | Runwise&quot;</code> document title. <code>afterCard</code> is an optional named snippet rendered below the tool card (used to inject <code>AdUnit</code> and <code>AffiliateLinks</code>).</td>
+<td><code>title</code>, <code>description</code>, <code>route</code></td>
+<td>Wrapper for tool pages — back link, heading, description, and a sticky sidebar containing <code>AdUnit</code> and <code>AffiliateLinks</code>. The <code>route</code> prop is passed to <code>AffiliateLinks</code> to look up relevant products for that page. On desktop (lg+) the sidebar appears as a fixed-width right column; on mobile it stacks below the tool card.</td>
 </tr>
 <tr>
 <td><code>SiteNav</code></td>
@@ -247,7 +247,7 @@ npm run dev
 <h2>Adding a New Tool</h2>
 <ol>
 <li>Create <code>src/routes/&lt;tool-name&gt;/+page.svelte</code></li>
-<li>Import <code>ToolLayout</code> and pass <code>title</code> and <code>description</code> props</li>
+<li>Import <code>ToolLayout</code> and pass <code>title</code>, <code>description</code>, and <code>route</code> props</li>
 <li>Add the tool to the <code>tools</code> array in <code>src/routes/+page.svelte</code></li>
 <li>Add the tool link to <code>SiteNav.svelte</code></li>
 <li>Register the route in <code>src/lib/seo.ts</code> (<code>PAGES</code> map) with a title, description, OG image path, and sitemap priority — this drives the page&#39;s meta tags, <code>sitemap.xml</code> entry, <code>robots.txt</code> allow rules, and JSON-LD structured data</li>
