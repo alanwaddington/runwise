@@ -302,7 +302,7 @@
 											e.stopPropagation();
 											zone5Expanded = !zone5Expanded;
 										}}
-										class="ml-1 text-accent underline-offset-2 hover:underline focus-visible:outline-none"
+										class="ml-1 rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 										aria-expanded={zone5Expanded}
 									>
 										{zone5Expanded ? 'Hide' : 'Show'} sub-zones
@@ -347,7 +347,7 @@
 		<!-- Footer cross-link -->
 		<p class="mt-6 text-center text-xs text-gray-600">
 			Want to find your training paces?
-			<a href="/training-paces" class="text-accent underline-offset-2 hover:underline"
+			<a href="/training-paces" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Training Pace Calculator →</a
 			>
 		</p>

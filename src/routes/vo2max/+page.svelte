@@ -436,9 +436,9 @@
 		<!-- Footer cross-links -->
 		<p class="mt-6 text-center text-xs text-gray-600">
 			Find your training paces →
-			<a href="/training-paces" class="text-accent underline-offset-2 hover:underline">Training Pace Calculator</a>
+			<a href="/training-paces" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Training Pace Calculator</a>
 			&nbsp;·&nbsp;
-			<a href="/race-predictor" class="text-accent underline-offset-2 hover:underline">Race Time Predictor</a>
+			<a href="/race-predictor" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Race Time Predictor</a>
 		</p>
 	{/if}
 
