@@ -14,10 +14,14 @@
 		children?: Snippet;
 	}
 
+	// Note: Design specified an optional sidebar snippet prop for customization, but all 6 tool pages use
+	// identical AdUnit + AffiliateLinks content. Hard-coding this avoids unnecessary complexity. If a
+	// future tool page needs a custom sidebar, the snippet prop can be added then without breaking changes.
+
 	let { title, description, route, children }: Props = $props();
 </script>
 
-<div class="mx-auto max-w-5xl lg:grid lg:grid-cols-[1fr_300px] lg:items-start lg:gap-8">
+<div class="lg:grid lg:grid-cols-[1fr_300px] lg:items-start lg:gap-8">
 	<div class="min-w-0">
 		<a
 			href="/"
@@ -34,7 +38,7 @@
 		</div>
 	</div>
 
-	<aside class="lg:sticky lg:top-24 print:hidden">
+	<aside class="mt-8 lg:mt-0 lg:sticky lg:top-24 print:hidden">
 		<AdUnit />
 		<AffiliateLinks {route} />
 	</aside>
