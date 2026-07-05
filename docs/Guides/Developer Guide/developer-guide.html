@@ -215,6 +215,23 @@ npm run dev
 </tr>
 </tbody></table>
 <p>An ESLint rule in <code>eslint.config.js</code> errors on <code>text-gray-400</code> and <code>text-gray-500</code> in Svelte files. The rule uses a negative lookbehind so <code>dark:text-gray-400</code> (which passes AA against <code>#19191a</code>) is correctly exempted.</p>
+<h3>Focus Rings (WCAG AA — SC 2.4.7)</h3>
+<p>All interactive elements (<code>&lt;button&gt;</code> and <code>&lt;a&gt;</code>) must have visible focus indicators for keyboard and assistive-technology users (WCAG 2.1 SC 2.4.7 Focus Visible).</p>
+<p><strong>Standard pattern:</strong></p>
+<pre><code class="language-html">&lt;!-- Buttons --&gt;
+&lt;button class=&quot;... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2&quot;&gt;
+
+&lt;!-- Inline links (inside text) — add rounded-sm for clean ring shape --&gt;
+&lt;a href=&quot;...&quot; class=&quot;rounded-sm ... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2&quot;&gt;
+</code></pre>
+<p><strong>Ring offset note:</strong> Most elements use <code>ring-offset-2</code>. Tab buttons inside tight tablist containers use <code>ring-offset-1</code> — choose whichever fits the layout.</p>
+<p><strong>Enforcement:</strong> The custom ESLint plugin <code>eslint-plugin-runwise</code> (in <code>eslint-plugin-runwise/</code>) provides the <code>require-focus-visible</code> rule, which errors on any <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code> in Svelte files missing the full focus-visible pattern. The rule skips elements with fully dynamic class attributes.</p>
+<pre><code>eslint-plugin-runwise/
+├── index.js                       # Plugin entry point
+└── rules/
+    └── require-focus-visible.js   # Checks button and a elements for focus-visible classes
+</code></pre>
+<p>The rule is registered in <code>eslint.config.js</code> for all <code>**/*.svelte</code> files at <code>&#39;error&#39;</code> severity — lint will fail if a new interactive element is added without focus-visible styling.</p>
 <h3>Components</h3>
 <table>
 <thead>
