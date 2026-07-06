@@ -5,6 +5,16 @@
  * Tailwind CSS classes for keyboard accessibility (WCAG 2.1 SC 2.4.7).
  *
  * Required pattern: focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-*
+ *
+ * Found broken during the PR #71 review (while fixing a sibling rule with the same
+ * class of bug): the original selector `SvelteStartTag[name.name="button"]` never
+ * matched anything, because `SvelteStartTag` has no `.name` property at all in this
+ * parser version — the tag name lives on the parent `SvelteElement.name.name`, and
+ * its attributes live on `SvelteElement.startTag.attributes`, not directly on the
+ * start tag node. The class-string extraction also assumed `Text`/`.data` nodes;
+ * static class text is actually `SvelteLiteral`/`.value`. Both bugs combined meant
+ * this rule had never once fired since its introduction in PR #66 — confirmed
+ * empirically: a <button> with zero classes produced no lint error at all.
  */
 
 export default {
@@ -34,17 +44,17 @@ export default {
 		}
 
 		return {
-			'SvelteStartTag[name.name="button"]'(node) {
+			'SvelteElement[name.name="button"]'(node) {
 				checkFocusVisible(node, 'button');
 			},
-			'SvelteStartTag[name.name="a"]'(node) {
+			'SvelteElement[name.name="a"]'(node) {
 				checkFocusVisible(node, 'a');
 			}
 		};
 
 		function checkFocusVisible(node, element) {
-			// Find the class attribute
-			const classAttr = node.attributes.find((attr) => {
+			// Find the class attribute (attributes live on the element's start tag)
+			const classAttr = node.startTag.attributes.find((attr) => {
 				if (attr.type === 'SvelteAttribute' && attr.key.name === 'class') {
 					return true;
 				}
@@ -69,13 +79,14 @@ export default {
 			}
 
 			if (Array.isArray(classAttr.value)) {
-				// Svelte template expression or text nodes
+				// Static class text is SvelteLiteral; SvelteMustacheTag (a `{...}`
+				// expression) is skipped since a dynamic class can't be checked statically.
 				classString = classAttr.value
-					.filter((v) => v.type === 'Text')
-					.map((v) => v.data)
+					.filter((v) => v.type === 'SvelteLiteral')
+					.map((v) => v.value)
 					.join(' ');
-			} else if (classAttr.value && classAttr.value.data) {
-				classString = classAttr.value.data;
+			} else if (classAttr.value && classAttr.value.value) {
+				classString = classAttr.value.value;
 			}
 
 			if (!classString) {
