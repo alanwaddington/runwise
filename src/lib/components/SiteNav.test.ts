@@ -205,4 +205,25 @@ describe('SiteNav theme toggle', () => {
 			'dark:inline-flex'
 		);
 	});
+
+	it('toggleButtons_useExplicitHoverToken_notIncidentalInkFlip', async () => {
+		mockMatchMedia(false);
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+		for (const name of ['Switch to dark mode', 'Switch to light mode']) {
+			const button = getByRole('button', { name });
+			expect(button.className).toContain('hover:text-hover');
+			expect(button.className).not.toContain('hover:text-ink');
+		}
+	});
+});
+
+describe('SiteNav tool links', () => {
+	it('toolLink_usesExplicitHoverToken_notIncidentalInkFlip', async () => {
+		const { default: SiteNav } = await import('./SiteNav.svelte');
+		const { getByRole } = render(SiteNav);
+		const link = getByRole('link', { name: 'HR Zones' });
+		expect(link.className).toContain('hover:text-hover');
+		expect(link.className).not.toContain('hover:text-ink');
+	});
 });
