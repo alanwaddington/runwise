@@ -43,6 +43,15 @@ describe('HrZones page', () => {
 		expect(infoButton.className).not.toContain('hover:text-ink');
 	});
 
+	it('infoTooltipButton_hasCompleteFocusVisibleClasses', () => {
+		render(HrZones);
+		const infoButton = screen.getByRole('button', { name: 'About these methods' });
+		expect(infoButton.className).toContain('focus-visible:outline-none');
+		expect(infoButton.className).toContain('focus-visible:ring-2');
+		expect(infoButton.className).toContain('focus-visible:ring-accent');
+		expect(infoButton.className).toMatch(/focus-visible:ring-offset-\d/);
+	});
+
 	it('Max HR tab is selected by default', () => {
 		render(HrZones);
 		expect(screen.getByRole('tab', { name: 'Max HR' })).toHaveAttribute('aria-selected', 'true');

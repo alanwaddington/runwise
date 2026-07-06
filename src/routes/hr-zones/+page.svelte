@@ -147,7 +147,7 @@
 					e.stopPropagation();
 					showTooltip = !showTooltip;
 				}}
-				class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-gray-100 hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:hover:bg-gray-800"
+				class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-gray-100 hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 dark:hover:bg-gray-800"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

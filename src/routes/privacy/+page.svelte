@@ -57,7 +57,7 @@
 						href="https://policies.google.com/privacy"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="text-accent hover:underline">Google's Privacy Policy</a
+						class="rounded-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Google's Privacy Policy</a
 					> for details.
 				</li>
 			</ul>
@@ -73,7 +73,7 @@
 					href="https://www.google.com/settings/ads"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-accent hover:underline">google.com/settings/ads</a
+					class="rounded-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">google.com/settings/ads</a
 				>.
 			</p>
 		</section>
