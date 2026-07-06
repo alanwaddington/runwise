@@ -29,6 +29,20 @@ describe('HrZones page', () => {
 		expect(screen.getByRole('tab', { name: 'LTHR' })).toBeInTheDocument();
 	});
 
+	it('inactiveTab_usesExplicitHoverToken_notIncidentalInkFlip', () => {
+		render(HrZones);
+		const lthrTab = screen.getByRole('tab', { name: 'LTHR' });
+		expect(lthrTab.className).toContain('hover:text-hover');
+		expect(lthrTab.className).not.toContain('hover:text-ink');
+	});
+
+	it('infoTooltipButton_usesExplicitHoverToken_notIncidentalInkFlip', () => {
+		render(HrZones);
+		const infoButton = screen.getByRole('button', { name: 'About these methods' });
+		expect(infoButton.className).toContain('hover:text-hover');
+		expect(infoButton.className).not.toContain('hover:text-ink');
+	});
+
 	it('Max HR tab is selected by default', () => {
 		render(HrZones);
 		expect(screen.getByRole('tab', { name: 'Max HR' })).toHaveAttribute('aria-selected', 'true');

@@ -86,6 +86,15 @@ describe('ToolLayout', () => {
 		expect(back).toHaveAttribute('href', '/');
 	});
 
+	it('backLink_usesExplicitHoverToken_notIncidentalInkFlip', () => {
+		render(ToolLayout, {
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
+		});
+		const back = screen.getByRole('link', { name: /all tools/i });
+		expect(back.className).toContain('hover:text-hover');
+		expect(back.className).not.toContain('hover:text-ink');
+	});
+
 	it('renders the default slot content inside a bordered card', () => {
 		render(ToolLayout, {
 			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }

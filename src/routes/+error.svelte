@@ -18,7 +18,7 @@
 <div class="mx-auto max-w-2xl">
 	<a
 		href="/"
-		class="rounded-sm text-sm text-muted transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+		class="rounded-sm text-sm text-muted transition-colors hover:text-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
 	>
 		← All tools
 	</a>

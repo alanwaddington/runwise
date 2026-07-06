@@ -37,7 +37,7 @@
 			type="button"
 			onclick={copy}
 			aria-label={copied ? 'Copied' : 'Copy'}
-			class="mt-4 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+			class="mt-4 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted transition-colors hover:text-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
 		>
 			{#if copied}
 				<svg
