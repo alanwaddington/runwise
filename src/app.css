@@ -2,6 +2,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Tailwind's default `hover:` variant is wrapped in `@media (hover: hover)` to avoid
+   sticky-hover on touch devices. This project wants hover feedback visible on touch
+   too, so hover: applies unconditionally on `&:hover` for every element sitewide. */
+@custom-variant hover (&:hover);
+
 @theme {
 	--color-accent: #1b8a5a;
 	--color-accent-dark: #146344;
