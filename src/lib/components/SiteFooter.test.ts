@@ -44,4 +44,15 @@ describe('SiteFooter', () => {
 		const { getByText } = render(SiteFooter);
 		expect(getByText(/© 2026 Runwise/)).toBeInTheDocument();
 	});
+
+	it('SiteFooter_privacyPolicyLinkAndManageCookiesButton_useExplicitHoverToken', async () => {
+		const { default: SiteFooter } = await import('./SiteFooter.svelte');
+		const { getByRole } = render(SiteFooter);
+		const link = getByRole('link', { name: 'Privacy Policy' });
+		const button = getByRole('button', { name: 'Manage Cookies' });
+		for (const el of [link, button]) {
+			expect(el.className).toContain('hover:text-hover');
+			expect(el.className).not.toContain('dark:hover:text-gray-200');
+		}
+	});
 });

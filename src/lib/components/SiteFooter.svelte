@@ -11,13 +11,13 @@
 >
 	<div class="mx-auto max-w-5xl flex flex-col items-center gap-2">
 		<div class="flex items-center gap-4 text-sm text-muted">
-			<a href="/privacy" class="rounded-sm transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:hover:text-gray-200">
+			<a href="/privacy" class="rounded-sm transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
 				Privacy Policy
 			</a>
 			<span aria-hidden="true">·</span>
 			<button
 				onclick={manageCookies}
-				class="rounded-sm transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:hover:text-gray-200"
+				class="rounded-sm transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 			>
 				Manage Cookies
 			</button>
