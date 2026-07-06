@@ -107,23 +107,28 @@ src/
 | `--color-accent-dark` | `#146344` | `#146344` | Hover variant |
 | `--color-bg` | `#FAFAF8` | `#19191A` | Page background |
 | `--color-ink` | `#19191A` | `#FAFAF8` | Body text |
+| `--color-muted` | `#6B7280` | `#9CA3AF` | Secondary text (help hints, labels, table headers, footer) — apply via `.text-muted` |
+| `--color-subtle` | `#4B5563` | — | Reserved for a slightly darker secondary tone; currently unused anywhere in the codebase |
+| `--color-hover` | `#19191A` (= `--color-ink`) | `#FAFAF8` (= `--color-ink`) | Explicit hover-state text colour — apply via `.hover\:text-hover` |
 | `--font-sans` | Manrope | — | UI and body text |
 | `--font-mono` | IBM Plex Mono | — | Result values, route labels |
 
-Dark mode is applied automatically via `prefers-color-scheme`. Always use design tokens (`text-ink`, `bg-bg`, `border-ink/10`) rather than hardcoded Tailwind colours where tokens exist.
+Dark mode is applied automatically via `prefers-color-scheme`, with an explicit `html.light`/`html.dark` class override (set pre-paint by `app.html`) taking priority once JS has run. Always use design tokens (`text-ink`, `text-muted`, `bg-bg`, `border-ink/10`) rather than hardcoded Tailwind colours where tokens exist.
+
+**Namespace note:** color tokens must live under the `--color-*` prefix, not `--text-*` — Tailwind v4 reserves `--text-*` for font-size scale tokens (`--text-sm`, `--text-lg`, etc.), and a `--text-muted`-style color token silently compiles to an invalid `font-size` declaration instead of `color`, with no build error. (This was a real, previously-shipped bug — see PR #71.)
 
 ### Text Contrast (WCAG AA)
 
-Secondary text (help hints, labels, table headers, footer) uses `text-gray-600` (#4b5563), which achieves ~6.4:1 contrast against the light background (`#fafaf8`) and passes WCAG 2.1 AA (4.5:1 minimum).
+Secondary text (help hints, labels, table headers, footer) uses `.text-muted` (→ `--color-muted`), which achieves ~4.63:1 contrast in light mode and ~6.92:1 in dark mode against the page background — both pass WCAG 2.1 AA (4.5:1 minimum). The dark-mode value is set once, at the token level, in `src/app.css` (`html.dark` and the no-JS `prefers-color-scheme` fallback) — never override it per-component.
 
-| Class | Contrast (light) | WCAG AA | Status |
+| Class | Contrast | WCAG AA | Status |
 |-------|-----------------|---------|--------|
-| `text-gray-400` | ~2.8:1 | ❌ Fail | **Banned by ESLint** |
-| `text-gray-500` | ~4.2:1 | ❌ Fail | **Banned by ESLint** |
-| `text-gray-600` | ~6.4:1 | ✅ Pass | Use for secondary text |
-| `dark:text-gray-400` | ~6.3:1 (dark bg) | ✅ Pass | Permitted in dark-only context |
+| `text-gray-400` | ~2.8:1 (light) | ❌ Fail | **Banned by ESLint** |
+| `text-gray-500` | ~4.2:1 (light) | ❌ Fail | **Banned by ESLint** |
+| `dark:text-gray-400` | ~6.3:1 (dark) | ✅ Pass, but **banned by ESLint** | Use `.text-muted` instead — it already achieves this via `--color-muted`'s dark override, with no per-component patch needed |
+| `text-muted` | 4.63:1 (light) / 6.92:1 (dark) | ✅ Pass | Use for all secondary text |
 
-An ESLint rule in `eslint.config.js` errors on `text-gray-400` and `text-gray-500` in Svelte files. The rule uses a negative lookbehind so `dark:text-gray-400` (which passes AA against `#19191a`) is correctly exempted.
+An ESLint rule (`runwise/no-low-contrast-text`, in `eslint-plugin-runwise/rules/no-low-contrast-text.js`) errors on `text-gray-400`/`text-gray-500` in Svelte files, including `dark:`/`hover:`-prefixed variants — there is no exemption for `dark:text-gray-400` (it predates `--color-muted`'s dark-mode fix and is no longer needed anywhere in the codebase).
 
 ### Focus Rings (WCAG AA — SC 2.4.7)
 
@@ -141,16 +146,29 @@ All interactive elements (`<button>` and `<a>`) must have visible focus indicato
 
 **Ring offset note:** Most elements use `ring-offset-2`. Tab buttons inside tight tablist containers use `ring-offset-1` — choose whichever fits the layout.
 
-**Enforcement:** The custom ESLint plugin `eslint-plugin-runwise` (in `eslint-plugin-runwise/`) provides the `require-focus-visible` rule, which errors on any `<button>` or `<a>` in Svelte files missing the full focus-visible pattern. The rule skips elements with fully dynamic class attributes.
+**Enforcement:** The custom ESLint plugin `eslint-plugin-runwise` (in `eslint-plugin-runwise/`) provides two rules for Svelte files, both at `'error'` severity in `eslint.config.js`:
 
 ```
 eslint-plugin-runwise/
 ├── index.js                       # Plugin entry point
 └── rules/
-    └── require-focus-visible.js   # Checks button and a elements for focus-visible classes
+    ├── require-focus-visible.js   # Checks <button>/<a> for the full focus-visible pattern
+    └── no-low-contrast-text.js    # Bans text-gray-400/text-gray-500 (any variant) in class attributes
 ```
 
-The rule is registered in `eslint.config.js` for all `**/*.svelte` files at `'error'` severity — lint will fail if a new interactive element is added without focus-visible styling.
+Both rules operate on the Svelte template AST directly (`SvelteElement`, `SvelteAttribute`, `SvelteLiteral`) rather than plain ESTree nodes — Svelte class attributes are not standard `Literal` nodes, and the element name lives on `SvelteElement.name.name` with its attributes on `SvelteElement.startTag.attributes`, not on `SvelteStartTag` directly. Getting this AST path wrong makes a rule fail completely silently (it simply never matches, with zero lint errors either way) rather than throwing — if you write or modify a rule targeting Svelte templates, verify it actually fires against a deliberately-broken scratch `.svelte` file before trusting a clean `npm run lint` run.
+
+### Hover Feedback (touch and mouse)
+
+`hover:` classes must use the `--color-hover` token (`.hover\:text-hover`) rather than reusing `.text-ink` directly — this keeps the hover-state color relationship an explicit, named design decision instead of an incidental side effect of `--color-ink` flipping per theme.
+
+Tailwind v4 wraps `hover:` utilities in `@media (hover: hover)` by default, to prevent "sticky hover" on touch devices (where a tap has no true hover-then-release gesture). This project overrides that default via a custom variant in `src/app.css`:
+
+```css
+@custom-variant hover (&:hover);
+```
+
+This makes every `hover:` utility sitewide apply on tap as well as mouse hover — chosen deliberately so that touch users get the same hover feedback as mouse users. The accepted trade-off: tapping an element leaves it visually "stuck" in its hover-colored state until another hoverable element is tapped. If you ever need the touch-safe default back for a specific element, use an explicit `@media (hover: hover)` wrapper on that element's own styles rather than reverting the global variant.
 
 ### Components
 

@@ -19,6 +19,13 @@ describe('Parkrun page', () => {
 		expect(screen.getByRole('link', { name: /all tools/i })).toHaveAttribute('href', '/');
 	});
 
+	it('inactiveTab_usesExplicitHoverToken_notIncidentalInkFlip', () => {
+		render(Parkrun);
+		const averagePaceTab = screen.getByRole('tab', { name: 'Average Pace' });
+		expect(averagePaceTab.className).toContain('hover:text-hover');
+		expect(averagePaceTab.className).not.toContain('hover:text-ink');
+	});
+
 	it('page title contains Parkrun Predictor (AC1)', () => {
 		render(Parkrun);
 		expect(document.title).toContain('Parkrun Predictor');

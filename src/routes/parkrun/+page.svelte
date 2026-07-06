@@ -170,7 +170,7 @@
 			class:text-white={mode === 'recent-run'}
 			class:font-semibold={mode === 'recent-run'}
 			class:text-muted={mode !== 'recent-run'}
-			class:hover:text-ink={mode !== 'recent-run'}
+			class:hover:text-hover={mode !== 'recent-run'}
 		>
 			Recent Run
 		</button>
@@ -183,7 +183,7 @@
 			class:text-white={mode === 'average-pace'}
 			class:font-semibold={mode === 'average-pace'}
 			class:text-muted={mode !== 'average-pace'}
-			class:hover:text-ink={mode !== 'average-pace'}
+			class:hover:text-hover={mode !== 'average-pace'}
 		>
 			Average Pace
 		</button>

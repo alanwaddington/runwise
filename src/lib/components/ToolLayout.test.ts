@@ -70,12 +70,29 @@ describe('ToolLayout', () => {
 		expect(screen.getByText('Work out your pace.')).toBeInTheDocument();
 	});
 
+	it('description_hasNoRedundantDarkTextOverride', () => {
+		render(ToolLayout, {
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
+		});
+		const description = screen.getByText('Work out your pace.');
+		expect(description.className).not.toContain('dark:text-gray-400');
+	});
+
 	it('renders a back-to-home link', () => {
 		render(ToolLayout, {
 			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
 		});
 		const back = screen.getByRole('link', { name: /all tools/i });
 		expect(back).toHaveAttribute('href', '/');
+	});
+
+	it('backLink_usesExplicitHoverToken_notIncidentalInkFlip', () => {
+		render(ToolLayout, {
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
+		});
+		const back = screen.getByRole('link', { name: /all tools/i });
+		expect(back.className).toContain('hover:text-hover');
+		expect(back.className).not.toContain('hover:text-ink');
 	});
 
 	it('renders the default slot content inside a bordered card', () => {

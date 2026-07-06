@@ -108,4 +108,14 @@ describe('AffiliateLinks', () => {
 		const { getByText } = render(AffiliateLinks, { props: { route: '/hr-zones' } });
 		expect(getByText('View on Amazon →')).toBeInTheDocument();
 	});
+
+	it('productLink_hasFocusVisibleClasses', async () => {
+		const { default: AffiliateLinks } = await import('./AffiliateLinks.svelte');
+		const { getByText } = render(AffiliateLinks, { props: { route: '/hr-zones' } });
+		const link = getByText('View on Amazon →');
+		expect(link.className).toContain('focus-visible:outline-none');
+		expect(link.className).toContain('focus-visible:ring-2');
+		expect(link.className).toContain('focus-visible:ring-accent');
+		expect(link.className).toMatch(/focus-visible:ring-offset-\d/);
+	});
 });

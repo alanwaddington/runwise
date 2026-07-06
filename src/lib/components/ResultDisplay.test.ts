@@ -51,6 +51,14 @@ describe('ResultDisplay', () => {
 		expect(screen.queryByRole('button')).not.toBeInTheDocument();
 	});
 
+	it('copyButton_usesExplicitHoverToken_notIncidentalInkFlip', () => {
+		Object.assign(navigator, { clipboard: { writeText: vi.fn() } });
+		render(ResultDisplay, { props: { value: '4:32 /km', label: 'Pace' } });
+		const button = screen.getByRole('button', { name: /copy/i });
+		expect(button.className).toContain('hover:text-hover');
+		expect(button.className).not.toContain('hover:text-ink');
+	});
+
 	it('clears the pending revert timeout when destroyed before it fires', async () => {
 		vi.useFakeTimers();
 		const writeText = vi.fn().mockResolvedValue(undefined);

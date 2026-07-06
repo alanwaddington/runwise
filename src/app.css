@@ -2,14 +2,20 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Tailwind's default `hover:` variant is wrapped in `@media (hover: hover)` to avoid
+   sticky-hover on touch devices. This project wants hover feedback visible on touch
+   too, so hover: applies unconditionally on `&:hover` for every element sitewide. */
+@custom-variant hover (&:hover);
+
 @theme {
 	--color-accent: #1b8a5a;
 	--color-accent-dark: #146344;
 	--color-error: #ef4444;
 	--color-bg: #fafaf8;
 	--color-ink: #19191a;
-	--text-muted: #6b7280;
-	--text-subtle: #4b5563;
+	--color-muted: #6b7280;
+	--color-subtle: #4b5563;
+	--color-hover: var(--color-ink);
 	--font-sans: 'Manrope', system-ui, sans-serif;
 	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
@@ -20,17 +26,20 @@
 	:root {
 		--color-bg: #19191a;
 		--color-ink: #fafaf8;
+		--color-muted: #9ca3af;
 	}
 }
 
 html.light {
 	--color-bg: #fafaf8;
 	--color-ink: #19191a;
+	--color-muted: #6b7280;
 }
 
 html.dark {
 	--color-bg: #19191a;
 	--color-ink: #fafaf8;
+	--color-muted: #9ca3af;
 }
 
 body {

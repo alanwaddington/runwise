@@ -40,7 +40,7 @@
 						href={product.url}
 						target="_blank"
 						rel="noopener noreferrer sponsored"
-						class="mt-2 block text-xs font-medium text-accent hover:underline"
+						class="mt-2 block rounded-sm text-xs font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						{linkLabel(product.program)}
 					</a>
