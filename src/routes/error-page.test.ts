@@ -55,4 +55,12 @@ describe('Error page', () => {
 		const back = screen.getByRole('link', { name: /all tools/i });
 		expect(back).toHaveAttribute('href', '/');
 	});
+
+	it('message_hasNoRedundantDarkTextOverride', async () => {
+		mockPage.status = 404;
+		const { default: ErrorPage } = await import('./+error.svelte');
+		render(ErrorPage);
+		const message = screen.getByText(/page doesn.t exist/i);
+		expect(message.className).not.toContain('dark:text-gray-400');
+	});
 });

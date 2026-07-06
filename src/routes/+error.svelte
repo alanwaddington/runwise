@@ -24,5 +24,5 @@
 	</a>
 
 	<h1 class="mt-4 text-2xl font-bold text-ink md:text-3xl">{status}</h1>
-	<p class="mt-2 text-muted dark:text-gray-400">{heading}. {message}</p>
+	<p class="mt-2 text-muted">{heading}. {message}</p>
 </div>

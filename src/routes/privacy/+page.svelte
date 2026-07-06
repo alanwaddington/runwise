@@ -12,7 +12,7 @@
 <div class="mx-auto max-w-2xl">
 	<a
 		href="/"
-		class="rounded-sm text-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+		class="rounded-sm text-sm text-muted transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 	>
 		← Home
 	</a>
@@ -20,7 +20,7 @@
 	<h1 class="mt-4 text-2xl font-bold text-ink md:text-3xl">Privacy Policy</h1>
 	<p class="mt-2 text-sm text-muted">Last updated: 5 July 2026</p>
 
-	<div class="mt-8 space-y-8 text-muted dark:text-gray-400">
+	<div class="mt-8 space-y-8 text-muted">
 		<section>
 			<h2 class="mb-3 text-lg font-semibold text-ink">What we collect</h2>
 			<p>
@@ -122,7 +122,7 @@
 	<div class="mt-10 border-t border-gray-200 pt-6 dark:border-gray-700">
 		<button
 			onclick={manageCookies}
-			class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-gray-300 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+			class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-gray-300 hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700"
 		>
 			Manage cookie preferences
 		</button>

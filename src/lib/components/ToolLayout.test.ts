@@ -70,6 +70,14 @@ describe('ToolLayout', () => {
 		expect(screen.getByText('Work out your pace.')).toBeInTheDocument();
 	});
 
+	it('description_hasNoRedundantDarkTextOverride', () => {
+		render(ToolLayout, {
+			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
+		});
+		const description = screen.getByText('Work out your pace.');
+		expect(description.className).not.toContain('dark:text-gray-400');
+	});
+
 	it('renders a back-to-home link', () => {
 		render(ToolLayout, {
 			props: { title: 'Pace Calculator', description: 'Work out your pace.', route: '/pace', children: childSnippet }
