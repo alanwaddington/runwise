@@ -125,3 +125,24 @@ describe('CookieBanner Customise panel', () => {
 		expect(queryByRole('dialog')).toBeNull();
 	});
 });
+
+describe('CookieBanner hover/contrast tokens', () => {
+	it('necessaryOnlyAndCustomiseButtons_useExplicitHoverToken_noRedundantDarkOverrides', async () => {
+		const { default: CookieBanner } = await import('./CookieBanner.svelte');
+		const { getByRole, getByText } = render(CookieBanner);
+		const necessaryOnly = getByRole('button', { name: 'Necessary Only' });
+		const customise = getByText(/Customise/);
+		for (const el of [necessaryOnly, customise]) {
+			expect(el.className).toContain('hover:text-hover');
+			expect(el.className).not.toContain('dark:hover:text-gray-200');
+			expect(el.className).not.toContain('dark:text-gray-400');
+		}
+	});
+
+	it('introParagraph_hasNoRedundantDarkTextOverride', async () => {
+		const { default: CookieBanner } = await import('./CookieBanner.svelte');
+		const { getByText } = render(CookieBanner);
+		const paragraph = getByText(/We use cookies to serve ads/);
+		expect(paragraph.className).not.toContain('dark:text-gray-400');
+	});
+});

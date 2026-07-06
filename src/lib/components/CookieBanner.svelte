@@ -41,7 +41,7 @@
 	>
 		<div class="mx-auto max-w-5xl px-4 py-4">
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-				<p class="text-sm text-muted dark:text-gray-400">
+				<p class="text-sm text-muted">
 					We use cookies to serve ads and understand site usage.
 					<a href="/privacy" class="rounded-sm text-accent underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Privacy Policy</a>
 				</p>
@@ -50,7 +50,7 @@
 					<div class="flex flex-wrap gap-2">
 						<button
 							onclick={necessaryOnly}
-							class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:border-gray-300 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+							class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:border-gray-300 hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700"
 						>
 							Necessary Only
 						</button>
@@ -63,7 +63,7 @@
 					</div>
 					<button
 						onclick={() => (expanded = !expanded)}
-						class="rounded-sm text-left text-xs text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:hover:text-gray-200"
+						class="rounded-sm text-left text-xs text-muted transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						Customise {expanded ? '▴' : '▾'}
 					</button>
