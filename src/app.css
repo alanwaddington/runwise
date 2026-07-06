@@ -10,6 +10,7 @@
 	--color-ink: #19191a;
 	--text-muted: #6b7280;
 	--text-subtle: #4b5563;
+	--text-hover: var(--color-ink);
 	--font-sans: 'Manrope', system-ui, sans-serif;
 	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
@@ -20,17 +21,20 @@
 	:root {
 		--color-bg: #19191a;
 		--color-ink: #fafaf8;
+		--text-muted: #9ca3af;
 	}
 }
 
 html.light {
 	--color-bg: #fafaf8;
 	--color-ink: #19191a;
+	--text-muted: #6b7280;
 }
 
 html.dark {
 	--color-bg: #19191a;
 	--color-ink: #fafaf8;
+	--text-muted: #9ca3af;
 }
 
 body {
