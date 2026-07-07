@@ -19,6 +19,7 @@
 	class:opacity-100={expanded}
 	class:mb-4={expanded}
 	aria-hidden={!expanded ? 'true' : undefined}
+	inert={!expanded}
 >
 	{@render children?.()}
 </div>
