@@ -47,6 +47,8 @@ src/
 │   │   ├── AdUnit.test.ts
 │   │   ├── AffiliateLinks.svelte    # Per-route affiliate product cards (Amazon)
 │   │   ├── AffiliateLinks.test.ts
+│   │   ├── CollapsibleField.svelte  # Generic animated show/hide wrapper (max-height/opacity, aria-hidden, inert)
+│   │   ├── CollapsibleField.test.ts
 │   │   ├── CookieBanner.svelte      # GDPR cookie consent banner (fixed bottom)
 │   │   ├── CookieBanner.test.ts
 │   │   ├── HeroSection.svelte
@@ -158,6 +160,31 @@ eslint-plugin-runwise/
 
 Both rules operate on the Svelte template AST directly (`SvelteElement`, `SvelteAttribute`, `SvelteLiteral`) rather than plain ESTree nodes — Svelte class attributes are not standard `Literal` nodes, and the element name lives on `SvelteElement.name.name` with its attributes on `SvelteElement.startTag.attributes`, not on `SvelteStartTag` directly. Getting this AST path wrong makes a rule fail completely silently (it simply never matches, with zero lint errors either way) rather than throwing — if you write or modify a rule targeting Svelte templates, verify it actually fires against a deliberately-broken scratch `.svelte` file before trusting a clean `npm run lint` run.
 
+### Collapsible Content
+
+Any field or block that toggles visibility based on user input (e.g. a "Custom" option revealing an extra input) should use the shared `CollapsibleField` component rather than a bespoke inline pattern:
+
+```svelte
+<CollapsibleField expanded={isCustom}>
+	<InputField ... />
+</CollapsibleField>
+```
+
+**Why not `{#if}` or the native `hidden` attribute:**
+- `{#if}` unmounts/remounts the content, so there's nothing to animate — the field would snap in/out instantly.
+- The native `hidden` attribute also snaps instantly and sets no `aria-hidden`, so assistive technology gets no signal that the field is (or isn't) currently relevant.
+
+**What `CollapsibleField` does instead:** the content stays mounted at all times (so its state — e.g. a partially-typed value — survives being hidden and re-shown) and visibility is purely a CSS transition (`max-h-0 opacity-0` ↔ `max-h-24 opacity-100 mb-4`, `overflow-hidden transition-all duration-200`), paired with two accessibility attributes toggled together:
+
+| Attribute | Collapsed | Expanded | Purpose |
+|-----------|-----------|----------|---------|
+| `aria-hidden` | `"true"` | omitted (not `"false"`) | Tells assistive technology the content isn't currently relevant |
+| `inert` | present | omitted | Removes the content from the tab order and interaction entirely |
+
+**`aria-hidden` alone is not enough:** it only affects the accessibility tree — it does not remove a nested focusable element from the tab order. Without `inert`, a sighted keyboard user can Tab into an invisible field (confirmed as a real, fixed bug — see PR #72 review, finding "aria-hidden properly set"). Always pair `aria-hidden` with `inert` (or `tabindex="-1"` on every focusable descendant, which doesn't scale) whenever hiding content that contains interactive elements.
+
+`inert`'s focus-blocking enforcement is real-browser behaviour that jsdom does not implement (it only reflects the IDL property, not the enforcement) — `CollapsibleField.test.ts` asserts the property, but the actual behavioural guarantee is covered by `e2e/collapsible-field-focus.test.ts` (Playwright/Chromium).
+
 ### Hover Feedback (touch and mouse)
 
 `hover:` classes must use the `--color-hover` token (`.hover\:text-hover`) rather than reusing `.text-ink` directly — this keeps the hover-state color relationship an explicit, named design decision instead of an incidental side effect of `--color-ink` flipping per theme.
@@ -183,6 +210,7 @@ This makes every `hover:` utility sitewide apply on tap as well as mouse hover �
 | `CookieBanner` | none | Fixed-bottom GDPR consent banner — accept all, necessary-only, or granular preferences |
 | `AdUnit` | none | Consent-gated Google AdSense `<ins>` — only renders when marketing consent is granted and `PUBLIC_ADSENSE_CLIENT_ID` is set |
 | `AffiliateLinks` | `route` | Per-route affiliate product cards — calls `getAffiliateLinks(route)` from `affiliates.ts` |
+| `CollapsibleField` | `expanded`, `children` (Snippet) | Generic animated show/hide wrapper — see [Collapsible Content](#collapsible-content) below |
 | `InputField` | `label`, `id`, `value`, `type?`, `unit?`, `step?`, `placeholder?`, `inputmode?` | Labelled input with optional unit suffix. `inputmode` triggers the correct mobile keyboard (e.g. `"decimal"`). |
 | `ResultDisplay` | `value`, `label` | Prominent result block with copy-to-clipboard |
 
