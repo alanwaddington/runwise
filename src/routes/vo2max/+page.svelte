@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
+	import CollapsibleField from '$lib/components/CollapsibleField.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { validatePositive } from '$lib/utils/validation';
@@ -138,7 +139,7 @@
 	</div>
 
 	<!-- Custom distance input -->
-	<div hidden={!isCustom}>
+	<CollapsibleField expanded={isCustom}>
 		<InputField
 			id="custom-km"
 			label="Custom distance"
@@ -153,7 +154,7 @@
 			oninput={onCustomKmInput}
 			onblur={() => (customKmTouched = true)}
 		/>
-	</div>
+	</CollapsibleField>
 
 	<!-- Finish time input -->
 	<InputField

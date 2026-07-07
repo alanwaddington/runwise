@@ -138,6 +138,47 @@ Always test the **conflicting** case too (stored preference opposite of OS prefe
 that's what actually proves a pre-paint script or CSS variant wins the race, rather than
 merely agreeing with a preference that would've rendered correctly anyway.
 
+### Recipe: interacting with a page right after `page.goto`
+
+`waitUntil: 'load'` is not enough before dispatching `selectOption`/`fill`/etc. — the DOM
+can accept the interaction (e.g. a native `<select>`'s value genuinely changes) before
+Svelte's hydration has attached the `onchange`/`oninput` handler that drives app state, so
+the interaction silently no-ops (the select shows the new value, but nothing downstream
+reacts). This burned a full debug cycle during PR #72 review, where a Playwright script
+using `waitUntil: 'load'` + 100ms wait made `selectOption('Custom')` appear to do nothing
+on every page tested — the fix was `waitUntil: 'networkidle'` plus an explicit
+`page.waitForTimeout(300-500)` before the first interaction:
+
+```js
+await page.goto(url, { waitUntil: 'networkidle' });
+await page.waitForTimeout(500); // let hydration finish attaching event handlers
+await page.locator('#distance-select').selectOption('Custom'); // now actually works
+```
+
+If a script's assertions are all "collapsed" values even after an interaction that should
+expand something, suspect hydration timing before suspecting the component.
+
+### Recipe: dismissing the cookie-consent banner
+
+`CookieBanner.svelte` renders a `role="dialog"` fixed to the viewport bottom
+(`consentBannerVisible` store) until a choice is made. It doesn't block most interactions
+on a normal-height viewport (the existing `e2e/pace.test.ts`/`theme-hover.test.ts` suite
+doesn't dismiss it and passes), but it **does** overlap page content on short viewports
+(e.g. Playwright's default single-page screenshot at ~500-700px tall) and it sits in the
+tab order, so keyboard-navigation tests should neutralize it. Two options:
+
+```js
+// Option A — click through it (use when you need to see it render correctly too)
+const btn = page.getByRole('button', { name: /necessary only/i });
+if (await btn.count()) await btn.click();
+
+// Option B — seed consent before the app boots, skipping the banner entirely
+// (preferred for tests that don't care about the banner itself)
+await page.addInitScript(() =>
+  localStorage.setItem('cookie-consent', JSON.stringify({ categories: ['necessary'], timestamp: 0 }))
+);
+```
+
 ### Recipe: general screenshot/interaction check
 
 ```js
@@ -169,3 +210,22 @@ Screenshots always go under the session scratchpad directory, not `/tmp` directl
   `vitest-setup.ts` already stubs it globally (`vi.mock('$env/dynamic/public', () => ({
   env: {} }))`, same pattern as the `window.matchMedia` stub) — a test file that needs to
   control a specific value should override this mock locally (see `SeoHead.test.ts`).
+- `vite.config.ts`'s `resolve.conditions` is scoped to `process.env.VITEST` only (fixed in
+  PR #72 review) — it used to apply globally, which stripped Vite's automatic
+  `development`/`production` resolve conditions from the dev server and build. That broke
+  `$app/environment`'s `dev` export (sourced from `esm-env`'s condition-keyed package
+  exports) app-wide, which silently forced `injectAnalytics()` in `+layout.ts` into
+  `mode: 'production'` even in local dev — visible as a console 404 for
+  `/_vercel/insights/script.js` on every page load. If `$app/environment`'s `dev` or any
+  other condition-exported package behaves oddly again, check `window.vam` in the browser
+  console (`window.vam === 'development'` in dev, `'production'` in a real build) before
+  assuming the app code is wrong — it may be a resolve-condition regression.
+- `playwright.config.ts`'s `webServer` runs `npm run build && npm run preview`, and the
+  build alone takes ~50-55s in this environment — close enough to Playwright's default
+  60s `webServer` timeout that `npx playwright test` can fail with
+  `Error: Timed out waiting 60000ms from config.webServer` even though nothing is broken.
+  `reuseExistingServer: !process.env.CI` means a server already listening on port 4173
+  will be reused instead of relaunched — so build once, start `npm run preview -- --port
+  4173` in the background yourself, wait for it to accept connections, then run
+  `npx playwright test`. Needs `dangerouslyDisableSandbox: true` on the preview command,
+  same as the manual preview recipe above.

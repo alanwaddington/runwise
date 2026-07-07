@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
+	import CollapsibleField from '$lib/components/CollapsibleField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import { validatePositive } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
@@ -101,15 +102,7 @@
 	</div>
 
 	<!-- Custom distance input (conditional) -->
-	<div
-		class="overflow-hidden transition-all duration-200"
-		class:max-h-0={!isCustom}
-		class:opacity-0={!isCustom}
-		class:max-h-24={isCustom}
-		class:opacity-100={isCustom}
-		class:mb-4={isCustom}
-		aria-hidden={!isCustom ? 'true' : undefined}
-	>
+	<CollapsibleField expanded={isCustom}>
 		<InputField
 			id="custom-km"
 			label="Custom distance"
@@ -124,7 +117,7 @@
 			oninput={onCustomKmInput}
 			onblur={() => (customKmTouched = true)}
 		/>
-	</div>
+	</CollapsibleField>
 
 	<!-- Race time input -->
 	<InputField

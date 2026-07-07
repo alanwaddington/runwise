@@ -81,6 +81,8 @@ npm run dev
 │   │   ├── AdUnit.test.ts
 │   │   ├── AffiliateLinks.svelte    # Per-route affiliate product cards (Amazon)
 │   │   ├── AffiliateLinks.test.ts
+│   │   ├── CollapsibleField.svelte  # Generic animated show/hide wrapper (max-height/opacity, aria-hidden, inert)
+│   │   ├── CollapsibleField.test.ts
 │   │   ├── CookieBanner.svelte      # GDPR cookie consent banner (fixed bottom)
 │   │   ├── CookieBanner.test.ts
 │   │   ├── HeroSection.svelte
@@ -252,6 +254,42 @@ npm run dev
     └── no-low-contrast-text.js    # Bans text-gray-400/text-gray-500 (any variant) in class attributes
 </code></pre>
 <p>Both rules operate on the Svelte template AST directly (<code>SvelteElement</code>, <code>SvelteAttribute</code>, <code>SvelteLiteral</code>) rather than plain ESTree nodes — Svelte class attributes are not standard <code>Literal</code> nodes, and the element name lives on <code>SvelteElement.name.name</code> with its attributes on <code>SvelteElement.startTag.attributes</code>, not on <code>SvelteStartTag</code> directly. Getting this AST path wrong makes a rule fail completely silently (it simply never matches, with zero lint errors either way) rather than throwing — if you write or modify a rule targeting Svelte templates, verify it actually fires against a deliberately-broken scratch <code>.svelte</code> file before trusting a clean <code>npm run lint</code> run.</p>
+<h3>Collapsible Content</h3>
+<p>Any field or block that toggles visibility based on user input (e.g. a &quot;Custom&quot; option revealing an extra input) should use the shared <code>CollapsibleField</code> component rather than a bespoke inline pattern:</p>
+<pre><code class="language-svelte">&lt;CollapsibleField expanded={isCustom}&gt;
+	&lt;InputField ... /&gt;
+&lt;/CollapsibleField&gt;
+</code></pre>
+<p><strong>Why not <code>{#if}</code> or the native <code>hidden</code> attribute:</strong></p>
+<ul>
+<li><code>{#if}</code> unmounts/remounts the content, so there&#39;s nothing to animate — the field would snap in/out instantly.</li>
+<li>The native <code>hidden</code> attribute also snaps instantly and sets no <code>aria-hidden</code>, so assistive technology gets no signal that the field is (or isn&#39;t) currently relevant.</li>
+</ul>
+<p><strong>What <code>CollapsibleField</code> does instead:</strong> the content stays mounted at all times (so its state — e.g. a partially-typed value — survives being hidden and re-shown) and visibility is purely a CSS transition (<code>max-h-0 opacity-0</code> ↔ <code>max-h-24 opacity-100 mb-4</code>, <code>overflow-hidden transition-all duration-200</code>), paired with two accessibility attributes toggled together:</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Collapsed</th>
+<th>Expanded</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>aria-hidden</code></td>
+<td><code>&quot;true&quot;</code></td>
+<td>omitted (not <code>&quot;false&quot;</code>)</td>
+<td>Tells assistive technology the content isn&#39;t currently relevant</td>
+</tr>
+<tr>
+<td><code>inert</code></td>
+<td>present</td>
+<td>omitted</td>
+<td>Removes the content from the tab order and interaction entirely</td>
+</tr>
+</tbody></table>
+<p><strong><code>aria-hidden</code> alone is not enough:</strong> it only affects the accessibility tree — it does not remove a nested focusable element from the tab order. Without <code>inert</code>, a sighted keyboard user can Tab into an invisible field (confirmed as a real, fixed bug — see PR #72 review, finding &quot;aria-hidden properly set&quot;). Always pair <code>aria-hidden</code> with <code>inert</code> (or <code>tabindex=&quot;-1&quot;</code> on every focusable descendant, which doesn&#39;t scale) whenever hiding content that contains interactive elements.</p>
+<p><code>inert</code>&#39;s focus-blocking enforcement is real-browser behaviour that jsdom does not implement (it only reflects the IDL property, not the enforcement) — <code>CollapsibleField.test.ts</code> asserts the property, but the actual behavioural guarantee is covered by <code>e2e/collapsible-field-focus.test.ts</code> (Playwright/Chromium).</p>
 <h3>Hover Feedback (touch and mouse)</h3>
 <p><code>hover:</code> classes must use the <code>--color-hover</code> token (<code>.hover\:text-hover</code>) rather than reusing <code>.text-ink</code> directly — this keeps the hover-state color relationship an explicit, named design decision instead of an incidental side effect of <code>--color-ink</code> flipping per theme.</p>
 <p>Tailwind v4 wraps <code>hover:</code> utilities in <code>@media (hover: hover)</code> by default, to prevent &quot;sticky hover&quot; on touch devices (where a tap has no true hover-then-release gesture). This project overrides that default via a custom variant in <code>src/app.css</code>:</p>
@@ -311,6 +349,11 @@ npm run dev
 <td><code>AffiliateLinks</code></td>
 <td><code>route</code></td>
 <td>Per-route affiliate product cards — calls <code>getAffiliateLinks(route)</code> from <code>affiliates.ts</code></td>
+</tr>
+<tr>
+<td><code>CollapsibleField</code></td>
+<td><code>expanded</code>, <code>children</code> (Snippet)</td>
+<td>Generic animated show/hide wrapper — see <a href="#collapsible-content">Collapsible Content</a> below</td>
 </tr>
 <tr>
 <td><code>InputField</code></td>
