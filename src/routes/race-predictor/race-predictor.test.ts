@@ -84,10 +84,8 @@ describe('RacePredictor page', () => {
 
 	it('custom km input is not visible initially', () => {
 		render(RacePredictor);
-		// The custom input exists in the DOM but is hidden (max-h-0/opacity-0)
-		// It should not have a visible label accessible by default
+		// The custom input exists in the DOM but is collapsed via CollapsibleField (max-h-0/opacity-0)
 		const customInput = screen.queryByLabelText(/custom distance/i);
-		// It exists but is visually hidden via max-h-0
 		expect(customInput).toBeInTheDocument();
 	});
 

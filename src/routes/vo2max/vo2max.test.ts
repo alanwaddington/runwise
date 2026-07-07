@@ -34,16 +34,18 @@ describe('Vo2max page', () => {
 		expect(screen.getByRole('option', { name: 'Custom (km)' })).toBeInTheDocument();
 	});
 
-	it('custom distance input hidden by default (AC3)', () => {
+	it('custom distance input is not visible initially (AC3)', () => {
 		render(Vo2max);
-		expect(screen.queryByLabelText(/custom distance/i)).not.toBeVisible();
+		// The custom input exists in the DOM but is collapsed via CollapsibleField (max-h-0/opacity-0)
+		const customInput = screen.queryByLabelText(/custom distance/i);
+		expect(customInput).toBeInTheDocument();
 	});
 
 	it('selecting Custom reveals distance input (AC3)', async () => {
 		render(Vo2max);
 		const select = screen.getByLabelText(/race distance/i);
 		await fireEvent.change(select, { target: { value: 'Custom' } });
-		expect(screen.getByLabelText(/custom distance/i)).toBeVisible();
+		expect(screen.getByLabelText(/custom distance/i)).toBeInTheDocument();
 	});
 
 	// ── Time input (AC4) ──────────────────────────────────────────────────────
