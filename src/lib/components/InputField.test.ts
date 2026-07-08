@@ -231,4 +231,22 @@ describe('InputField', () => {
 		expect(describedBy).toContain('pace-unit');
 		expect(describedBy).toBe('pace-help pace-error pace-unit');
 	});
+
+	it('adds aria-label with required status when required is true', () => {
+		render(InputField, { props: { label: 'Distance', id: 'distance', value: 0, required: true } });
+		const input = screen.getByDisplayValue('0');
+		expect(input).toHaveAttribute('aria-label', 'Distance, required');
+	});
+
+	it('sets aria-label to label only when required is false', () => {
+		render(InputField, { props: { label: 'Age', id: 'age', value: 0, required: false } });
+		const input = screen.getByDisplayValue('0');
+		expect(input).toHaveAttribute('aria-label', 'Age');
+	});
+
+	it('sets aria-label to label only when required is undefined', () => {
+		render(InputField, { props: { label: 'Distance', id: 'distance', value: 0 } });
+		const input = screen.getByDisplayValue('0');
+		expect(input).toHaveAttribute('aria-label', 'Distance');
+	});
 });

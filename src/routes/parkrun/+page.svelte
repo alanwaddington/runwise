@@ -296,6 +296,7 @@
 				placeholder="e.g. 24:30"
 				value={pbRaw}
 				oninput={onPbInput}
+				aria-label="PB, optional"
 				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
 			/>
 		</div>
@@ -317,6 +318,7 @@
 					id="gender-select"
 					value={genderRaw}
 					onchange={onGenderChange}
+					aria-label="Gender, optional"
 					class="h-12 w-full appearance-none rounded-lg border border-gray-300 bg-bg px-3 pr-10 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
 				>
 					<option value="prefer-not-to-say">Prefer not to say</option>

@@ -48,6 +48,8 @@
 		return ids.length > 0 ? ids.join(' ') : undefined;
 	});
 
+	const computedAriaLabel = $derived(required ? `${label}, required` : label);
+
 	const hasError = $derived(error && touched);
 </script>
 
@@ -68,6 +70,7 @@
 			bind:value
 			{oninput}
 			{onblur}
+			aria-label={computedAriaLabel}
 			aria-describedby={descriptionIds}
 			aria-invalid={hasError ? 'true' : undefined}
 			class="h-12 w-full rounded-lg border bg-bg px-3 text-ink focus:border-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none dark:border-gray-700"
