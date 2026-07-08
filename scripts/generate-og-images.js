@@ -14,6 +14,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const OG_TEMPLATE_PATH = join(__dirname, 'og-template.html');
 const FAVICON_TEMPLATE_PATH = join(__dirname, 'favicon-template.html');
+const APPLE_TOUCH_ICON_TEMPLATE_PATH = join(__dirname, 'apple-touch-icon-template.html');
 const OG_OUTPUT_DIR = join(ROOT, 'static', 'og');
 const STATIC_DIR = join(ROOT, 'static');
 
@@ -28,8 +29,8 @@ const OG_IMAGES = [
 ];
 
 const FAVICONS = [
-	{ file: 'favicon-32x32.png', size: 32 },
-	{ file: 'apple-touch-icon.png', size: 180 }
+	{ file: 'favicon-32x32.png', size: 32, templatePath: FAVICON_TEMPLATE_PATH },
+	{ file: 'apple-touch-icon.png', size: 180, templatePath: APPLE_TOUCH_ICON_TEMPLATE_PATH }
 ];
 
 mkdirSync(OG_OUTPUT_DIR, { recursive: true });
@@ -49,13 +50,12 @@ for (const { file, tool } of OG_IMAGES) {
 	console.log(`Generated ${outputPath}`);
 }
 
-const faviconUrl = pathToFileURL(FAVICON_TEMPLATE_PATH).toString();
-for (const { file, size } of FAVICONS) {
+for (const { file, size, templatePath } of FAVICONS) {
 	const faviconPage = await browser.newPage({
 		viewport: { width: size, height: size },
 		deviceScaleFactor: 1
 	});
-	await faviconPage.goto(faviconUrl);
+	await faviconPage.goto(pathToFileURL(templatePath).toString());
 
 	const outputPath = join(STATIC_DIR, file);
 	await faviconPage.screenshot({ path: outputPath, omitBackground: true });
