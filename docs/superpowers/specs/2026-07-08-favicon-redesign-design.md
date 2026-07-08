@@ -17,9 +17,9 @@ Explored via the brainstorming skill's visual companion: 8 initial abstract "mot
 
 A diagonal "pulse": a small zigzag that climbs from bottom-left to top-right, reading simultaneously as an effort/rhythm spike and as forward motion — avoiding both the literal-runner-figure cliché and the flat/static feel of a horizontal ECG strip.
 
-- Path: `M6 22 L11.5 22 L15 8.5 L18 15.5 L26 9`, on a `0 0 32 32` viewBox
+- Path: `M6 22 L11.5 22 L15 8.5 L18 15.5 L26 9`, on a `0 0 32 32` viewBox — 5 points (1 `M` + 4 `L`), i.e. 4 line segments
 - Stroke: `#FAFAF8`, width `3.2`, `stroke-linecap="round"`, `stroke-linejoin="round"`, `fill="none"`
-- 4 vertices (down from 7 in an earlier draft) — validated at real 16px render size to confirm it stays a crisp zigzag rather than blurring into a smear. The stroke width was deliberately increased from an initial `2.1` to `3.2` for the same reason: thinner strokes anti-alias away at 16px.
+- Down from 7 points in an earlier draft — validated at real 16px render size to confirm it stays a crisp zigzag rather than blurring into a smear. The stroke width was deliberately increased from an initial `2.1` to `3.2` for the same reason: thinner strokes anti-alias away at 16px.
 
 ### Container
 
@@ -39,16 +39,25 @@ Rejected shape option: full circle (the current treatment) — not wrong, but th
 
 ## Implementation scope
 
-Three files, no application code changes:
+**Spec review (2026-07-08) caught that this glyph appears in more places than initially scoped — see corrections below.** No application/UI code changes either way; everything is confined to `static/` and `scripts/`.
 
 1. **`static/favicon.svg`** — replace with the new mark (rounded-square container variant).
-2. **`scripts/favicon-template.html`** — mirror the same SVG markup exactly; this file is what `scripts/generate-og-images.js` screenshots via Playwright to produce `favicon-32x32.png`. Needs to stay in sync with `favicon.svg` (already true today; this isn't a new constraint, just a reminder for whoever implements this).
-3. **`scripts/generate-og-images.js`** — currently generates both `favicon-32x32.png` (32px) and `apple-touch-icon.png` (180px) from the *same* `favicon-template.html`. Since `apple-touch-icon.png` needs the un-rounded square variant, the script (or a second template) needs to render that size from a variant without `rx` on the container rect. The simplest approach: a second small HTML template (e.g. `scripts/apple-touch-icon-template.html`) with the same mark but a plain `<rect>` (no `rx`), used only for the 180×180 render.
 
-No changes needed to `src/app.html` (existing `<link rel="icon">`/`<link rel="apple-touch-icon">` tags already point at the right filenames/sizes), no manifest/webmanifest file exists to update, and the OG social-preview image templates (`scripts/og-template.html`) don't reuse this icon glyph, so they're unaffected.
+2. **`scripts/favicon-template.html`** — mirror the same SVG markup exactly; this file is what `scripts/generate-og-images.js` screenshots via Playwright to produce `favicon-32x32.png`. Needs to stay in sync with `favicon.svg` (already true today; this isn't a new constraint, just a reminder for whoever implements this).
+
+3. **`scripts/generate-og-images.js`** — currently generates both `favicon-32x32.png` (32px) and `apple-touch-icon.png` (180px) from the *same* `favicon-template.html` (the `FAVICONS` array/loop drives both sizes off one template path today). Since `apple-touch-icon.png` needs the un-rounded square variant, this needs an actual code change, not just an aside: give the `apple-touch-icon.png` entry in that array its own template path (e.g. a new `scripts/apple-touch-icon-template.html`, identical to `favicon-template.html` but with a plain `<rect>`, no `rx`, on the container), and update the loop so each entry renders from its own template instead of the one shared `faviconUrl`.
+
+4. **`scripts/og-template.html`** — **correction from the first draft of this spec, which incorrectly claimed this file was unaffected.** It embeds the *old* glyph twice and both need updating to the new mark for brand consistency, since `npm run og:generate` screenshots this template to produce every checked-in `static/og/*.png` social-preview image:
+   - The `.watermark` background decoration (large, 9% opacity, muted colors `#2fd88f` fill / `#0b120f` path) — swap the container from `<circle>` to the same rounded-square (`rx` scaled proportionally to its viewBox) and swap in the new path `d`. Keep its existing distinct muted color treatment as-is (that muting is intentional, unrelated to this redesign) — only the shape and path change, matching the favicon's circle→rounded-square change everywhere it appears, not just in the top bar.
+   - The `.mark` logo next to the wordmark in the top bar (`#1B8A5A` fill / `#FAFAF8` path, 46×46px via CSS) — swap in the new mark's container + path, matching the main favicon treatment (rounded square, since this isn't the apple-touch-icon context).
+
+5. **Regenerate the PNGs.** `static/favicon-32x32.png`, `static/apple-touch-icon.png`, and every file under `static/og/` are checked-in binaries, not built at deploy time — editing the templates alone ships nothing. Run `npm run og:generate` after the template/script edits above, and commit the regenerated PNGs alongside the source changes.
+
+No changes needed to `src/app.html` (existing `<link rel="icon">`/`<link rel="apple-touch-icon">` tags already point at the right filenames/sizes) or to any manifest/webmanifest file (none exists in the repo).
 
 ## Out of scope
 
 - No changes to the app's color tokens, `app.css`, or any in-app UI (this is icon-only).
 - No new build tooling — reuses the existing `npm run og:generate` pipeline.
-- Historical `favicon-template.html` cleanup beyond what's needed for this change.
+- Historical `favicon-template.html`/`og-template.html` cleanup beyond what's needed for this change.
+- Changing the `.watermark`'s distinct muted color treatment in `og-template.html` — only its path shape updates, not its palette.
