@@ -24,7 +24,7 @@
 		<section>
 			<h2 class="mb-3 text-lg font-semibold text-ink">What we collect</h2>
 			<p>
-				Runwise is a free tool — we do not require an account and we do not collect personally
+				Runwise is a free tool. We do not require an account and we do not collect personally
 				identifiable information. When you use Runwise, the following data may be processed:
 			</p>
 			<ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
@@ -43,15 +43,15 @@
 			</p>
 			<ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
 				<li>
-					<strong class="font-medium text-ink">Necessary</strong> — stores your cookie consent
+					<strong class="font-medium text-ink">Necessary</strong>: stores your cookie consent
 					preference in localStorage. No tracking.
 				</li>
 				<li>
-					<strong class="font-medium text-ink">Analytics</strong> — Vercel Analytics collects
+					<strong class="font-medium text-ink">Analytics</strong>: Vercel Analytics collects
 					anonymous page view data. No personal data is stored or sold.
 				</li>
 				<li>
-					<strong class="font-medium text-ink">Marketing</strong> — Google AdSense may set cookies
+					<strong class="font-medium text-ink">Marketing</strong>: Google AdSense may set cookies
 					to serve relevant ads. See
 					<a
 						href="https://policies.google.com/privacy"
@@ -81,7 +81,7 @@
 		<section>
 			<h2 class="mb-3 text-lg font-semibold text-ink">Affiliate links</h2>
 			<p class="text-sm">
-				Some pages include links to products on Amazon. These are affiliate links — if you click a
+				Some pages include links to products on Amazon. These are affiliate links: if you click a
 				link and make a purchase, we may earn a small commission at no extra cost to you. Affiliate
 				links do not set cookies on runwise.app. Cookies may be set by Amazon once you follow a
 				link to their site, subject to their privacy policy.

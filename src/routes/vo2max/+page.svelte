@@ -281,11 +281,11 @@
 			<p class="mt-1 text-sm text-muted">ml/kg/min</p>
 			<p class="mt-3 text-xs text-muted">
 				<span class="font-medium text-ink">What is VDOT?</span>
-				VDOT is a practical proxy for VO2 max — your body's ability to use oxygen during exercise. Derived from your race performance using Jack Daniels' formula, it accounts for both aerobic capacity and running economy.
+				VDOT is a practical proxy for VO2 max: your body's ability to use oxygen during exercise. Derived from your race performance using Jack Daniels' formula, it accounts for both aerobic capacity and running economy.
 			</p>
 			<p class="mt-2 text-xs text-muted">
 				<span class="font-medium text-ink">Why does this differ from my GPS watch?</span>
-				Devices like Garmin and Coros estimate VO2 max from heart rate and pace trends across many runs, and can run several points higher than a race-derived VDOT — especially if your watch's max heart rate is set too high. This estimate reflects what your race result actually demonstrated on the day, so treat both figures as estimates rather than exact measurements.
+				Devices like Garmin and Coros estimate VO2 max from heart rate and pace trends across many runs, and can run several points higher than a race-derived VDOT, especially if your watch's max heart rate is set too high. This estimate reflects what your race result actually demonstrated on the day, so treat both figures as estimates rather than exact measurements.
 			</p>
 		</div>
 
@@ -311,12 +311,12 @@
 					</div>
 					{#if fitnessResult.isApproximate}
 						<p class="mt-2 text-xs text-muted">
-							Based on nearest available bracket ({fitnessResult.bracket}) — ACSM norms cover ages 20–79.
+							Based on nearest available bracket ({fitnessResult.bracket}). ACSM norms cover ages 20–79.
 						</p>
 					{/if}
 				</div>
 			{:else if age !== null && gender === 'prefer-not-to-say'}
-				<!-- Prefer not to say — show both genders for that age bracket -->
+				<!-- Prefer not to say: show both genders for that age bracket -->
 				{@const bracketResult = getFitnessCategory(vdotState.vdot, age, 'male')}
 				{@const femaleBracketResult = getFitnessCategory(vdotState.vdot, age, 'female')}
 				{#if bracketResult !== null && femaleBracketResult !== null}
@@ -338,13 +338,13 @@
 						</div>
 						{#if bracketResult.isApproximate}
 							<p class="mt-2 text-xs text-muted">
-								Based on nearest available bracket ({bracketResult.bracket}) — ACSM norms cover ages 20–79.
+								Based on nearest available bracket ({bracketResult.bracket}). ACSM norms cover ages 20–79.
 							</p>
 						{/if}
 					</div>
 				{/if}
 			{:else}
-				<!-- General ACSM reference — both male and female norms -->
+				<!-- General ACSM reference: both male and female norms -->
 				<div data-testid="acsm-reference-table">
 					<p class="mb-3 text-xs text-muted">
 						Enter your age and gender above for your personalised category. ACSM reference norms (ml/kg/min):

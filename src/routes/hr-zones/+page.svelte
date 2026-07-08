@@ -174,11 +174,11 @@
 					class="absolute right-0 top-10 z-10 w-72 rounded-lg border border-gray-200 bg-bg p-3 text-sm shadow-lg dark:border-gray-700"
 				>
 					<p class="mb-2 text-muted">
-						<span class="font-semibold text-ink">Max HR</span> — Simple percentage-based zones using
+						<span class="font-semibold text-ink">Max HR</span>: simple percentage-based zones using
 						your maximum heart rate. Easy to use without specialist testing.
 					</p>
 					<p class="text-muted">
-						<span class="font-semibold text-ink">LTHR</span> — Joe Friel's lactate threshold method.
+						<span class="font-semibold text-ink">LTHR</span>: Joe Friel's lactate threshold method.
 						More precise for coached athletes and triathletes.
 					</p>
 				</div>

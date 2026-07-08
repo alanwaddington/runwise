@@ -24,7 +24,7 @@ export const PAGES: Record<string, PageSeo> = {
 	'/pace': {
 		title: 'Pace Calculator | Runwise',
 		description:
-			'Free pace calculator for runners. Convert instantly between min/km, min/mile, km/h and mph — the fastest running pace converter for training and racing.',
+			'Free pace calculator for runners. Convert instantly between min/km, min/mile, km/h and mph, the fastest running pace converter for training and racing.',
 		ogImage: '/og/og-pace.png',
 		jsonLdType: 'WebApplication',
 		changefreq: 'monthly',
@@ -51,7 +51,7 @@ export const PAGES: Record<string, PageSeo> = {
 	'/hr-zones': {
 		title: 'Heart Rate Zone Calculator | Runwise',
 		description:
-			'Free heart rate zone calculator for runners and triathletes. Calculate your 5 HR training zones using Max HR or Joe Friel LTHR — instant, no login required.',
+			'Free heart rate zone calculator for runners and triathletes. Calculate your 5 HR training zones using Max HR or Joe Friel LTHR. Instant, no login required.',
 		ogImage: '/og/og-hr-zones.png',
 		jsonLdType: 'WebApplication',
 		changefreq: 'monthly',
@@ -78,7 +78,7 @@ export const PAGES: Record<string, PageSeo> = {
 	'/privacy': {
 		title: 'Privacy Policy | Runwise',
 		description:
-			'Privacy policy for Runwise. Learn how we use cookies, Google AdSense, affiliate links, and Vercel Analytics — and how to manage your preferences.',
+			'Privacy policy for Runwise. Learn how we use cookies, Google AdSense, affiliate links, and Vercel Analytics, and how to manage your preferences.',
 		ogImage: DEFAULT_OG_IMAGE,
 		jsonLdType: 'WebSite',
 		changefreq: 'yearly',
