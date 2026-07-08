@@ -1,0 +1,85 @@
+name: Check age-grade tables
+
+# Verifies src/lib/utils/parkrun.ts's hardcoded WMA/Alan Jones 5K age-grading
+# tables against the live source (github.com/AlanLyttonJones/Age-Grade-Tables).
+# That data changes on a multi-year cycle, not continuously, so a quarterly
+# check is enough — see scripts/check-age-grade-tables.py for what it verifies.
+
+on:
+  schedule:
+    - cron: '0 6 1 1,4,7,10 *' # 06:00 UTC on the 1st of Jan/Apr/Jul/Oct
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run check
+        id: check
+        run: |
+          set +e
+          output=$(python3 scripts/check-age-grade-tables.py 2>&1)
+          exit_code=$?
+          echo "$output"
+          delimiter="EOF_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          {
+            echo "output<<$delimiter"
+            echo "$output"
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+          exit $exit_code
+
+      - name: Open or update issue on drift
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `${{ steps.check.outputs.output }}`;
+            const label = 'age-grade-table-drift';
+            const title = 'Age-grade tables have drifted from the WMA/Alan Jones source';
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label
+            });
+
+            const body = [
+              'The quarterly check in `.github/workflows/check-age-grade-tables.yml` found a difference between',
+              '`src/lib/utils/parkrun.ts` and the live source at',
+              'https://github.com/AlanLyttonJones/Age-Grade-Tables.',
+              '',
+              '```',
+              output,
+              '```',
+              '',
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            ].join('\n');
+
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body: `New check run found the same/further drift:\n\n${body}`
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: [label]
+              });
+            }
