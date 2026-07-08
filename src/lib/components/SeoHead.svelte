@@ -36,7 +36,12 @@
 					name: page.title,
 					description: page.description,
 					url: canonicalUrl,
-					applicationCategory: 'HealthApplication'
+					applicationCategory: 'HealthApplication',
+					offers: {
+						'@type': 'Offer',
+						price: '0',
+						priceCurrency: 'USD'
+					}
 				}
 	);
 
