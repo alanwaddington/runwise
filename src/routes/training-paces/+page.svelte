@@ -3,6 +3,7 @@
 	import InputField from '$lib/components/InputField.svelte';
 	import CollapsibleField from '$lib/components/CollapsibleField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import PageExplainer from '$lib/components/PageExplainer.svelte';
 	import { validatePositive } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
 	import { buildTrainingPaceResult } from '$lib/utils/training-paces';
@@ -264,3 +265,5 @@
 	{/if}
 
 </ToolLayout>
+
+<PageExplainer route="/training-paces" />

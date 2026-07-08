@@ -3,6 +3,7 @@
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import PageExplainer from '$lib/components/PageExplainer.svelte';
 	import { validatePositive } from '$lib/utils/validation';
 	import {
 		parsePace,
@@ -145,3 +146,5 @@
 	</div>
 
 </ToolLayout>
+
+<PageExplainer route="/pace" />

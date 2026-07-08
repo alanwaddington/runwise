@@ -3,6 +3,7 @@
 	import InputField from '$lib/components/InputField.svelte';
 	import ResultDisplay from '$lib/components/ResultDisplay.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import PageExplainer from '$lib/components/PageExplainer.svelte';
 	import { validatePositive } from '$lib/utils/validation';
 	import { parseTime, formatTime, predictedPaceMinPerKm } from '$lib/utils/race-predictor';
 	import { parsePace, formatPace, minPerKmToMinPerMile } from '$lib/utils/pace';
@@ -466,3 +467,5 @@
 	{/if}
 
 </ToolLayout>
+
+<PageExplainer route="/parkrun" />

@@ -2,6 +2,7 @@
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
+	import PageExplainer from '$lib/components/PageExplainer.svelte';
 	import { validatePositive, validateRange } from '$lib/utils/validation';
 	import {
 		calculateMaxHrZones,
@@ -386,3 +387,5 @@
 	{/if}
 
 </ToolLayout>
+
+<PageExplainer route="/hr-zones" />
