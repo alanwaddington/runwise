@@ -38,7 +38,7 @@
 		</div>
 	</div>
 
-	<aside class="mt-8 lg:mt-0 lg:sticky lg:top-24 print:hidden">
+	<aside class="mt-8 lg:mt-0 lg:sticky-with-header-offset print:hidden">
 		<AdUnit />
 		<AffiliateLinks {route} />
 	</aside>

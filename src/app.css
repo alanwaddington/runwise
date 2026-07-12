@@ -18,6 +18,10 @@
 	--color-hover: var(--color-ink);
 	--font-sans: 'Manrope', system-ui, sans-serif;
 	--font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+	/* Header height: SiteNav has py-4 (1rem top + 1rem bottom) + Runwise logo/nav content (~48px total).
+	   Measured at 100% zoom: ~96px. CSS custom properties scale with browser zoom automatically,
+	   ensuring sidebar alignment at 110%, 125%, and other zoom levels. */
+	--header-height: 96px;
 }
 
 /* No-JS fallback: the pre-paint script in app.html normally applies an
@@ -46,4 +50,12 @@ body {
 	background-color: var(--color-bg);
 	color: var(--color-ink);
 	font-family: var(--font-sans);
+}
+
+/* Reusable utility for elements that need to stick below the header (e.g., sidebars, aside elements).
+   Automatically scales with browser zoom due to --header-height CSS custom property. */
+@layer utilities {
+	.sticky-with-header-offset {
+		@apply sticky top-(--header-height);
+	}
 }
