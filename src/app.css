@@ -56,6 +56,6 @@ body {
    Automatically scales with browser zoom due to --header-height CSS custom property. */
 @layer utilities {
 	.sticky-with-header-offset {
-		@apply sticky top-[var(--header-height)];
+		@apply sticky top-(--header-height);
 	}
 }
