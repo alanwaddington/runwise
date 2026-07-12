@@ -15,7 +15,7 @@ describe('observeHeaderHeight', () => {
 		disconnectSpy = vi.fn();
 
 		class MockResizeObserver {
-			constructor(_callback: ResizeObserverCallback) {}
+			constructor() {}
 			observe = observeSpy;
 			disconnect = disconnectSpy;
 			unobserve = vi.fn();
