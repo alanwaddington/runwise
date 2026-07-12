@@ -77,10 +77,16 @@
 							<p class="text-sm font-medium text-ink">Necessary</p>
 							<p class="text-xs text-muted">Required for the site to function.</p>
 						</div>
-						<div
-							class="relative mt-0.5 h-5 w-9 flex-shrink-0 rounded-full bg-accent opacity-50 after:absolute after:right-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:content-['']"
-							aria-label="Necessary cookies always enabled"
-						></div>
+						<label class="mt-0.5 flex-shrink-0 cursor-not-allowed">
+							<span class="sr-only">Necessary cookies</span>
+							<div class="relative">
+								<input type="checkbox" class="peer sr-only" checked disabled />
+								<div
+									aria-hidden="true"
+									class="relative block h-5 w-9 rounded-full bg-accent opacity-50 after:absolute after:right-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:content-['']"
+								></div>
+							</div>
+						</label>
 					</div>
 
 					<div class="flex items-start justify-between gap-4">
