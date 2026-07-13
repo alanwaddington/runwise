@@ -18,7 +18,11 @@
 <footer class="mt-12 border-t border-gray-200 px-4 py-10 print:hidden dark:border-gray-700">
 	<div class="mx-auto flex max-w-5xl flex-col gap-8 sm:flex-row sm:justify-between">
 		<div class="max-w-sm">
-			<a href="/" class="text-base font-bold tracking-tight text-ink">Runwise</a>
+			<a
+				href="/"
+				class="rounded-sm text-base font-bold tracking-tight text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+				>Runwise</a
+			>
 			<p class="mt-2 text-sm text-muted">
 				Free running calculators for pace, heart rate zones, VO2 max, training paces, and race
 				predictions. No login, no tracking your workouts — just fast, accurate tools.
