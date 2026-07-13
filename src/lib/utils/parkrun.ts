@@ -163,5 +163,8 @@ export function calculateAgeGrade(
 /** Map an age grade percentage to its WMA-style performance band. */
 export function getAgeGradeLabel(percent: number): AgeGradeLabel {
 	const band = AGE_GRADE_BANDS.find((b) => percent >= b.minPercent);
+	// Safe: percent is always >= 0 (calculateAgeGrade returns a ratio of two
+	// positive quantities, guarded by its own timeSeconds <= 0 check), and the
+	// fallback band's minPercent is 0, so some band always matches.
 	return band!.label;
 }
