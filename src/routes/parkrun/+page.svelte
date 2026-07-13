@@ -181,7 +181,7 @@
 			role="tab"
 			aria-selected={mode === 'recent-run'}
 			onclick={() => selectMode('recent-run')}
-			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 			class:bg-accent={mode === 'recent-run'}
 			class:text-white={mode === 'recent-run'}
 			class:font-semibold={mode === 'recent-run'}
@@ -194,7 +194,7 @@
 			role="tab"
 			aria-selected={mode === 'average-pace'}
 			onclick={() => selectMode('average-pace')}
-			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 			class:bg-accent={mode === 'average-pace'}
 			class:text-white={mode === 'average-pace'}
 			class:font-semibold={mode === 'average-pace'}
@@ -282,7 +282,7 @@
 			       [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0
 			       [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-transform
 			       [&::-moz-range-thumb]:duration-150 hover:[&::-moz-range-thumb]:scale-110
-			       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1
+			       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
 			       dark:bg-gray-700"
 		/>
 		<div class="mt-1 flex justify-between px-0.5 text-xs text-muted">
