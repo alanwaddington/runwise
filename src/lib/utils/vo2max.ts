@@ -129,6 +129,9 @@ export function getFitnessCategory(
 		bracket = ACSM_BRACKETS[ACSM_BRACKETS.length - 1];
 		isApproximate = true;
 	} else {
+		// Safe: this branch only runs when age is within [20, 79] (the preceding
+		// if/else-if clamp out-of-range ages), and ACSM_BRACKETS' decade bands
+		// cover that range with no gaps.
 		bracket = ACSM_BRACKETS.find((b) => age >= b.ageMin && age <= b.ageMax)!;
 	}
 
