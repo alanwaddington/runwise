@@ -52,11 +52,33 @@ describe('Parkrun page', () => {
 		expect(screen.queryByLabelText(/^distance/i)).not.toBeInTheDocument();
 	});
 
+	it('modeTabs_haveCompleteFocusVisibleClasses', () => {
+		render(Parkrun);
+		for (const tab of [
+			screen.getByRole('tab', { name: 'Recent Run' }),
+			screen.getByRole('tab', { name: 'Average Pace' })
+		]) {
+			expect(tab.className).toContain('focus-visible:outline-none');
+			expect(tab.className).toContain('focus-visible:ring-2');
+			expect(tab.className).toContain('focus-visible:ring-accent');
+			expect(tab.className).toContain('focus-visible:ring-offset-2');
+		}
+	});
+
 	// ── Reference distance selector (AC3) ─────────────────────────────────────
 
 	it('renders the reference distance slider (AC3)', () => {
 		render(Parkrun);
 		expect(screen.getByLabelText('Reference distance')).toBeInTheDocument();
+	});
+
+	it('referenceDistanceSlider_hasCompleteFocusVisibleClasses', () => {
+		render(Parkrun);
+		const slider = screen.getByLabelText('Reference distance');
+		expect(slider.className).toContain('focus-visible:outline-none');
+		expect(slider.className).toContain('focus-visible:ring-2');
+		expect(slider.className).toContain('focus-visible:ring-accent');
+		expect(slider.className).toContain('focus-visible:ring-offset-2');
 	});
 
 	it('10K is selected by default', () => {
