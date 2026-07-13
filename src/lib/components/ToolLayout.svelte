@@ -33,7 +33,9 @@
 		<h1 class="mt-4 text-2xl font-bold text-ink md:text-3xl">{title}</h1>
 		<p class="mt-2 text-muted">{description}</p>
 
-		<div class="mt-8 rounded-2xl border border-gray-200 bg-bg p-6 dark:border-gray-700">
+		<div
+			class="mt-8 rounded-2xl border border-gray-200 bg-gray-50/50 p-6 shadow-sm dark:border-gray-700 dark:bg-white/[0.03]"
+		>
 			{@render children?.()}
 		</div>
 	</div>

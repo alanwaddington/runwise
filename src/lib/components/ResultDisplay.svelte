@@ -28,9 +28,13 @@
 
 <div class="flex flex-col items-center text-center">
 	<p class="text-xs font-medium tracking-wide text-muted uppercase">{label}</p>
-	<p class="mt-2 font-mono text-5xl font-bold tabular-nums text-accent md:text-6xl lg:text-7xl">
-		{value}
-	</p>
+	{#key value}
+		<p
+			class="animate-result-pop mt-2 font-mono text-5xl font-bold tabular-nums text-accent md:text-6xl lg:text-7xl"
+		>
+			{value}
+		</p>
+	{/key}
 
 	{#if clipboardAvailable}
 		<button
@@ -70,5 +74,6 @@
 				Copy
 			{/if}
 		</button>
+		<span class="sr-only" role="status" aria-live="polite">{copied ? 'Copied to clipboard' : ''}</span>
 	{/if}
 </div>

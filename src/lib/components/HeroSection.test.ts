@@ -43,9 +43,9 @@ describe('HeroSection', () => {
 		expect(screen.getByText(/Running calculators/)).toBeInTheDocument();
 	});
 
-	it('wraps "Fast." in a span with text-accent class', () => {
+	it('wraps "Fast." in a span with the AA-contrast-safe accent-text class', () => {
 		const { container } = render(HeroSection);
-		const accentSpan = container.querySelector('span.text-accent');
+		const accentSpan = container.querySelector('span.text-accent-text');
 		expect(accentSpan).not.toBeNull();
 		expect(accentSpan?.textContent).toBe('Fast.');
 	});
@@ -53,10 +53,5 @@ describe('HeroSection', () => {
 	it('renders the sub-copy with "No login required"', () => {
 		render(HeroSection);
 		expect(screen.getByText(/No login required/)).toBeInTheDocument();
-	});
-
-	it('renders a horizontal rule separator', () => {
-		const { container } = render(HeroSection);
-		expect(container.querySelector('hr')).not.toBeNull();
 	});
 });

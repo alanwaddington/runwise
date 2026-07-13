@@ -54,6 +54,16 @@
 		timeRaw = raw;
 		timeError = raw && parseTime(raw) === null ? 'Enter MM:SS or H:MM:SS' : null;
 	}
+
+	function reset() {
+		selectedOption = '5K';
+		customKmRaw = '';
+		timeRaw = '';
+		customKmTouched = false;
+		timeTouched = false;
+		customKmError = null;
+		timeError = null;
+	}
 </script>
 
 <SeoHead route="/training-paces" />
@@ -258,10 +268,22 @@
 		<!-- Footer link -->
 		<p class="mt-6 text-center text-xs text-muted">
 			Want to know your aerobic capacity?
-			<a href="/vo2max" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/vo2max" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Estimate your VO2 max →</a
 			>
 		</p>
+	{/if}
+
+	{#if result !== null}
+		<div class="mt-4 text-center">
+			<button
+				type="button"
+				onclick={reset}
+				class="rounded-sm text-xs font-medium text-muted transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			>
+				Clear
+			</button>
+		</div>
 	{/if}
 
 </ToolLayout>

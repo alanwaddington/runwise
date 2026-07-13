@@ -24,10 +24,10 @@
 			Recommended gear
 		</p>
 
-		<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+		<div class="grid grid-cols-1 gap-3">
 			{#each products as product (product.url)}
 				<div
-					class="rounded-xl border border-gray-200 bg-bg p-4 dark:border-gray-700"
+					class="rounded-xl border border-gray-200 bg-gray-50/50 p-4 shadow-sm dark:border-gray-700 dark:bg-white/[0.03]"
 				>
 					<span
 						class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-muted dark:bg-gray-800"
@@ -40,7 +40,7 @@
 						href={product.url}
 						target="_blank"
 						rel="noopener noreferrer sponsored"
-						class="mt-2 block rounded-sm text-xs font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class="mt-2 block rounded-sm text-xs font-medium text-accent-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						{linkLabel(product.program)}
 					</a>

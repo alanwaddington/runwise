@@ -77,6 +77,16 @@
 		zone5Expanded = false;
 	}
 
+	function reset() {
+		bpmRaw = '';
+		ageRaw = '';
+		bpmTouched = false;
+		ageTouched = false;
+		bpmError = null;
+		ageError = null;
+		zone5Expanded = false;
+	}
+
 	$effect(() => {
 		if (!showTooltip) return;
 		function handleOutsideClick(e: MouseEvent) {
@@ -285,9 +295,9 @@
 					{#each zones as zone (zone.zone)}
 						{@const isExpandable = zone.zone === 5 && method === 'lthr'}
 						<tr
-							class="border-b border-ink/10"
-							class:cursor-pointer={isExpandable}
-							class:hover:bg-gray-50={isExpandable}
+							class="border-b border-ink/10 {isExpandable
+								? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40'
+								: ''}"
 							onclick={isExpandable ? () => (zone5Expanded = !zone5Expanded) : undefined}
 						>
 							<td class="py-3 pr-2">
@@ -335,7 +345,7 @@
 											e.stopPropagation();
 											zone5Expanded = !zone5Expanded;
 										}}
-										class="ml-1 rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+										class="ml-1 rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 										aria-expanded={zone5Expanded}
 									>
 										{zone5Expanded ? 'Hide' : 'Show'} sub-zones
@@ -380,10 +390,20 @@
 		<!-- Footer cross-link -->
 		<p class="mt-6 text-center text-xs text-muted">
 			Want to find your training paces?
-			<a href="/training-paces" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/training-paces" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Training Pace Calculator →</a
 			>
 		</p>
+
+		<div class="mt-4 text-center">
+			<button
+				type="button"
+				onclick={reset}
+				class="rounded-sm text-xs font-medium text-muted transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			>
+				Clear
+			</button>
+		</div>
 	{/if}
 
 </ToolLayout>

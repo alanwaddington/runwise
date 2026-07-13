@@ -10,13 +10,16 @@ export const CATEGORIES: FitnessCategory[] = [
 	'Very Poor'
 ];
 
+// Shades chosen so white text on each fill meets WCAG AA (4.5:1) — the 500-weight
+// shades used previously ranged 2.15:1-3.77:1 and failed contrast on this page's
+// headline result.
 export const CATEGORY_COLOURS: Record<FitnessCategory, string> = {
-	Superior: 'bg-emerald-600',
-	Excellent: 'bg-emerald-500',
-	Good: 'bg-teal-500',
-	Fair: 'bg-amber-500',
-	Poor: 'bg-orange-500',
-	'Very Poor': 'bg-red-500'
+	Superior: 'bg-emerald-800',
+	Excellent: 'bg-emerald-700',
+	Good: 'bg-teal-700',
+	Fair: 'bg-amber-700',
+	Poor: 'bg-orange-700',
+	'Very Poor': 'bg-red-600'
 };
 
 export interface CategoryThresholds {

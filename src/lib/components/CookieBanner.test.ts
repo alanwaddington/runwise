@@ -30,18 +30,18 @@ afterEach(() => {
 });
 
 describe('CookieBanner visibility', () => {
-	it('CookieBanner_bannerVisible_rendersDialogWithRole', async () => {
+	it('CookieBanner_bannerVisible_rendersRegionWithRole', async () => {
 		const { default: CookieBanner } = await import('./CookieBanner.svelte');
 		const { getByRole } = render(CookieBanner);
-		expect(getByRole('dialog', { name: 'Cookie consent' })).toBeInTheDocument();
+		expect(getByRole('region', { name: 'Cookie consent' })).toBeInTheDocument();
 	});
 
-	it('CookieBanner_bannerHidden_doesNotRenderDialog', async () => {
+	it('CookieBanner_bannerHidden_doesNotRenderRegion', async () => {
 		consentBannerVisible.set(false);
 		await tick();
 		const { default: CookieBanner } = await import('./CookieBanner.svelte');
 		const { queryByRole } = render(CookieBanner);
-		expect(queryByRole('dialog')).toBeNull();
+		expect(queryByRole('region')).toBeNull();
 	});
 
 	it('CookieBanner_bannerVisible_showsPrivacyPolicyLink', async () => {
@@ -65,7 +65,7 @@ describe('CookieBanner Accept All', () => {
 		const { getByRole, queryByRole } = render(CookieBanner);
 		await fireEvent.click(getByRole('button', { name: 'Accept All' }));
 		await tick();
-		expect(queryByRole('dialog')).toBeNull();
+		expect(queryByRole('region')).toBeNull();
 	});
 });
 
@@ -82,7 +82,7 @@ describe('CookieBanner Necessary Only', () => {
 		const { getByRole, queryByRole } = render(CookieBanner);
 		await fireEvent.click(getByRole('button', { name: 'Necessary Only' }));
 		await tick();
-		expect(queryByRole('dialog')).toBeNull();
+		expect(queryByRole('region')).toBeNull();
 	});
 });
 
@@ -122,7 +122,7 @@ describe('CookieBanner Customise panel', () => {
 		await tick();
 		await fireEvent.click(getByText('Save Preferences'));
 		await tick();
-		expect(queryByRole('dialog')).toBeNull();
+		expect(queryByRole('region')).toBeNull();
 	});
 });
 

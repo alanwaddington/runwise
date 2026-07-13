@@ -95,6 +95,16 @@
 	function onGenderChange(e: Event) {
 		genderRaw = (e.target as HTMLSelectElement).value;
 	}
+
+	function reset() {
+		selectedOption = '5K';
+		customKmRaw = '';
+		timeRaw = '';
+		customKmTouched = false;
+		timeTouched = false;
+		customKmError = null;
+		timeError = null;
+	}
 </script>
 
 <SeoHead route="/vo2max" />
@@ -351,45 +361,49 @@
 					</p>
 
 					<!-- Male norms -->
-					<div class="mb-4">
+					<div class="mb-4 overflow-x-auto">
 						<p class="mb-2 text-xs font-medium text-muted">Male</p>
-						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-muted">
-							<span>Age</span>
-							{#each CATEGORIES.slice(0, 5) as cat (cat)}
-								<span class="text-right">{cat}</span>
+						<div class="min-w-[420px]">
+							<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-muted">
+								<span>Age</span>
+								{#each CATEGORIES.slice(0, 5) as cat (cat)}
+									<span class="text-right">{cat}</span>
+								{/each}
+							</div>
+							{#each acsmTable as bracket (bracket.label)}
+								<div class="grid grid-cols-6 border-b border-ink/10 py-1 text-xs last:border-0">
+									<span class="font-medium text-ink">{bracket.label}</span>
+									<span class="text-right tabular-nums text-muted">{bracket.male.superior}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.male.excellent}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.male.good}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.male.fair}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.male.poor}+</span>
+								</div>
 							{/each}
 						</div>
-						{#each acsmTable as bracket (bracket.label)}
-							<div class="grid grid-cols-6 border-b border-ink/10 py-1 text-xs last:border-0">
-								<span class="font-medium text-ink">{bracket.label}</span>
-								<span class="text-right tabular-nums text-muted">{bracket.male.superior}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.male.excellent}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.male.good}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.male.fair}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.male.poor}+</span>
-							</div>
-						{/each}
 					</div>
 
 					<!-- Female norms -->
-					<div>
+					<div class="overflow-x-auto">
 						<p class="mb-2 text-xs font-medium text-muted">Female</p>
-						<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-muted">
-							<span>Age</span>
-							{#each CATEGORIES.slice(0, 5) as cat (cat)}
-								<span class="text-right">{cat}</span>
+						<div class="min-w-[420px]">
+							<div class="grid grid-cols-6 border-b border-ink/10 pb-1 text-xs font-medium text-muted">
+								<span>Age</span>
+								{#each CATEGORIES.slice(0, 5) as cat (cat)}
+									<span class="text-right">{cat}</span>
+								{/each}
+							</div>
+							{#each acsmTable as bracket (bracket.label)}
+								<div class="grid grid-cols-6 border-b border-ink/10 py-1 text-xs last:border-0">
+									<span class="font-medium text-ink">{bracket.label}</span>
+									<span class="text-right tabular-nums text-muted">{bracket.female.superior}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.female.excellent}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.female.good}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.female.fair}+</span>
+									<span class="text-right tabular-nums text-muted">{bracket.female.poor}+</span>
+								</div>
 							{/each}
 						</div>
-						{#each acsmTable as bracket (bracket.label)}
-							<div class="grid grid-cols-6 border-b border-ink/10 py-1 text-xs last:border-0">
-								<span class="font-medium text-ink">{bracket.label}</span>
-								<span class="text-right tabular-nums text-muted">{bracket.female.superior}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.female.excellent}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.female.good}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.female.fair}+</span>
-								<span class="text-right tabular-nums text-muted">{bracket.female.poor}+</span>
-							</div>
-						{/each}
 					</div>
 				</div>
 			{/if}
@@ -439,10 +453,22 @@
 		<!-- Footer cross-links -->
 		<p class="mt-6 text-center text-xs text-muted">
 			Find your training paces →
-			<a href="/training-paces" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Training Pace Calculator</a>
+			<a href="/training-paces" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Training Pace Calculator</a>
 			&nbsp;·&nbsp;
-			<a href="/race-predictor" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Race Time Predictor</a>
+			<a href="/race-predictor" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Race Time Predictor</a>
 		</p>
+	{/if}
+
+	{#if vdotState.type !== 'empty'}
+		<div class="mt-4 text-center">
+			<button
+				type="button"
+				onclick={reset}
+				class="rounded-sm text-xs font-medium text-muted transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			>
+				Clear
+			</button>
+		</div>
 	{/if}
 
 </ToolLayout>

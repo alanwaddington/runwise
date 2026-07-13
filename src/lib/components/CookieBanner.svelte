@@ -35,7 +35,7 @@
 
 {#if $consentBannerVisible}
 	<div
-		role="dialog"
+		role="region"
 		aria-label="Cookie consent"
 		class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-bg shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
 	>
@@ -43,7 +43,7 @@
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<p class="text-sm text-muted">
 					We use cookies to serve ads and understand site usage.
-					<a href="/privacy" class="rounded-sm text-accent underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Privacy Policy</a>
+					<a href="/privacy" class="rounded-sm text-accent-text underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">Privacy Policy</a>
 				</p>
 
 				<div class="flex flex-col gap-2 sm:items-end">

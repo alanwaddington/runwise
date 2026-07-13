@@ -26,7 +26,7 @@ describe('CollapsibleField', () => {
 	it('applies expanded classes and no aria-hidden/inert when expanded is true', () => {
 		render(CollapsibleField, { props: { expanded: true, children: childSnippet } });
 		const wrapper = screen.getByTestId('field-content').parentElement as HTMLDivElement;
-		expect(wrapper.className).toMatch(/max-h-24/);
+		expect(wrapper.className).toMatch(/max-h-40/);
 		expect(wrapper.className).toMatch(/opacity-100/);
 		expect(wrapper.className).toMatch(/mb-4/);
 		expect(wrapper).not.toHaveAttribute('aria-hidden');

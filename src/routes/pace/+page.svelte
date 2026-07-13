@@ -86,6 +86,19 @@
 		kmhError = validation.type === 'invalid' ? validation.error : null;
 		update('kmh', validation.type === 'valid' ? kmhToMinPerKm(validation.value) : null);
 	}
+
+	function reset() {
+		minkmRaw = '';
+		minmileRaw = '';
+		kmhRaw = '';
+		minkmTouched = false;
+		minmileTouched = false;
+		kmhTouched = false;
+		minPerKm = null;
+		minkmError = null;
+		minmileError = null;
+		kmhError = null;
+	}
 </script>
 
 <SeoHead route="/pace" />
@@ -144,6 +157,18 @@
 		<ResultDisplay value={per400mDisplay} label="per 400 m" />
 		<ResultDisplay value={per800mDisplay} label="per 800 m" />
 	</div>
+
+	{#if minPerKm !== null}
+		<div class="mt-6 text-center">
+			<button
+				type="button"
+				onclick={reset}
+				class="rounded-sm text-xs font-medium text-muted transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			>
+				Clear
+			</button>
+		</div>
+	{/if}
 
 </ToolLayout>
 

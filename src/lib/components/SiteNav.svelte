@@ -22,6 +22,8 @@
 		return page.url.pathname.startsWith(href);
 	}
 
+	let mobileMenuOpen = $state(false);
+
 	onMount(() => {
 		return watchSystemTheme((prefersDark) => {
 			if (getStoredTheme() === undefined) {
@@ -45,72 +47,127 @@
 	}
 </script>
 
-<nav class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-6 px-4 py-4">
-	<a
-		href="/"
-		class="rounded-sm text-lg font-bold tracking-tight text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
-	>
-		Runwise
-	</a>
-	<ul class="flex flex-wrap gap-6 text-sm font-medium">
-		{#each tools as tool (tool.href)}
-			<li>
-				<a
-					href={tool.href}
-					aria-current={isActive(tool.href) ? 'page' : undefined}
-					class="rounded-sm pb-1 transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none {isActive(
-						tool.href
-					)
-						? 'border-b-2 border-accent text-ink'
-						: 'border-b-2 border-transparent text-muted hover:text-hover'}"
+<nav class="mx-auto max-w-5xl px-4 py-4">
+	<div class="flex items-center justify-between gap-4">
+		<a
+			href="/"
+			class="rounded-sm text-lg font-bold tracking-tight text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+		>
+			Runwise
+		</a>
+
+		<ul class="hidden flex-wrap gap-6 text-sm font-medium md:flex">
+			{#each tools as tool (tool.href)}
+				<li>
+					<a
+						href={tool.href}
+						aria-current={isActive(tool.href) ? 'page' : undefined}
+						class="rounded-sm pb-1 transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none {isActive(
+							tool.href
+						)
+							? 'border-b-2 border-accent text-ink'
+							: 'border-b-2 border-transparent text-muted hover:text-hover'}"
+					>
+						{tool.label}
+					</a>
+				</li>
+			{/each}
+		</ul>
+
+		<div class="flex items-center gap-1">
+			<button
+				type="button"
+				onclick={toggleTheme}
+				aria-label="Switch to dark mode"
+				class="rounded-sm p-2 text-muted transition-colors hover:text-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none dark:hidden"
+			>
+				<svg
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
 				>
-					{tool.label}
-				</a>
-			</li>
-		{/each}
-	</ul>
-	<button
-		type="button"
-		onclick={toggleTheme}
-		aria-label="Switch to dark mode"
-		class="rounded-sm p-2 text-muted transition-colors hover:text-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none dark:hidden"
-	>
-		<svg
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			width="20"
-			height="20"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="1.5"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-		>
-			<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
-		</svg>
-	</button>
-	<button
-		type="button"
-		onclick={toggleTheme}
-		aria-label="Switch to light mode"
-		class="hidden rounded-sm p-2 text-muted transition-colors dark:inline-flex hover:text-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
-	>
-		<svg
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			width="20"
-			height="20"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="1.5"
-			stroke-linecap="round"
-		>
-			<circle cx="12" cy="12" r="4" />
-			<path
-				d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-			/>
-		</svg>
-	</button>
+					<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+				</svg>
+			</button>
+			<button
+				type="button"
+				onclick={toggleTheme}
+				aria-label="Switch to light mode"
+				class="hidden rounded-sm p-2 text-muted transition-colors dark:inline-flex hover:text-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+			>
+				<svg
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					stroke-linecap="round"
+				>
+					<circle cx="12" cy="12" r="4" />
+					<path
+						d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+					/>
+				</svg>
+			</button>
+
+			<button
+				type="button"
+				onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
+				aria-label="Toggle navigation menu"
+				aria-expanded={mobileMenuOpen}
+				aria-controls="mobile-nav-links"
+				class="rounded-sm p-2 text-muted transition-colors hover:text-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none md:hidden"
+			>
+				<svg
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					{#if mobileMenuOpen}
+						<path d="M18 6 6 18M6 6l12 12" />
+					{:else}
+						<path d="M4 7h16M4 12h16M4 17h16" />
+					{/if}
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	{#if mobileMenuOpen}
+		<ul id="mobile-nav-links" class="mt-4 flex flex-col gap-1 text-sm font-medium md:hidden">
+			{#each tools as tool (tool.href)}
+				<li>
+					<a
+						href={tool.href}
+						aria-current={isActive(tool.href) ? 'page' : undefined}
+						onclick={() => (mobileMenuOpen = false)}
+						class="block rounded-md px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none {isActive(
+							tool.href
+						)
+							? 'bg-gray-100 text-ink dark:bg-gray-800'
+							: 'text-muted hover:text-hover'}"
+					>
+						{tool.label}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
 </nav>

@@ -6,7 +6,8 @@ const defaultProps = {
 	href: '/pace',
 	name: 'Pace Calculator',
 	description: 'Convert between min/km, min/mile, and km/h',
-	route: '/pace'
+	route: '/pace',
+	icon: 'pace' as const
 };
 
 afterEach(() => {

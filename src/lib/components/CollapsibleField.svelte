@@ -15,7 +15,7 @@
 	class="overflow-hidden transition-all duration-200"
 	class:max-h-0={!expanded}
 	class:opacity-0={!expanded}
-	class:max-h-24={expanded}
+	class:max-h-40={expanded}
 	class:opacity-100={expanded}
 	class:mb-4={expanded}
 	aria-hidden={!expanded ? 'true' : undefined}

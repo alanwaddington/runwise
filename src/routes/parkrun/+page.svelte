@@ -20,12 +20,14 @@
 
 	type InputMode = 'recent-run' | 'average-pace';
 
+	// Shades chosen so white text on each fill meets WCAG AA (4.5:1) — several of the
+	// lighter shades used previously (teal-500, amber-500, gray-400) failed contrast.
 	const AGE_GRADE_COLOURS: Record<AgeGradeLabel, string> = {
 		World: 'bg-purple-600',
-		National: 'bg-emerald-600',
-		Regional: 'bg-teal-500',
-		Local: 'bg-amber-500',
-		Recreational: 'bg-gray-400'
+		National: 'bg-emerald-700',
+		Regional: 'bg-teal-700',
+		Local: 'bg-amber-700',
+		Recreational: 'bg-gray-600'
 	};
 
 	let mode = $state<InputMode>('recent-run');
@@ -150,6 +152,19 @@
 	function onGenderChange(e: Event) {
 		genderRaw = (e.target as HTMLSelectElement).value;
 	}
+
+	function reset() {
+		distanceRaw = '';
+		timeRaw = '';
+		paceRaw = '';
+		pbRaw = '';
+		distanceTouched = false;
+		timeTouched = false;
+		paceTouched = false;
+		distanceError = null;
+		timeError = null;
+		paceError = null;
+	}
 </script>
 
 <SeoHead route="/parkrun" />
@@ -263,13 +278,17 @@
 			       [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full
 			       [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-transform
 			       [&::-webkit-slider-thumb]:duration-150 hover:[&::-webkit-slider-thumb]:scale-110
+			       [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:appearance-none
+			       [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0
+			       [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-transform
+			       [&::-moz-range-thumb]:duration-150 hover:[&::-moz-range-thumb]:scale-110
 			       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1
 			       dark:bg-gray-700"
 		/>
 		<div class="mt-1 flex justify-between px-0.5 text-xs text-muted">
 			{#each REFERENCE_DISTANCES as stop, i (stop.name)}
 				<span
-					class:text-accent={i === referenceDistanceIndex}
+					class:text-accent-text={i === referenceDistanceIndex}
 					class:font-semibold={i === referenceDistanceIndex}
 				>
 					{stop.short}
@@ -453,17 +472,27 @@
 
 		<!-- Footer cross-links -->
 		<p class="mt-6 text-center text-xs text-muted">
-			<a href="/race-predictor" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/race-predictor" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Race Time Predictor</a
 			>
 			&nbsp;·&nbsp;
-			<a href="/training-paces" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/training-paces" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Training Pace Calculator</a
 			>
 			&nbsp;·&nbsp;
-			<a href="/vo2max" class="rounded-sm text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">VO2 Max Estimator</a
+			<a href="/vo2max" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">VO2 Max Estimator</a
 			>
 		</p>
+
+		<div class="mt-4 text-center">
+			<button
+				type="button"
+				onclick={reset}
+				class="rounded-sm text-xs font-medium text-muted transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			>
+				Clear
+			</button>
+		</div>
 	{/if}
 
 </ToolLayout>

@@ -10,6 +10,8 @@
 @theme {
 	--color-accent: #1b8a5a;
 	--color-accent-dark: #146344;
+	/* AA-safe (4.5:1+) accent for normal-size text/links; swaps lighter in dark mode. */
+	--color-accent-text: #146344;
 	--color-error: #ef4444;
 	--color-bg: #fafaf8;
 	--color-ink: #19191a;
@@ -27,6 +29,7 @@
 		--color-bg: #19191a;
 		--color-ink: #fafaf8;
 		--color-muted: #9ca3af;
+		--color-accent-text: #45c98a;
 	}
 }
 
@@ -34,16 +37,56 @@ html.light {
 	--color-bg: #fafaf8;
 	--color-ink: #19191a;
 	--color-muted: #6b7280;
+	--color-accent-text: #146344;
 }
 
 html.dark {
 	--color-bg: #19191a;
 	--color-ink: #fafaf8;
 	--color-muted: #9ca3af;
+	--color-accent-text: #45c98a;
 }
 
 body {
 	background-color: var(--color-bg);
 	color: var(--color-ink);
 	font-family: var(--font-sans);
+}
+
+@keyframes pulse-mark {
+	0%,
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	50% {
+		transform: scale(1.06);
+		opacity: 0.85;
+	}
+}
+
+.animate-pulse-mark {
+	animation: pulse-mark 3s ease-in-out infinite;
+}
+
+@keyframes result-pop {
+	from {
+		opacity: 0;
+		transform: translateY(3px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-result-pop {
+	animation: result-pop 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-pulse-mark,
+	.animate-result-pop {
+		animation: none;
+	}
 }
