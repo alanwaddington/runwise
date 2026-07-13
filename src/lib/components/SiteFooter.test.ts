@@ -55,4 +55,14 @@ describe('SiteFooter', () => {
 			expect(el.className).not.toContain('dark:hover:text-gray-200');
 		}
 	});
+
+	it('SiteFooter_homeLink_hasCompleteFocusVisibleClasses', async () => {
+		const { default: SiteFooter } = await import('./SiteFooter.svelte');
+		const { getByRole } = render(SiteFooter);
+		const homeLink = getByRole('link', { name: 'Runwise' });
+		expect(homeLink.className).toContain('focus-visible:outline-none');
+		expect(homeLink.className).toContain('focus-visible:ring-2');
+		expect(homeLink.className).toContain('focus-visible:ring-accent');
+		expect(homeLink.className).toContain('focus-visible:ring-offset-2');
+	});
 });

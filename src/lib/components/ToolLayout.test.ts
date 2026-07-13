@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { render, cleanup, screen } from '@testing-library/svelte';
 import { createRawSnippet, tick } from 'svelte';
 import ToolLayout from './ToolLayout.svelte';
+import type { AffiliateProduct } from '$lib/affiliates';
 
 vi.mock('$app/environment', () => ({ browser: true }));
 
@@ -32,7 +33,7 @@ const { mockEnv } = vi.hoisted(() => ({
 vi.mock('$env/dynamic/public', () => ({ env: mockEnv }));
 
 const { mockGetAffiliateLinks } = vi.hoisted(() => ({
-	mockGetAffiliateLinks: vi.fn(() => [])
+	mockGetAffiliateLinks: vi.fn((): AffiliateProduct[] => [])
 }));
 
 vi.mock('$lib/affiliates', () => ({
@@ -155,7 +156,8 @@ describe('ToolLayout', () => {
 					name: 'Forerunner 165',
 					description: 'GPS running watch',
 					url: 'https://amazon.com/test',
-					program: 'amazon'
+					program: 'amazon',
+					tag: 'runwise21-21'
 				}
 			]);
 			render(ToolLayout, {
