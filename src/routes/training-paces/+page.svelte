@@ -83,6 +83,7 @@
 				id="distance-select"
 				value={selectedOption}
 				onchange={onDistanceChange}
+				aria-label="Race distance, required"
 				class="h-12 w-full appearance-none rounded-lg border border-gray-300 bg-bg px-3 pr-10 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
 			>
 				{#each STANDARD_DISTANCES as dist (dist.name)}

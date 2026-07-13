@@ -126,6 +126,119 @@ describe('CookieBanner Customise panel', () => {
 	});
 });
 
+describe('CookieBanner Necessary cookies section', () => {
+	it('necessarySection_usesSemanticCheckboxWithDisabledState_notNonInteractiveDiv', async () => {
+		const { default: CookieBanner } = await import('./CookieBanner.svelte');
+		const { getByText } = render(CookieBanner);
+		await fireEvent.click(getByText(/Customise/));
+		await tick();
+
+		// Query for the necessary section
+		const necessarySection = getByText('Necessary').closest('.flex');
+		expect(necessarySection).toBeInTheDocument();
+
+		// Assert: checkbox input exists
+		const checkbox = necessarySection?.querySelector('input[type="checkbox"]');
+		expect(checkbox).toBeInTheDocument();
+
+		// Assert: checkbox is checked
+		expect(checkbox).toHaveAttribute('checked');
+
+		// Assert: checkbox is disabled
+		expect(checkbox).toHaveAttribute('disabled');
+
+		// Assert: input is hidden from view (sr-only)
+		expect(checkbox).toHaveClass('sr-only');
+
+		// Assert: aria-label is removed from the visual div
+		const visualDiv = necessarySection?.querySelector('[aria-label]');
+		expect(visualDiv).not.toBeInTheDocument();
+	});
+
+	it('necessarySection_providesScreenReaderText_viaSrOnlySpan', async () => {
+		const { default: CookieBanner } = await import('./CookieBanner.svelte');
+		const { getByText } = render(CookieBanner);
+		await fireEvent.click(getByText(/Customise/));
+		await tick();
+
+		// Find the label in the necessary section
+		const necessarySection = getByText('Necessary').closest('.flex');
+		const label = necessarySection?.querySelector('label');
+		expect(label).toBeInTheDocument();
+
+		// Query for sr-only span
+		const srOnlySpan = label?.querySelector('.sr-only');
+		expect(srOnlySpan).toBeInTheDocument();
+		expect(srOnlySpan?.textContent).toContain('Necessary cookies');
+	});
+
+	it('necessarySection_visualDivHasAriaHidden_preventsScreenReaderDuplication', async () => {
+		const { default: CookieBanner } = await import('./CookieBanner.svelte');
+		const { getByText } = render(CookieBanner);
+		await fireEvent.click(getByText(/Customise/));
+		await tick();
+
+		// Find the necessary section
+		const necessarySection = getByText('Necessary').closest('.flex');
+		const label = necessarySection?.querySelector('label');
+		const innerDiv = label?.querySelector('.relative');
+		const visualDiv = innerDiv?.querySelector('[aria-hidden="true"]');
+
+		// Assert: visual div has aria-hidden="true"
+		expect(visualDiv).toBeInTheDocument();
+		expect(visualDiv).toHaveAttribute('aria-hidden', 'true');
+	});
+
+	it('necessarySection_labelHasCursorNotAllowed_visuallyIndicatesDisabled', async () => {
+		const { default: CookieBanner } = await import('./CookieBanner.svelte');
+		const { getByText } = render(CookieBanner);
+		await fireEvent.click(getByText(/Customise/));
+		await tick();
+
+		// Find the label
+		const necessarySection = getByText('Necessary').closest('.flex');
+		const label = necessarySection?.querySelector('label');
+
+		// Assert: label has cursor-not-allowed class
+		expect(label).toHaveClass('cursor-not-allowed');
+	});
+
+	it('necessarySection_matchesAnalyticsToggleStructure_samePattern', async () => {
+		const { default: CookieBanner } = await import('./CookieBanner.svelte');
+		const { getByText } = render(CookieBanner);
+		await fireEvent.click(getByText(/Customise/));
+		await tick();
+
+		// Get necessary section structure
+		const necessarySection = getByText('Necessary').closest('.flex');
+		const necessaryLabel = necessarySection?.querySelector('label');
+		const necessarySrOnly = necessaryLabel?.querySelector('.sr-only');
+		const necessaryDiv = necessaryLabel?.querySelector('.relative');
+		const necessaryInput = necessaryDiv?.querySelector('input[type="checkbox"]');
+		const necessaryVisualDiv = necessaryDiv?.querySelector('[aria-hidden="true"]');
+
+		// Get analytics section structure for comparison
+		const analyticsSection = getByText('Analytics').closest('.flex');
+		const analyticsLabel = analyticsSection?.querySelector('label');
+		const analyticsSrOnly = analyticsLabel?.querySelector('.sr-only');
+		const analyticsDiv = analyticsLabel?.querySelector('.relative');
+		const analyticsInput = analyticsDiv?.querySelector('input[type="checkbox"]');
+		const analyticsVisualDiv = analyticsDiv?.querySelector('div');
+
+		// Assert: same structure exists (label → sr-only → .relative → input + visual div)
+		expect(necessaryLabel).toBeInTheDocument();
+		expect(necessarySrOnly).toBeInTheDocument();
+		expect(necessaryInput).toBeInTheDocument();
+		expect(necessaryVisualDiv).toBeInTheDocument();
+
+		// Compare to analytics
+		expect(analyticsLabel).toBeInTheDocument();
+		expect(analyticsSrOnly).toBeInTheDocument();
+		expect(analyticsInput).toBeInTheDocument();
+		expect(analyticsVisualDiv).toBeInTheDocument();
+	});
+});
+
 describe('CookieBanner hover/contrast tokens', () => {
 	it('necessaryOnlyAndCustomiseButtons_useExplicitHoverToken_noRedundantDarkOverrides', async () => {
 		const { default: CookieBanner } = await import('./CookieBanner.svelte');

@@ -171,5 +171,22 @@ describe('ToolLayout', () => {
 			});
 			expect(mockGetAffiliateLinks).toHaveBeenCalledWith('/pace');
 		});
+
+		it('sidebar_usesHeaderOffsetUtility_notHardcodedOffset', () => {
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			const aside = document.querySelector('aside');
+			expect(aside?.className).toContain('lg:sticky-with-header-offset');
+		});
+
+		it('sidebar_removesHardcodedTopOffset_noRegression', () => {
+			render(ToolLayout, {
+				props: { title: 'T', description: 'D', route: '/pace', children: childSnippet }
+			});
+			const aside = document.querySelector('aside');
+			expect(aside?.className).not.toContain('lg:top-24');
+			expect(aside?.className).not.toContain('top-24');
+		});
 	});
 });
