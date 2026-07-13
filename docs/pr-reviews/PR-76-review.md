@@ -13,7 +13,7 @@
 |------|--------|
 | Overall Assessment | Pass ✅ |
 | Risk Level | Low |
-| Test Coverage | Gaps identified (pre-existing, acknowledged in Design as out of scope) |
+| Test Coverage | Adequate — both minor gaps fixed post-review (see Findings) |
 | Acceptance Criteria | 9/9 Met |
 | Lint | 1 error / 0 warnings (0 in diff, 1 pre-existing in `SiteFooter.svelte`) |
 
@@ -84,17 +84,19 @@ None.
 
 ### Minor (nice to fix)
 
-#### m1 — Existing focus-ring test doesn't pin the specific offset value
+#### m1 — Existing focus-ring test doesn't pin the specific offset value — **FIXED**
 - **Category:** Test Coverage
 - **Location:** `src/routes/hr-zones/hr-zones.test.ts:52`
 - **Description:** `expect(infoButton.className).toMatch(/focus-visible:ring-offset-\d/)` matches any single digit, so it would have passed before this PR (at `ring-offset-1`) and will pass after (at `ring-offset-2`). It doesn't actually verify the standardization this PR claims — a future accidental revert to `ring-offset-1` would not be caught.
 - **Recommendation:** Tighten to `expect(infoButton.className).toContain('focus-visible:ring-offset-2')` (or a regex anchored to `-2`) so the test actually pins the value.
+- **Outcome:** Fixed in `e53e9e6` — assertion now pins `ring-offset-2` literally.
 
-#### m2 — No unit test coverage for the Parkrun tabs/slider ring-offset value
+#### m2 — No unit test coverage for the Parkrun tabs/slider ring-offset value — **FIXED**
 - **Category:** Test Coverage
 - **Location:** `src/routes/parkrun/parkrun.test.ts`
 - **Description:** None of the three changed elements in this file have any class-string assertion. This mirrors the pre-existing pattern in the codebase (Tailwind utility classes generally aren't unit-tested here) and was explicitly called out as acceptable in the issue's `## Design` section, but it does mean a future regression on any of the 6 elements this PR touches would only be caught by manual/browser verification, not CI.
 - **Recommendation:** Optional — add a lightweight `className` assertion for the slider and tabs if the team wants this locked in by CI rather than relying on manual verification going forward.
+- **Outcome:** Fixed in `628aaea` — added `modeTabs_haveCompleteFocusVisibleClasses` and `referenceDistanceSlider_hasCompleteFocusVisibleClasses` tests, both asserting the full focus-visible class set including `ring-offset-2`.
 
 ### Suggestions (optional)
 
@@ -118,8 +120,8 @@ None beyond the above.
 None.
 
 ### Post-merge improvements
-- [ ] m1: Tighten `hr-zones.test.ts:52`'s regex to pin `ring-offset-2` specifically
-- [ ] m2: Consider adding `className` assertions for Parkrun's tabs/slider if the team wants CI (not just manual verification) to catch a future ring-offset regression
+- [x] m1: Tighten `hr-zones.test.ts:52`'s regex to pin `ring-offset-2` specifically — fixed in `e53e9e6`
+- [x] m2: Add `className` assertions for Parkrun's tabs/slider so CI (not just manual verification) catches a future ring-offset regression — fixed in `628aaea`
 
 ---
 
