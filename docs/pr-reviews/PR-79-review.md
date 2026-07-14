@@ -1,6 +1,6 @@
 # PR #79 Review — chore: add npm run clean:wasm convenience script (#60)
 
-**Date:** 2026-07-14
+**Date:** 2026-07-14 (findings fixed 2026-07-14, commit `3fa1a7c`)
 **Author:** alanwaddington
 **Branch:** feature/60-clean-wasm-fallbacks-script → main
 **State:** Open
@@ -155,19 +155,21 @@ None.
 
 ### Minor (nice to fix)
 
-#### m1 — No error handling around `rmSync` in the cleanup script
+#### m1 — No error handling around `rmSync` in the cleanup script — ✅ Fixed (`3fa1a7c`)
 - **Category:** Reliability
 - **Location:** `scripts/clean-wasm-fallbacks.js:33`
 - **Description:** `rmSync(packagePath, { recursive: true, force: true })` is called without a `try/catch`. `force: true` only suppresses "path doesn't exist" errors — it does not suppress other failure modes (e.g. a file locked by a running process, an EPERM/EBUSY on the WSL 9p-mounted filesystem this repo already has documented flakiness on for other tooling — see the `pool: 'threads'` comment in `vite.config.ts`). If package 3 of 5 fails to delete for such a reason, the script throws an uncaught exception and exits non-zero without reporting the status of packages 4 and 5, and without the friendly per-package summary. This isn't silent (Node prints a stack trace), but it doesn't meet the project's stated error-handling bar of "log before handling, catch per-item, continue processing remaining items" for a loop over independent items.
 - **Recommendation:** Wrap each `rmSync` call in a `try/catch`, log a clear per-package failure line (e.g. `failed to remove <name>: <error.message>`) and continue to the next package; consider exiting 1 at the end if any deletions failed, so CI/scripting callers can detect partial failure.
+- **Outcome:** Fixed. Each `rmSync` is now wrapped in `try/catch`; a failure logs `failed to remove <name>: <error.message>` via `console.error` and the loop continues to the next package; the script exits 1 at the end if any package failed. Verified against a real `EACCES` failure (chmod 555 on a package's parent directory on a native ext4 filesystem, since `/mnt/c`'s DrvFs mount doesn't enforce Unix permissions) — confirmed the script logged the failure and still removed the remaining packages instead of crashing.
 
 ### Suggestions (optional)
 
-#### S1 — Consider re-checking `extraneous` status at runtime instead of a static list
+#### S1 — Consider re-checking `extraneous` status at runtime instead of a static list — ✅ Fixed (`3fa1a7c`)
 - **Category:** Code Quality / Future-proofing
 - **Location:** `scripts/clean-wasm-fallbacks.js:19-25`
 - **Description:** The script trusts a hardcoded list of 5 package names rather than re-deriving "is this actually extraneous" from `npm ls --json` at runtime. This is the right tradeoff today (explicit and glob-free, per the Design's deliberate safety rationale), but if the upstream `@tailwindcss/oxide`/`@rolldown/binding` WASM bundle names or versions ever change, the script will silently stop matching anything (reporting "already absent" for packages that no longer exist under those names, while new extraneous packages under different names go unnoticed).
 - **Recommendation:** No action needed now — just worth a one-line code comment noting that the list may need updating if Tailwind/Rolldown ever rename their WASM fallback bundles. Not worth the added complexity of dynamic `npm ls` parsing for a ~9MB local convenience script.
+- **Outcome:** Fixed. Added a 3-line comment directly above `TARGET_PACKAGES` explaining the hardcoding rationale and noting the list may need updating if the upstream bundle names change.
 
 ---
 
@@ -188,8 +190,8 @@ None.
 _None._
 
 ### Post-merge improvements
-- [ ] m1: Add per-package `try/catch` error handling to `scripts/clean-wasm-fallbacks.js` so a single failed deletion doesn't abort reporting on the rest — low priority given this is an opt-in local convenience script, but worth a quick follow-up.
-- [ ] S1: Add a one-line comment noting the hardcoded package list may need updating if upstream WASM bundle names change.
+- [x] m1: Add per-package `try/catch` error handling to `scripts/clean-wasm-fallbacks.js` so a single failed deletion doesn't abort reporting on the rest. Fixed in `3fa1a7c`.
+- [x] S1: Add a one-line comment noting the hardcoded package list may need updating if upstream WASM bundle names change. Fixed in `3fa1a7c`.
 
 ---
 
