@@ -16,6 +16,9 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
+// Hardcoded rather than derived from `npm ls --json` at runtime, so the script can never
+// touch anything beyond this explicit list. If @tailwindcss/oxide or @rolldown/binding
+// ever rename/restructure their WASM32-WASI fallback bundle, this list will need updating.
 const TARGET_PACKAGES = [
 	'@emnapi/core',
 	'@emnapi/runtime',
@@ -25,17 +28,29 @@ const TARGET_PACKAGES = [
 ];
 
 let removedCount = 0;
+let failedCount = 0;
 
 for (const name of TARGET_PACKAGES) {
 	const packagePath = join(ROOT, 'node_modules', ...name.split('/'));
 
-	if (existsSync(packagePath)) {
+	if (!existsSync(packagePath)) {
+		console.log(`already absent: ${name}`);
+		continue;
+	}
+
+	try {
 		rmSync(packagePath, { recursive: true, force: true });
 		console.log(`removed ${name}`);
 		removedCount++;
-	} else {
-		console.log(`already absent: ${name}`);
+	} catch (error) {
+		console.error(`failed to remove ${name}: ${error.message}`);
+		failedCount++;
 	}
 }
 
 console.log(`\n${removedCount} of ${TARGET_PACKAGES.length} packages removed.`);
+
+if (failedCount > 0) {
+	console.error(`${failedCount} package(s) could not be removed — see errors above.`);
+	process.exit(1);
+}
