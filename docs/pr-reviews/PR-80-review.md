@@ -1,9 +1,9 @@
 # PR #80 Review — chore: optimize OG image assets (#62)
 
-**Date:** 2026-07-14 (m1/S1 fixed 2026-07-14, commit `29deb0f`)
+**Date:** 2026-07-14 (m1/S1 fixed same day, commit `29deb0f`; M1 confirmed in production post-merge, commit `83bc250`)
 **Author:** alanwaddington
 **Branch:** feature/62-optimize-og-images → main
-**State:** Open
+**State:** Merged
 
 ---
 
@@ -11,10 +11,10 @@
 
 | Item | Result |
 |------|--------|
-| Overall Assessment | Pass with comments ⚠️ |
+| Overall Assessment | Pass ✅ (all findings resolved post-merge) |
 | Risk Level | Low |
 | Test Coverage | Adequate |
-| Acceptance Criteria | 22 Met / 24 Total (2 Partially Met) |
+| Acceptance Criteria | 24 Met / 24 Total (both prior Partially-Met criteria now confirmed live in production) |
 | Lint | 0 errors / 0 warnings (0 in diff, 0 pre-existing) |
 
 ---
@@ -69,7 +69,7 @@ Same pattern as PRs #79/#81: this repo keeps the full requirement → design →
 |----------|--------|
 | Purpose | Adds a new `headers` rule: `{"source": "/og/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}]}` |
 | Issues | #62 (Design Task 3) |
-| Criteria covered | Design Task 3 AC1, AC2, AC4 (AC3 Partially Met — see Findings) |
+| Criteria covered | Design Task 3 AC1–AC4 (AC3 confirmed post-merge — see Findings M1) |
 | Quality | ✅ No issues. Valid JSON. Additive to the existing `/(.*)"` security-headers rule (untouched, byte-for-byte identical in the diff) — no conflict, since the two rules set different header keys. Path correctly targets `/og/(.*)`, not the issue's original non-existent `/static/og/*`. |
 | Test coverage | Not directly testable locally (see Findings M1) — independently verified via `vercel build` (local, no deploy) + inspecting the merged `.vercel/output/config.json`, both by the PR author and, separately, by this review. |
 
@@ -103,7 +103,7 @@ Every criterion below was verified independently by this reviewer — running `n
 | # | Criterion | Implementation | Test | Verdict |
 |---|-----------|----------------|------|---------|
 | 1 | Cache headers added for `/og/*` | `vercel.json:21-26` | `vercel build` config inspection | ✅ Met |
-| 2 | Cache policy is `public, max-age=86400, stale-while-revalidate=604800` (not immutable) | `vercel.json:24` | Config value confirmed correct via `vercel build`; **literal live-deployed `curl -I` not performed** (no deployment exists yet) | ⚠️ Partially Met — see Finding M1 |
+| 2 | Cache policy is `public, max-age=86400, stale-while-revalidate=604800` (not immutable) | `vercel.json:24` | Confirmed correct via `vercel build` pre-merge; **confirmed live in production post-merge**: `curl -I https://runwise.app/og/og-default.png` → exact match | ✅ Met (confirmed post-merge) |
 | 3 | Lossless PNG re-optimization integrated into `og:generate` flow | `scripts/generate-og-images.js:55` | Re-ran `npm run og:generate` live, confirmed output | ✅ Met |
 | 4 | Total size reduced ~18-19% | 7 files regenerated | Measured: 3407368 → 2724676 bytes (20.04%) | ✅ Met |
 | 5 | Optimized output pixel-identical | `oxipng` lossless mode | PIL pixel-diff, 7/7 images | ✅ Met |
@@ -135,10 +135,10 @@ Every criterion below was verified independently by this reviewer — running `n
 |---|-----------|----------------|------|---------|
 | 1 | Valid JSON, `source` is `/og/(.*)` | `vercel.json:22` | `node -e "JSON.parse(...)"` — valid; `vercel build` merges to `"src": "^/og(?:/(.*))$"` | ✅ Met |
 | 2 | Cache policy value exactly `public, max-age=86400, stale-while-revalidate=604800` | `vercel.json:24` | Exact string match confirmed in both `vercel.json` and merged `.vercel/output/config.json` | ✅ Met |
-| 3 | Post-deploy `curl -I` confirms header live | — | **Not performed** — no deployment exists for this PR; strongly corroborated instead via `vercel build`'s merged routing table (the literal artifact Vercel's edge will use), independently reproduced twice (once by the PR author, once by this review) | ⚠️ Partially Met — see Finding M1 |
+| 3 | Post-deploy `curl -I` confirms header live | — | **Performed post-merge**: `curl -I` against all 7 `/og/*.png` URLs on production — every one carries the exact configured header | ✅ Met (confirmed post-merge) |
 | 4 | Existing security headers still present on `/og/*`, unaffected | `vercel.json:12-20` (untouched) | `git diff` shows this rule byte-for-byte unchanged; dev-server responses confirmed carrying these headers on `/og/*` requests | ✅ Met |
 
-**Summary:** 22/24 criteria fully met; 2 Partially Met (both the same underlying gap: live post-deploy header confirmation, not yet possible since this PR hasn't been deployed).
+**Summary:** 24/24 criteria fully met (both live-deploy-dependent criteria confirmed against production post-merge).
 
 ---
 
@@ -150,12 +150,12 @@ None.
 
 ### Major (should fix)
 
-#### M1 — Live post-deploy cache-header verification not yet performed — ⏳ Tracked as post-merge follow-up
+#### M1 — Live post-deploy cache-header verification not yet performed — ✅ Confirmed in production post-merge
 - **Category:** Reliability / Process
 - **Location:** `vercel.json:21-26` (the criterion, not a code defect)
 - **Description:** Two acceptance criteria (Analysis AC2, Design Task 3 AC3) call for confirming the `Cache-Control` header via `curl -I` against a deployed URL. That hasn't happened — there's no deployment for this PR yet, so it's not currently possible to fully satisfy this literally. The PR author was transparent about this the entire way through (flagged in the issue, the Design section, commit messages, and the PR description itself) rather than silently marking it done.
 - **Recommendation:** Not a blocker — this is inherent to how Vercel processes `vercel.json` (merged by the platform build/deploy step, not observable via a local `npm run build`) and can only be closed out after merge/deploy. The strongest verification achievable pre-merge has already been done, independently, twice: `vercel build` (local, authenticated, no deploy) merges `vercel.json` into `.vercel/output/config.json`, and both the PR author and this review confirmed the exact rule appears there: `{"src": "^/og(?:/(.*))$", "headers": {"Cache-Control": "public, max-age=86400, stale-while-revalidate=604800"}}`. This is the literal routing table Vercel's edge will use — about as strong as evidence gets without an actual deployment. Action item: run `curl -I https://runwise.app/og/og-default.png` once this PR is deployed, to close the loop (tracked as a post-merge follow-up, not a merge blocker).
-- **Outcome:** Deliberately left open as a post-merge follow-up, per stakeholder direction — asked explicitly whether to trigger a real preview deployment now to close this out early, or defer until after merge (matching how #61's identical situation was handled). Stakeholder chose to defer; no deployment was triggered. Not fixed by a code change (none is possible here), but not a blocker either.
+- **Outcome:** Fixed by the merge itself. PR #80 merged as commit `83bc250`; GitHub's commit status confirmed the Vercel deployment completed (`"state":"success"`, `"description":"Deployment has completed"`). Ran the exact planned verification against production: `curl -I https://runwise.app/og/og-default.png` → `cache-control: public, max-age=86400, stale-while-revalidate=604800` — exact match, plus `content-length: 386765` matching the optimized file precisely. Re-checked all 7 OG images individually, not just the default — every one carries the identical correct header in production. M1 is now fully closed with live evidence, not just the pre-merge `vercel build` proxy.
 
 ### Minor (nice to fix)
 
@@ -194,7 +194,7 @@ None.
 _None._
 
 ### Post-merge improvements
-- [ ] M1: Run `curl -I <deployed-url>/og/og-default.png` once this PR is deployed, to close the loop on live cache-header confirmation. Confirmed with stakeholder: deliberately deferred to post-merge rather than triggering a deployment now.
+- [x] M1: Run `curl -I <deployed-url>/og/og-default.png` once this PR is deployed, to close the loop on live cache-header confirmation. Done post-merge (commit `83bc250`): confirmed against production for all 7 OG images, exact header match.
 - [x] m1: Add `try/catch` error handling around `oxipngSync` in `scripts/generate-og-images.js`, matching the pattern in `scripts/clean-wasm-fallbacks.js` (PR #79). Fixed in `29deb0f`.
 - [x] S1: Add a one-line comment noting `oxipng`'s x86_64-only platform support. Fixed in `29deb0f`.
 
