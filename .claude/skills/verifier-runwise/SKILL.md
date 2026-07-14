@@ -10,9 +10,12 @@ description: >
 
 # Runwise — run & verify
 
-This repo has no `vercel.json` and no CSP; the app is a standard SvelteKit site with
-`@sveltejs/adapter-vercel`. Two ways to run it, and a Playwright recipe for anything a
-Vitest/jsdom component test can't see.
+This repo has a `vercel.json` (security headers, a www→apex redirect, and a `/og/*`
+cache-control rule — `/_app/immutable/*` caching is handled automatically by
+`@sveltejs/adapter-vercel` itself, not `vercel.json`) but no CSP header. The app is a
+standard SvelteKit site with `@sveltejs/adapter-vercel`. Two ways to run it, a third way
+(`vercel dev`) specifically for verifying `vercel.json` behavior, and a Playwright recipe
+for anything a Vitest/jsdom component test can't see.
 
 ## Launching
 
@@ -34,6 +37,15 @@ ss -tlnp | grep 5173
 Typically up within 5-10s. If curl still returns `000` after ~15s, check
 `ps aux | grep vite` — the process is usually alive and will bind shortly; this
 environment's process/network setup is just slow to report readiness, not broken.
+
+**The background launch itself can fail silently on the first attempt** — a `run_in_background`
+dev-server call has failed outright (task status `failed`, exit code 144, zero captured
+output, no process left running) on this exact command with no changes in between,
+inconsistently: sometimes a bare retry of the identical command fixes it, other times it
+needs `dangerouslyDisableSandbox: true` (normally only required for `vite preview`, per
+below) to start at all. If `ps aux | grep vite` shows nothing after a `failed` status
+(not just a slow-starting `000`), don't assume something's broken — retry the same
+command, and reach for `dangerouslyDisableSandbox: true` if a bare retry also fails.
 
 ### Production build + preview (needed for real SSR + hydration — e.g. anything touching
 `app.html`'s pre-paint script, or component state that behaves differently pre-hydration)
@@ -60,6 +72,57 @@ done
 
 Kill any stray server before rebuilding (`pkill -f "vite preview"` / `pkill -f "vite dev"`)
 — leftover processes from a previous turn will hold the port and silently serve stale code.
+
+### Verifying `vercel.json` changes locally (headers, redirects) — no deploy needed
+
+`vercel.json`'s `headers`/`redirects` are merged by Vercel's own build system, not by
+`npm run build` (plain `vite build` via the adapter) — a local `npm run build` will never
+show them in `.vercel/output/config.json`. Two ways to check a `vercel.json` change
+without creating a real deployment, both already authenticated in this environment
+(`vercel whoami` → `alanwaddington`, project already linked):
+
+**1. `vercel build` + inspect the merged config (preferred for confirming exact header values)**
+
+```bash
+vercel pull --yes --environment preview   # once per session; read-only, no deploy
+rm -rf .vercel/output
+vercel build
+node -e "console.log(JSON.stringify(JSON.parse(require('fs').readFileSync('.vercel/output/config.json')).routes, null, 2))"
+```
+
+This is a fully local build (no network push) that produces the exact routing table
+Vercel's edge will use — the real merged `headers`/`redirects` rules appear as `routes`
+entries here, e.g. a `{"source": "/og/(.*)", "headers": [...]}"` rule in `vercel.json`
+becomes `{"src": "^/og(?:/(.*))$", "headers": {"Cache-Control": "..."}}"` in the output.
+Grep/inspect this JSON directly rather than assuming the rule "must be right" from reading
+`vercel.json` alone — confirmed during the PR #80 review that this catches real
+merge-time regex/shape differences from what you wrote.
+
+**2. `vercel dev` (for confirming routing/other-headers wiring, NOT for exact Cache-Control values)**
+
+```bash
+vercel dev --listen 3002 < /dev/null 2>&1   # needs dangerouslyDisableSandbox: true, same as preview
+```
+
+Needs `dangerouslyDisableSandbox: true` on the Bash call (same requirement as `vite
+preview` above) — without it the process is killed immediately with no output at all
+(exit 144, nothing captured), which looks like a crash but is actually the sandbox
+blocking it. Poll `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3002/` — it's
+typically ready on the first check.
+
+**Important caveat, confirmed during PR #80's verification**: `vercel dev` always serves
+`Cache-Control: no-cache` on **genuine static files** (anything served directly from
+`static/`), regardless of what `vercel.json` actually configures — this is intentional
+Vercel dev-server behavior (it forces no-cache so local iteration never shows stale
+content), not a bug in your rule. This does *not* extend to SvelteKit-rendered routes —
+SSR pages and routes like `src/routes/robots.txt` (which looks static but is actually a
+SvelteKit route, not a `static/` file) pass through SvelteKit's own default cache-control
+(`public, max-age=0, must-revalidate`) instead, confirmed during the PR #81 review. So a
+"no-cache" result only tells you something about static-file caching rules like `/og/*`;
+don't read it as a blanket statement about every path. Use `vercel dev` to confirm a route
+is reachable and that *other* headers (security headers, etc.) are wired correctly; use
+method 1 (`vercel build` + config.json) to confirm the actual configured `Cache-Control`
+value that will ship to production.
 
 ### Running full test suite + build concurrently
 
@@ -195,6 +258,18 @@ Screenshots always go under the session scratchpad directory, not `/tmp` directl
 
 ## Gotchas specific to this repo
 
+- `vercel dev`'s dev-command auto-detection was broken until 2026-07-14 (PR #80 review):
+  it ran `svelte-kit dev --port $PORT`, a SvelteKit 1-era command (`svelte-kit` only has a
+  `sync` subcommand now) that crashes instantly on this SvelteKit 2 + Svelte 5 project.
+  Root cause: the Vercel dashboard's project Framework Preset is cached locally as
+  `sveltekit-1` (`.vercel/project.json` → `"framework": "sveltekit-1"`) even though
+  `vercel.json`'s own `"framework": "sveltekit"` is correct and `npm run build`/`vercel
+  build` were never affected (they use `buildCommand`, explicitly set to `npm run build`).
+  Only the *dev* command guess was wrong. Fixed by adding an explicit `"devCommand": "npm
+  run dev -- --port $PORT"` to `vercel.json` — this overrides the guess regardless of the
+  stale dashboard preset, no dashboard access needed. If `vercel dev` ever breaks again
+  with a similarly nonsensical command, check `.vercel/project.json`'s cached `framework`
+  value before assuming the repo is broken.
 - No `.claude/skills` existed for this before 2026-07-03 (PR #32 review) — this file is
   the first. If it's stale (build commands changed, Playwright version bumped, port
   conventions changed), fix it here rather than rediscovering the recipe from scratch.

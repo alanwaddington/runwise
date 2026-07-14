@@ -1,5 +1,6 @@
 {
 	"framework": "sveltekit",
+	"devCommand": "npm run dev -- --port $PORT",
 	"redirects": [
 		{
 			"source": "/:path(.*)",
