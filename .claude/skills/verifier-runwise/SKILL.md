@@ -111,12 +111,18 @@ blocking it. Poll `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3002/
 typically ready on the first check.
 
 **Important caveat, confirmed during PR #80's verification**: `vercel dev` always serves
-`Cache-Control: no-cache` on every response, on every path, regardless of what
-`vercel.json` actually configures — this is intentional Vercel dev-server behavior (it
-forces no-cache so local iteration never shows stale content), not a bug in your rule.
-Use `vercel dev` to confirm a route is reachable and that *other* headers (security
-headers, etc.) are wired correctly; use method 1 (`vercel build` + config.json) to confirm
-the actual configured `Cache-Control` value that will ship to production.
+`Cache-Control: no-cache` on **genuine static files** (anything served directly from
+`static/`), regardless of what `vercel.json` actually configures — this is intentional
+Vercel dev-server behavior (it forces no-cache so local iteration never shows stale
+content), not a bug in your rule. This does *not* extend to SvelteKit-rendered routes —
+SSR pages and routes like `src/routes/robots.txt` (which looks static but is actually a
+SvelteKit route, not a `static/` file) pass through SvelteKit's own default cache-control
+(`public, max-age=0, must-revalidate`) instead, confirmed during the PR #81 review. So a
+"no-cache" result only tells you something about static-file caching rules like `/og/*`;
+don't read it as a blanket statement about every path. Use `vercel dev` to confirm a route
+is reachable and that *other* headers (security headers, etc.) are wired correctly; use
+method 1 (`vercel build` + config.json) to confirm the actual configured `Cache-Control`
+value that will ship to production.
 
 ### Running full test suite + build concurrently
 
