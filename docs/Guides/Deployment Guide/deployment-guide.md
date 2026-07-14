@@ -28,8 +28,11 @@ The project uses `@sveltejs/adapter-vercel`. A `vercel.json` is committed to the
   - `X-Frame-Options: DENY`
   - `Referrer-Policy: strict-origin-when-cross-origin`
   - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- **OG image caching** — `/og/*` (social preview images) gets `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` (1-day cache, up to 1-week stale-while-revalidating). Deliberately moderate rather than `immutable`/long-lived: these filenames aren't content-hashed and get overwritten in place on a redesign, so a long-immutable cache would hide a future redesign from cached copies for up to a year.
 
 Note: `Content-Security-Policy` is intentionally omitted — it would block Google Fonts (loaded in `+layout.svelte`) and future ad scripts. `Strict-Transport-Security` is omitted because the `.app` TLD enforces HTTPS at the browser level (HSTS preloaded).
+
+`/_app/immutable/*` (hashed JS/CSS build output) is cached separately and automatically by `@sveltejs/adapter-vercel` itself (`Cache-Control: public, immutable, max-age=31536000`) — this is not configured in `vercel.json` and doesn't need to be; it's safe to cache aggressively because these filenames carry content hashes.
 
 ---
 
