@@ -9,6 +9,7 @@ import { chromium } from '@playwright/test';
 import { mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { oxipngSync } from 'oxipng';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -37,6 +38,8 @@ mkdirSync(OG_OUTPUT_DIR, { recursive: true });
 
 const browser = await chromium.launch();
 
+let optimizeFailures = 0;
+
 const ogPage = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 for (const { file, tool } of OG_IMAGES) {
 	const url = new URL(pathToFileURL(OG_TEMPLATE_PATH));
@@ -48,6 +51,20 @@ for (const { file, tool } of OG_IMAGES) {
 	const outputPath = join(OG_OUTPUT_DIR, file);
 	await ogPage.screenshot({ path: outputPath });
 	console.log(`Generated ${outputPath}`);
+
+	// Lossless re-optimization typically reduces these ~1200x630 PNGs by ~18-19%
+	// (measured: 3.3MB -> 2.7MB across all 7 images) — the template's noise-texture
+	// overlay otherwise defeats Playwright's uncompressed PNG output. Bundles only
+	// x86_64 binaries (macOS, Linux-musl, Windows) — no native arm64 build, so this
+	// throws "Missing binary for platform" on arm64 machines/CI runners.
+	try {
+		oxipngSync(['-o', 'max', '--strip', 'safe', outputPath]);
+		console.log(`Optimized ${outputPath}`);
+	} catch (error) {
+		console.error(`Failed to optimize ${outputPath}: ${error.message}`);
+		console.error('Keeping the unoptimized screenshot and continuing.');
+		optimizeFailures++;
+	}
 }
 
 for (const { file, size, templatePath } of FAVICONS) {
@@ -64,3 +81,8 @@ for (const { file, size, templatePath } of FAVICONS) {
 }
 
 await browser.close();
+
+if (optimizeFailures > 0) {
+	console.error(`\n${optimizeFailures} of ${OG_IMAGES.length} OG image(s) failed to optimize — see errors above.`);
+	process.exit(1);
+}

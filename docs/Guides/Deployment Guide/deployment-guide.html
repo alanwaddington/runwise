@@ -51,8 +51,10 @@
 <li><code>Permissions-Policy: camera=(), microphone=(), geolocation=()</code></li>
 </ul>
 </li>
+<li><strong>OG image caching</strong> — <code>/og/*</code> (social preview images) gets <code>Cache-Control: public, max-age=86400, stale-while-revalidate=604800</code> (1-day cache, up to 1-week stale-while-revalidating). Deliberately moderate rather than <code>immutable</code>/long-lived: these filenames aren&#39;t content-hashed and get overwritten in place on a redesign, so a long-immutable cache would hide a future redesign from cached copies for up to a year.</li>
 </ul>
 <p>Note: <code>Content-Security-Policy</code> is intentionally omitted — it would block Google Fonts (loaded in <code>+layout.svelte</code>) and future ad scripts. <code>Strict-Transport-Security</code> is omitted because the <code>.app</code> TLD enforces HTTPS at the browser level (HSTS preloaded).</p>
+<p><code>/_app/immutable/*</code> (hashed JS/CSS build output) is cached separately and automatically by <code>@sveltejs/adapter-vercel</code> itself (<code>Cache-Control: public, immutable, max-age=31536000</code>) — this is not configured in <code>vercel.json</code> and doesn&#39;t need to be; it&#39;s safe to cache aggressively because these filenames carry content hashes.</p>
 <hr>
 <h2>Environment</h2>
 <table>
