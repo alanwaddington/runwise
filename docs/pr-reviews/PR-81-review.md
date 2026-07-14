@@ -1,6 +1,6 @@
 # PR #81 Review — fix: correct vercel dev's dev-command auto-detection
 
-**Date:** 2026-07-14
+**Date:** 2026-07-14 (m1 fixed same day, commit `07d7262`)
 **Author:** alanwaddington
 **Branch:** fix/vercel-dev-devcommand → main
 **State:** Open
@@ -85,7 +85,7 @@ None.
 
 ### Minor (nice to fix)
 
-#### m1 — Skill doc's "every response, every path" claim about `vercel dev`'s no-cache behavior is broader than what's actually true
+#### m1 — Skill doc's "every response, every path" claim about `vercel dev`'s no-cache behavior is broader than what's actually true — ✅ Fixed (`07d7262`)
 - **Category:** Code Quality (documentation accuracy)
 - **Location:** `.claude/skills/verifier-runwise/SKILL.md:113-116`
 - **Description:** The skill states: *"`vercel dev` always serves `Cache-Control: no-cache` on every response, on every path, regardless of what `vercel.json` actually configures."* Tested this directly during this review across several path types:
@@ -95,6 +95,7 @@ None.
 
   So the real pattern is "every **static file** response," not "every response, every path" — SvelteKit-rendered routes (including ones producing non-HTML output, like `robots.txt`) pass through SvelteKit's own default cache-control instead. This doesn't undermine the skill's actionable core point (the `/og/*.png` rule from PR #80 targets genuine static files, so `vercel dev` genuinely can't verify its exact `Cache-Control` value) — but the "every path" phrasing could mislead a future reader checking a caching rule on a dynamic route into wrongly concluding `vercel dev` is forcing `no-cache` there too, when what they're actually seeing is SvelteKit's own unrelated default.
 - **Recommendation:** Narrow the claim to "every static file response" (or similar), and optionally note the `robots.txt`-is-actually-a-route nuance as a one-line caveat, so a future session testing a caching rule on a SvelteKit route (as opposed to a `static/` file) doesn't get confused by an apparently-contradictory result.
+- **Outcome:** Fixed. Narrowed the claim to "genuine static files" and added the `robots.txt` example as an explicit caveat. Re-verified live on a fresh `vercel dev` run (which, fittingly, hit the same documented flakiness pattern on the first attempt — retry succeeded): `favicon.svg`/`favicon-32x32.png` → `no-cache`; `/` and `/robots.txt` → `public, max-age=0, must-revalidate`. The corrected claim now matches observed behavior exactly.
 
 ### Suggestions (optional)
 
@@ -118,7 +119,7 @@ None.
 _None._
 
 ### Post-merge improvements
-- [ ] m1: Narrow the "every response, every path" claim in `SKILL.md` to "every static file response," and note that routes like `robots.txt` (which look static but are actually SvelteKit routes) behave differently.
+- [x] m1: Narrow the "every response, every path" claim in `SKILL.md` to "every static file response," and note that routes like `robots.txt` (which look static but are actually SvelteKit routes) behave differently. Fixed in `07d7262`.
 
 ---
 
