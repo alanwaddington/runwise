@@ -20,6 +20,7 @@ export default defineConfig({
 		// respond" failures under concurrent worker startup. The 'threads' pool uses
 		// worker_threads, which share the main process's module cache and start up far
 		// faster, avoiding the repeated disk I/O that triggered the timeout.
-		pool: 'threads'
+		pool: 'threads',
+		maxWorkers: 4
 	}
 });
