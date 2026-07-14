@@ -31,6 +31,18 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
+### Cleaning up extraneous WASM fallback packages (optional)
+
+`npm install`/`npm ci` always installs 5 extra packages — `@emnapi/core`, `@emnapi/runtime`, `@emnapi/wasi-threads`, `@napi-rs/wasm-runtime`, `@tybys/wasm-util` — even though `npm ls` reports them as `extraneous` and neither `npm ci` nor `npm prune` remove them. This is a known upstream npm limitation: they're the WASM32-WASI fallback runtime bundled with `@tailwindcss/oxide` and `@rolldown/binding` (Vite's bundler), and npm doesn't correctly skip them via its `cpu` platform gating when they're nested this way. They're `devDependencies`-only, unreferenced anywhere in source, and have zero footprint in the deployed Vercel build — safe to ignore.
+
+If you'd like to reclaim the ~9.5MB anyway:
+
+```bash
+npm run clean:wasm
+```
+
+This is optional, local-only, and does not change `package.json` or the lockfile — you'll need to re-run it after every fresh `npm install`/`npm ci` if you want to keep `node_modules` lean.
+
 ---
 
 ## Project Structure
