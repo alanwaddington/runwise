@@ -38,6 +38,15 @@ Typically up within 5-10s. If curl still returns `000` after ~15s, check
 `ps aux | grep vite` — the process is usually alive and will bind shortly; this
 environment's process/network setup is just slow to report readiness, not broken.
 
+**The background launch itself can fail silently on the first attempt** — a `run_in_background`
+dev-server call has failed outright (task status `failed`, exit code 144, zero captured
+output, no process left running) on this exact command with no changes in between,
+inconsistently: sometimes a bare retry of the identical command fixes it, other times it
+needs `dangerouslyDisableSandbox: true` (normally only required for `vite preview`, per
+below) to start at all. If `ps aux | grep vite` shows nothing after a `failed` status
+(not just a slow-starting `000`), don't assume something's broken — retry the same
+command, and reach for `dangerouslyDisableSandbox: true` if a bare retry also fails.
+
 ### Production build + preview (needed for real SSR + hydration — e.g. anything touching
 `app.html`'s pre-paint script, or component state that behaves differently pre-hydration)
 
