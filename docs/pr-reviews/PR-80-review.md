@@ -1,6 +1,6 @@
 # PR #80 Review — chore: optimize OG image assets (#62)
 
-**Date:** 2026-07-14
+**Date:** 2026-07-14 (m1/S1 fixed 2026-07-14, commit `29deb0f`)
 **Author:** alanwaddington
 **Branch:** feature/62-optimize-og-images → main
 **State:** Open
@@ -150,27 +150,30 @@ None.
 
 ### Major (should fix)
 
-#### M1 — Live post-deploy cache-header verification not yet performed
+#### M1 — Live post-deploy cache-header verification not yet performed — ⏳ Tracked as post-merge follow-up
 - **Category:** Reliability / Process
 - **Location:** `vercel.json:21-26` (the criterion, not a code defect)
 - **Description:** Two acceptance criteria (Analysis AC2, Design Task 3 AC3) call for confirming the `Cache-Control` header via `curl -I` against a deployed URL. That hasn't happened — there's no deployment for this PR yet, so it's not currently possible to fully satisfy this literally. The PR author was transparent about this the entire way through (flagged in the issue, the Design section, commit messages, and the PR description itself) rather than silently marking it done.
 - **Recommendation:** Not a blocker — this is inherent to how Vercel processes `vercel.json` (merged by the platform build/deploy step, not observable via a local `npm run build`) and can only be closed out after merge/deploy. The strongest verification achievable pre-merge has already been done, independently, twice: `vercel build` (local, authenticated, no deploy) merges `vercel.json` into `.vercel/output/config.json`, and both the PR author and this review confirmed the exact rule appears there: `{"src": "^/og(?:/(.*))$", "headers": {"Cache-Control": "public, max-age=86400, stale-while-revalidate=604800"}}`. This is the literal routing table Vercel's edge will use — about as strong as evidence gets without an actual deployment. Action item: run `curl -I https://runwise.app/og/og-default.png` once this PR is deployed, to close the loop (tracked as a post-merge follow-up, not a merge blocker).
+- **Outcome:** Deliberately left open as a post-merge follow-up, per stakeholder direction — asked explicitly whether to trigger a real preview deployment now to close this out early, or defer until after merge (matching how #61's identical situation was handled). Stakeholder chose to defer; no deployment was triggered. Not fixed by a code change (none is possible here), but not a blocker either.
 
 ### Minor (nice to fix)
 
-#### m1 — No error handling around `oxipngSync` in the generation loop
+#### m1 — No error handling around `oxipngSync` in the generation loop — ✅ Fixed (`29deb0f`)
 - **Category:** Reliability
 - **Location:** `scripts/generate-og-images.js:55`
 - **Description:** `oxipngSync(['-o', 'max', '--strip', 'safe', outputPath])` is called without a `try/catch`. If it throws (e.g. an unsupported platform — `oxipng` only bundles x86_64 binaries for macOS/Linux-musl/Windows, no arm64 — or a corrupted intermediate PNG), the whole `og:generate` script halts mid-loop. Remaining images in `OG_IMAGES` never even get their Playwright screenshot taken, leaving `static/og/` in a partially-regenerated, inconsistent state with no specific error message pointing at what failed or why. Lower severity than it might otherwise be: this is a manual, immediately-visible dev-tooling script (a crash surfaces loudly in the terminal, not silently), not something running unattended in CI or production.
 - **Recommendation:** Wrap the `oxipngSync` call in a `try/catch`, log a clear per-image failure message (including the platform-support caveat if relevant), and either continue to the next image or fail fast with a clear summary — same pattern already established in `scripts/clean-wasm-fallbacks.js` (PR #79) for an analogous external-process-call scenario in this same `scripts/` directory.
+- **Outcome:** Fixed. Each `oxipngSync` call is now wrapped in `try/catch`; a failure logs `Failed to optimize <path>: <error.message>`, keeps the unoptimized screenshot, and continues to the next image; the script exits 1 at the end if any image failed. Verified in an isolated harness reproducing the exact loop/try-catch logic against a guaranteed oxipng failure (invalid PNG bytes) — confirmed all items are still processed (loop doesn't abort early) and the script exits 1. Happy path re-verified unchanged (regenerated images byte-identical to committed versions).
 
 ### Suggestions (optional)
 
-#### S1 — Document the arm64 platform gap in-code
+#### S1 — Document the arm64 platform gap in-code — ✅ Fixed (`29deb0f`)
 - **Category:** Code Quality / Future-proofing
 - **Location:** `scripts/generate-og-images.js:12` (the `oxipng` import) or near the `oxipngSync` call
 - **Description:** `oxipng`'s npm package only bundles x86_64 binaries for macOS, Linux (musl), and Windows — no native arm64 build. This was a consciously accepted tradeoff during `/design` (documented in the issue's Design section), but the script itself has no comment noting it, so a future contributor on Apple Silicon or an arm64 Linux CI runner hitting `Missing binary for platform` would have to rediscover this from scratch.
 - **Recommendation:** A one-line comment near the `oxipngSync` call noting the platform limitation would save that rediscovery — same lightweight-comment pattern already used elsewhere in this PR (the size-impact comment) and in PR #79's `clean-wasm-fallbacks.js`. Genuinely optional given how rarely this script runs and how visible a failure would be.
+- **Outcome:** Fixed. Added to the existing size-impact comment block directly above the `try` block, noting the x86_64-only support and the exact error message a future contributor would see.
 
 ---
 
@@ -191,9 +194,9 @@ None.
 _None._
 
 ### Post-merge improvements
-- [ ] M1: Run `curl -I <deployed-url>/og/og-default.png` once this PR is deployed, to close the loop on live cache-header confirmation — already anticipated by the PR author, not a surprise.
-- [ ] m1: Add `try/catch` error handling around `oxipngSync` in `scripts/generate-og-images.js`, matching the pattern in `scripts/clean-wasm-fallbacks.js` (PR #79).
-- [ ] S1: Add a one-line comment noting `oxipng`'s x86_64-only platform support.
+- [ ] M1: Run `curl -I <deployed-url>/og/og-default.png` once this PR is deployed, to close the loop on live cache-header confirmation. Confirmed with stakeholder: deliberately deferred to post-merge rather than triggering a deployment now.
+- [x] m1: Add `try/catch` error handling around `oxipngSync` in `scripts/generate-og-images.js`, matching the pattern in `scripts/clean-wasm-fallbacks.js` (PR #79). Fixed in `29deb0f`.
+- [x] S1: Add a one-line comment noting `oxipng`'s x86_64-only platform support. Fixed in `29deb0f`.
 
 ---
 
