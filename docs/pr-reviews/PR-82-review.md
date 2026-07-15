@@ -92,11 +92,12 @@ No Critical, Major, or Minor findings.
 
 ### Suggestions (optional)
 
-#### S1 — IBM Plex Mono's static weight list is unenforced against future `font-mono` usage drift
+#### S1 — IBM Plex Mono's static weight list is unenforced against future `font-mono` usage drift — **Fixed**
 - **Category:** Reliability (maintainability)
 - **Location:** `src/routes/+layout.svelte:13`, `src/routes/layout.fonts.test.ts`
 - **Description:** The weight list `400;500;700` is correct today because it was derived from an exhaustive `grep` of every `font-mono` usage at design time (documented in issue #63's Design §1). If a future PR adds `font-mono font-semibold` (600) somewhere, nothing will fail — it'll just silently faux-bold again, the same class of bug this PR fixes. This isn't a defect in this PR (its own scope is fully covered and tested), just an unenforced invariant going forward.
 - **Recommendation:** Optional follow-up: a lint rule, code comment near the `<link>`, or a broader test that greps `src/**/*.svelte` for `font-mono` + weight-class combinations and asserts each resolved weight is present in the `<link href>`. Not worth blocking this PR on — flag as a possible future `/analyse` candidate only if this class of regression actually recurs.
+- **Outcome:** Fixed in commit `4fa9427`. Added `src/font-mono-weight-usage.test.ts`, which walks every `.svelte` file, resolves the rendered weight of each `font-mono` usage (explicit Tailwind weight utility, or 400 by default), and fails with a file-and-weight-specific message if any resolved weight isn't present in `+layout.svelte`'s IBM Plex Mono list. Verified the guard actually fires: temporarily added `font-mono font-semibold` to `ToolCard.svelte`, confirmed the test failed with the expected message, then reverted before committing.
 
 ---
 
@@ -115,7 +116,7 @@ No Critical, Major, or Minor findings.
 None.
 
 ### Post-merge improvements
-- [ ] S1: Consider a test/lint guard against `font-mono` weight-usage drift outside the currently-loaded set — low priority, only worth an issue if it recurs.
+- [x] S1: Consider a test/lint guard against `font-mono` weight-usage drift outside the currently-loaded set — fixed in commit `4fa9427` (`src/font-mono-weight-usage.test.ts`).
 
 ---
 
