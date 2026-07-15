@@ -21,4 +21,20 @@ describe('+layout.svelte font loading', () => {
 		expect(fontLink?.getAttribute('href')).toMatch(/Manrope/);
 		expect(fontLink?.getAttribute('href')).toMatch(/IBM\+Plex\+Mono/);
 	});
+
+	it('requests Manrope as a variable-font weight range, not a static weight list', () => {
+		render(Layout, { props: { children: emptySnippet } });
+
+		const fontLink = document.head.querySelector('link[href*="fonts.googleapis.com/css2"]');
+		expect(fontLink?.getAttribute('href')).toMatch(/Manrope:wght@400\.\.700/);
+		expect(fontLink?.getAttribute('href')).not.toMatch(/Manrope:wght@400;500;600;700/);
+	});
+
+	it('requests IBM Plex Mono at exactly the weights used in the codebase (400, 500, 700)', () => {
+		render(Layout, { props: { children: emptySnippet } });
+
+		const fontLink = document.head.querySelector('link[href*="fonts.googleapis.com/css2"]');
+		expect(fontLink?.getAttribute('href')).toMatch(/IBM\+Plex\+Mono:wght@400;500;700/);
+		expect(fontLink?.getAttribute('href')).not.toMatch(/IBM\+Plex\+Mono:wght@500;600/);
+	});
 });
