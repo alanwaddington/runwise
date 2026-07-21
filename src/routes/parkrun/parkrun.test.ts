@@ -292,6 +292,15 @@ describe('Parkrun page', () => {
 		expect(screen.getByText('5:36 /km')).toBeInTheDocument();
 	});
 
+	it('entering a non-whole-minute target time (24:37) shows correctly rounded pace of 4:55 /km', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '24:37' } });
+
+		expect(screen.getByText('Required Pace')).toBeInTheDocument();
+		expect(screen.getByText('4:55 /km')).toBeInTheDocument();
+	});
+
 	it('split table appears for Target Time mode with 5 rows', async () => {
 		render(Parkrun);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));

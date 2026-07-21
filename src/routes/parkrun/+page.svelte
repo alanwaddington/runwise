@@ -456,9 +456,9 @@
 		</div>
 	{:else}
 		{#if mode === 'target-time'}
-			<ResultDisplay value={formatPace(paceMinPerKm ?? 0) + ' /km'} label="Required Pace" />
-
 			{#if paceMinPerKm !== null}
+				<ResultDisplay value={formatPace(paceMinPerKm) + ' /km'} label="Required Pace" />
+
 				<p class="mt-3 text-center text-sm text-muted">
 					Target: {formatTime(predictedSeconds)} · {formatPace(minPerKmToMinPerMile(paceMinPerKm))} /mile
 				</p>
