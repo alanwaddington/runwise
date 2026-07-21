@@ -215,4 +215,166 @@ describe('Parkrun page', () => {
 		render(Parkrun);
 		expect(screen.queryByRole('button', { name: /calculate|submit/i })).toBeNull();
 	});
+
+	// ── Target Time tab (Task 1) ─────────────────────────────────────────────
+
+	it('renders a Target Time tab after Average Pace', () => {
+		render(Parkrun);
+		expect(screen.getByRole('tab', { name: 'Target Time' })).toBeInTheDocument();
+	});
+
+	it('targetTimeTab_hasCompleteFocusVisibleClasses', () => {
+		render(Parkrun);
+		const tab = screen.getByRole('tab', { name: 'Target Time' });
+		expect(tab.className).toContain('focus-visible:outline-none');
+		expect(tab.className).toContain('focus-visible:ring-2');
+		expect(tab.className).toContain('focus-visible:ring-accent');
+		expect(tab.className).toContain('focus-visible:ring-offset-2');
+	});
+
+	it('switching to Target Time mode shows a target time input and hides distance/pace/reference-distance/PB', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		expect(screen.getByLabelText(/target time/i)).toBeInTheDocument();
+		expect(screen.queryByLabelText(/^distance/i)).not.toBeInTheDocument();
+		expect(screen.queryByLabelText(/^pace/i)).not.toBeInTheDocument();
+		expect(screen.queryByLabelText('Reference distance')).not.toBeInTheDocument();
+		expect(screen.queryByLabelText(/^pb/i)).not.toBeInTheDocument();
+	});
+
+	it('arrow-key navigation cycles across all 3 tabs, wrapping both directions', async () => {
+		render(Parkrun);
+		const tablist = screen.getByRole('tablist');
+
+		await fireEvent.keyDown(tablist, { key: 'ArrowLeft' });
+		expect(screen.getByRole('tab', { name: 'Target Time' })).toHaveAttribute('aria-selected', 'true');
+
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(screen.getByRole('tab', { name: 'Recent Run' })).toHaveAttribute('aria-selected', 'true');
+
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(screen.getByRole('tab', { name: 'Average Pace' })).toHaveAttribute('aria-selected', 'true');
+
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(screen.getByRole('tab', { name: 'Target Time' })).toHaveAttribute('aria-selected', 'true');
+	});
+
+	it('shows target-time-specific empty state', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		expect(screen.getByText(/enter a target time above/i)).toBeInTheDocument();
+	});
+
+	it('Age and Gender fields remain visible in Target Time mode', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		expect(screen.getByLabelText(/age/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/gender/i)).toBeInTheDocument();
+	});
+
+	it('switching away from and back to Target Time resets its input', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '28:00' } });
+		await fireEvent.click(screen.getByRole('tab', { name: 'Recent Run' }));
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		expect(screen.getByLabelText(/target time/i)).toHaveValue('');
+	});
+
+	// ── Target Time calculation (Task 2) ──────────────────────────────────────
+
+	it('entering 28:00 target time shows required pace of 5:36 /km', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '28:00' } });
+
+		expect(screen.getByText('Required Pace')).toBeInTheDocument();
+		expect(screen.getByText('5:36 /km')).toBeInTheDocument();
+	});
+
+	it('entering a non-whole-minute target time (24:37) shows correctly rounded pace of 4:55 /km', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '24:37' } });
+
+		expect(screen.getByText('Required Pace')).toBeInTheDocument();
+		expect(screen.getByText('4:55 /km')).toBeInTheDocument();
+	});
+
+	it('split table appears for Target Time mode with 5 rows', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '28:00' } });
+
+		const table = screen.getByRole('table');
+		const rows = table.querySelectorAll('tbody tr');
+		expect(rows).toHaveLength(5);
+	});
+
+	it('shows age grade in Target Time mode when age and gender supplied', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '28:00' } });
+		await fireEvent.input(screen.getByLabelText(/age/i), { target: { value: 35, valueAsNumber: 35 } });
+		await fireEvent.change(screen.getByLabelText(/gender/i), { target: { value: 'male' } });
+
+		expect(screen.getByText(/age grade/i)).toBeInTheDocument();
+		expect(screen.getByText(/%/)).toBeInTheDocument();
+	});
+
+	it('shows inline error for invalid target time input', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		const input = screen.getByLabelText(/target time/i);
+		await fireEvent.input(input, { target: { value: 'abc' } });
+		await fireEvent.blur(input);
+
+		expect(screen.getAllByText(/enter mm:ss or h:mm:ss/i).length).toBeGreaterThanOrEqual(1);
+		expect(screen.getByText(/enter a target time above/i)).toBeInTheDocument();
+	});
+
+	it('empty target time input shows no result', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		expect(screen.queryByText('Required Pace')).not.toBeInTheDocument();
+	});
+
+	it('never shows PB comparison in Target Time mode', async () => {
+		render(Parkrun);
+		await fireEvent.input(screen.getByLabelText(/^pb/i), { target: { value: '24:30' } });
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '28:00' } });
+
+		expect(screen.queryByText(/than your pb/i)).not.toBeInTheDocument();
+	});
+
+	// ── Target Time result layout (Task 3) ────────────────────────────────────
+
+	it('shows target time and pace/mile as secondary text', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '28:00' } });
+
+		expect(screen.getByText(/target: 28:00/i)).toBeInTheDocument();
+		expect(screen.getByText(/\/mile/)).toBeInTheDocument();
+	});
+
+	it('shows a nudge link to the Training Pace Calculator near the result', async () => {
+		render(Parkrun);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));
+		await fireEvent.input(screen.getByLabelText(/target time/i), { target: { value: '28:00' } });
+
+		const links = screen.getAllByRole('link', { name: /training pace calculator/i });
+		expect(links.length).toBeGreaterThanOrEqual(2);
+		expect(links.some((l) => l.getAttribute('href') === '/training-paces')).toBe(true);
+	});
+
+	it('Recent Run result layout is unchanged (time headline)', async () => {
+		render(Parkrun);
+		await fireEvent.input(screen.getByLabelText(/^distance/i), { target: { value: '8' } });
+		await fireEvent.input(screen.getByLabelText(/time/i), { target: { value: '48:00' } });
+
+		expect(screen.getByText('Predicted Parkrun Time')).toBeInTheDocument();
+		expect(screen.queryByText('Required Pace')).not.toBeInTheDocument();
+	});
 });

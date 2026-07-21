@@ -264,8 +264,8 @@
 <p>Cross-links to the Training Pace Calculator and Race Time Predictor are displayed when results are visible.</p>
 <hr>
 <h3>Parkrun Predictor — <code>/parkrun</code></h3>
-<p>Predict your 5K parkrun finish time from a recent training run or average pace, with pacing splits, PB comparison, and WMA age grading.</p>
-<p><strong>Input mode toggle:</strong> Switch between two input modes at the top of the page:</p>
+<p>Predict your 5K parkrun finish time from a recent training run or average pace — or work the other way round and find the pace needed to hit a goal finish time — with pacing splits, PB comparison, and WMA age grading.</p>
+<p><strong>Input mode toggle:</strong> Switch between three input modes at the top of the page:</p>
 <table>
 <thead>
 <tr>
@@ -281,8 +281,12 @@
 <td>Average Pace</td>
 <td>Pace (M:SS per km)</td>
 </tr>
+<tr>
+<td>Target Time</td>
+<td>Target finish time (MM:SS or H:MM:SS)</td>
+</tr>
 </tbody></table>
-<p><strong>Reference distance slider:</strong> Choose the race distance that best represents your entered pace or time. This controls how the Riegel formula extrapolates your training performance to a 5K prediction — the closer the reference distance is to what you actually ran, the more accurate the prediction.</p>
+<p><strong>Reference distance slider:</strong> Shown for Recent Run and Average Pace only. Choose the race distance that best represents your entered pace or time. This controls how the Riegel formula extrapolates your training performance to a 5K prediction — the closer the reference distance is to what you actually ran, the more accurate the prediction.</p>
 <table>
 <thead>
 <tr>
@@ -315,35 +319,39 @@
 <td>42.195</td>
 </tr>
 </tbody></table>
-<p>Longer reference distances imply more fitness in reserve, so they produce a faster (more optimistic) 5K prediction for the same pace; shorter reference distances produce a more conservative one.</p>
+<p>Longer reference distances imply more fitness in reserve, so they produce a faster (more optimistic) 5K prediction for the same pace; shorter reference distances produce a more conservative one. Target Time mode has no reference distance to choose — parkrun is fixed at 5K, so the pace needed is a direct calculation from your target time.</p>
 <p><strong>Optional inputs:</strong></p>
 <table>
 <thead>
 <tr>
 <th>Field</th>
 <th>Purpose</th>
+<th>Shown in</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>PB (MM:SS)</td>
 <td>Compare your prediction against your personal best</td>
+<td>Recent Run, Average Pace only</td>
 </tr>
 <tr>
 <td>Age</td>
 <td>Required for age grading</td>
+<td>All three modes</td>
 </tr>
 <tr>
 <td>Gender</td>
 <td>Required for age grading</td>
+<td>All three modes</td>
 </tr>
 </tbody></table>
 <p><strong>Output:</strong></p>
 <ul>
-<li><strong>Predicted parkrun time</strong> — displayed in MM:SS</li>
-<li><strong>Pace</strong> — in min/km and min/mile</li>
-<li><strong>1K split table</strong> — cumulative time and split pace for each kilometre (1K–5K), based on even pacing</li>
-<li><strong>PB comparison</strong> — shown only when a PB is entered; e.g. <em>&quot;32 seconds faster than your PB&quot;</em> (green) or <em>&quot;15 seconds slower than your PB&quot;</em> (red)</li>
-<li><strong>Age grade</strong> — shown only when age and gender are provided; displays your WMA age grade percentage and performance band</li>
+<li><strong>Recent Run / Average Pace:</strong> the headline result is your <strong>predicted parkrun time</strong> (MM:SS), with pace in min/km and min/mile shown beneath it.</li>
+<li><strong>Target Time:</strong> the headline result is your <strong>required pace</strong> (min/km), since you&#39;re working backwards from a goal time rather than forwards to a prediction. Your entered target time and the equivalent pace per mile are shown beneath it, along with a link to the Training Pace Calculator for a full training-paces breakdown at that effort.</li>
+<li><strong>1K split table</strong> — cumulative time and split pace for each kilometre (1K–5K), based on even pacing; shown in all three modes.</li>
+<li><strong>PB comparison</strong> — shown only in Recent Run and Average Pace mode, and only when a PB is entered; e.g. <em>&quot;32 seconds faster than your PB&quot;</em> (green) or <em>&quot;15 seconds slower than your PB&quot;</em> (red). Not shown in Target Time mode, since comparing a self-chosen goal against a PB isn&#39;t a meaningful prediction-vs-best comparison.</li>
+<li><strong>Age grade</strong> — shown in all three modes when age and gender are provided; displays your WMA age grade percentage and performance band, computed against the predicted (or target) time.</li>
 </ul>
 <p><strong>WMA age grade bands:</strong></p>
 <table>

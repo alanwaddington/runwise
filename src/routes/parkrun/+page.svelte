@@ -18,7 +18,7 @@
 		type AgeGradeLabel
 	} from '$lib/utils/parkrun';
 
-	type InputMode = 'recent-run' | 'average-pace';
+	type InputMode = 'recent-run' | 'average-pace' | 'target-time';
 
 	// Shades chosen so white text on each fill meets WCAG AA (4.5:1) — several of the
 	// lighter shades used previously (teal-500, amber-500, gray-400) failed contrast.
@@ -36,6 +36,7 @@
 	let distanceRaw = $state('');
 	let timeRaw = $state('');
 	let paceRaw = $state('');
+	let targetTimeRaw = $state('');
 
 	let pbRaw = $state('');
 	let ageRaw = $state<number | string>('');
@@ -44,10 +45,12 @@
 	let distanceTouched = $state(false);
 	let timeTouched = $state(false);
 	let paceTouched = $state(false);
+	let targetTimeTouched = $state(false);
 
 	let distanceError = $state<string | null>(null);
 	let timeError = $state<string | null>(null);
 	let paceError = $state<string | null>(null);
+	let targetTimeError = $state<string | null>(null);
 
 	let distanceKm = $derived(
 		(() => {
@@ -58,6 +61,7 @@
 
 	let timeSeconds = $derived(parseTime(timeRaw));
 	let paceDecimal = $derived(parsePace(paceRaw));
+	let targetTimeSeconds = $derived(parseTime(targetTimeRaw));
 
 	let referenceDistanceKm = $derived(REFERENCE_DISTANCES[referenceDistanceIndex].km);
 
@@ -71,9 +75,11 @@
 	);
 
 	let predictedSeconds = $derived(
-		inputDistanceKm !== null && inputTimeSeconds !== null
-			? predictParkrunTime(inputDistanceKm, inputTimeSeconds, referenceDistanceKm)
-			: null
+		mode === 'target-time'
+			? targetTimeSeconds
+			: inputDistanceKm !== null && inputTimeSeconds !== null
+				? predictParkrunTime(inputDistanceKm, inputTimeSeconds, referenceDistanceKm)
+				: null
 	);
 
 	let pbSeconds = $derived(parseTime(pbRaw));
@@ -99,7 +105,7 @@
 	let splits = $derived(predictedSeconds !== null ? generateSplits(predictedSeconds) : []);
 
 	let pbComparison = $derived(
-		predictedSeconds !== null && pbSeconds !== null
+		mode !== 'target-time' && predictedSeconds !== null && pbSeconds !== null
 			? compareToPb(predictedSeconds, pbSeconds)
 			: null
 	);
@@ -109,15 +115,17 @@
 		distanceRaw = '';
 		timeRaw = '';
 		paceRaw = '';
+		targetTimeRaw = '';
 		distanceError = null;
 		timeError = null;
 		paceError = null;
+		targetTimeError = null;
 	}
 
 	function handleTabKeydown(e: KeyboardEvent) {
 		if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
 		e.preventDefault();
-		const modes: InputMode[] = ['recent-run', 'average-pace'];
+		const modes: InputMode[] = ['recent-run', 'average-pace', 'target-time'];
 		const currentIndex = modes.indexOf(mode);
 		if (e.key === 'ArrowRight') {
 			selectMode(modes[(currentIndex + 1) % modes.length]);
@@ -145,6 +153,12 @@
 		paceError = raw && parsePace(raw) === null ? 'Enter pace as M:SS (e.g., 5:30)' : null;
 	}
 
+	function onTargetTimeInput(e: Event) {
+		const raw = (e.target as HTMLInputElement).value;
+		targetTimeRaw = raw;
+		targetTimeError = raw && parseTime(raw) === null ? 'Enter MM:SS or H:MM:SS' : null;
+	}
+
 	function onPbInput(e: Event) {
 		pbRaw = (e.target as HTMLInputElement).value;
 	}
@@ -157,13 +171,16 @@
 		distanceRaw = '';
 		timeRaw = '';
 		paceRaw = '';
+		targetTimeRaw = '';
 		pbRaw = '';
 		distanceTouched = false;
 		timeTouched = false;
 		paceTouched = false;
+		targetTimeTouched = false;
 		distanceError = null;
 		timeError = null;
 		paceError = null;
+		targetTimeError = null;
 	}
 </script>
 
@@ -203,6 +220,19 @@
 		>
 			Average Pace
 		</button>
+		<button
+			role="tab"
+			aria-selected={mode === 'target-time'}
+			onclick={() => selectMode('target-time')}
+			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			class:bg-accent={mode === 'target-time'}
+			class:text-white={mode === 'target-time'}
+			class:font-semibold={mode === 'target-time'}
+			class:text-muted={mode !== 'target-time'}
+			class:hover:text-hover={mode !== 'target-time'}
+		>
+			Target Time
+		</button>
 	</div>
 
 	<!-- Recent Run inputs -->
@@ -236,7 +266,7 @@
 			aria-describedby="time-help"
 		/>
 		<p id="time-help" class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
-	{:else}
+	{:else if mode === 'average-pace'}
 		<!-- Average Pace input -->
 		<InputField
 			id="pace"
@@ -254,71 +284,96 @@
 			aria-describedby="pace-help"
 		/>
 		<p id="pace-help" class="mt-1 text-xs text-muted">Enter pace as M:SS (e.g., 5:30)</p>
+	{:else}
+		<!-- Target Time input -->
+		<InputField
+			id="target-time"
+			label="Target Time"
+			bind:value={targetTimeRaw}
+			type="text"
+			inputmode="decimal"
+			placeholder="e.g. 28:00"
+			required
+			error={targetTimeError}
+			touched={targetTimeTouched}
+			oninput={onTargetTimeInput}
+			onblur={() => (targetTimeTouched = true)}
+			aria-describedby="target-time-help"
+		/>
+		<p id="target-time-help" class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
 	{/if}
 
 	<!-- Reference distance slider -->
-	<div class="mb-4">
-		<label for="reference-distance" class="mb-1.5 block text-sm font-medium text-ink"
-			>Reference distance</label
-		>
-		<p class="mb-2 text-xs text-muted">
-			Pick the distance your {mode === 'recent-run' ? 'entered time' : 'pace'} best represents an
-			all-out effort for &mdash; we'll extrapolate from that effort down to a 5K prediction.
-		</p>
-		<input
-			id="reference-distance"
-			type="range"
-			min="0"
-			max={REFERENCE_DISTANCES.length - 1}
-			step="1"
-			bind:value={referenceDistanceIndex}
-			aria-valuetext={REFERENCE_DISTANCES[referenceDistanceIndex].name}
-			class="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-accent
-			       [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5
-			       [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full
-			       [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-transform
-			       [&::-webkit-slider-thumb]:duration-150 hover:[&::-webkit-slider-thumb]:scale-110
-			       [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:appearance-none
-			       [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0
-			       [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-transform
-			       [&::-moz-range-thumb]:duration-150 hover:[&::-moz-range-thumb]:scale-110
-			       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
-			       dark:bg-gray-700"
-		/>
-		<div class="mt-1 flex justify-between px-0.5 text-xs text-muted">
-			{#each REFERENCE_DISTANCES as stop, i (stop.name)}
-				<span
-					class:text-accent-text={i === referenceDistanceIndex}
-					class:font-semibold={i === referenceDistanceIndex}
-				>
-					{stop.short}
-				</span>
-			{/each}
+	{#if mode !== 'target-time'}
+		<div class="mb-4">
+			<label for="reference-distance" class="mb-1.5 block text-sm font-medium text-ink"
+				>Reference distance</label
+			>
+			<p class="mb-2 text-xs text-muted">
+				Pick the distance your {mode === 'recent-run' ? 'entered time' : 'pace'} best represents an
+				all-out effort for &mdash; we'll extrapolate from that effort down to a 5K prediction.
+			</p>
+			<input
+				id="reference-distance"
+				type="range"
+				min="0"
+				max={REFERENCE_DISTANCES.length - 1}
+				step="1"
+				bind:value={referenceDistanceIndex}
+				aria-valuetext={REFERENCE_DISTANCES[referenceDistanceIndex].name}
+				class="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-accent
+				       [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5
+				       [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full
+				       [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:transition-transform
+				       [&::-webkit-slider-thumb]:duration-150 hover:[&::-webkit-slider-thumb]:scale-110
+				       [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:appearance-none
+				       [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0
+				       [&::-moz-range-thumb]:bg-accent [&::-moz-range-thumb]:transition-transform
+				       [&::-moz-range-thumb]:duration-150 hover:[&::-moz-range-thumb]:scale-110
+				       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
+				       dark:bg-gray-700"
+			/>
+			<div class="mt-1 flex justify-between px-0.5 text-xs text-muted">
+				{#each REFERENCE_DISTANCES as stop, i (stop.name)}
+					<span
+						class:text-accent-text={i === referenceDistanceIndex}
+						class:font-semibold={i === referenceDistanceIndex}
+					>
+						{stop.short}
+					</span>
+				{/each}
+			</div>
+			<p class="mt-2 text-center text-sm text-muted">
+				{REFERENCE_DISTANCES[referenceDistanceIndex].name} &middot; {referenceDistanceKm.toFixed(1)} km
+			</p>
+			<p class="mt-2 text-xs text-muted">
+				Closer reference distances extrapolate more accurately &mdash; try 5K or 10K for the most
+				reliable estimate, or a longer distance if that's what you actually race at.
+			</p>
 		</div>
-		<p class="mt-2 text-center text-sm text-muted">
-			{REFERENCE_DISTANCES[referenceDistanceIndex].name} &middot; {referenceDistanceKm.toFixed(1)} km
-		</p>
-		<p class="mt-2 text-xs text-muted">
-			Closer reference distances extrapolate more accurately &mdash; try 5K or 10K for the most
-			reliable estimate, or a longer distance if that's what you actually race at.
-		</p>
-	</div>
+	{/if}
 
 	<!-- Optional fields: PB, Age, Gender -->
-	<div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-		<div>
-			<label for="pb" class="mb-1.5 block text-sm font-medium text-ink">PB (optional)</label>
-			<input
-				id="pb"
-				type="text"
-				inputmode="decimal"
-				placeholder="e.g. 24:30"
-				value={pbRaw}
-				oninput={onPbInput}
-				aria-label="PB, optional"
-				class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
-			/>
-		</div>
+	<div
+		class="mb-4 grid grid-cols-1 gap-3"
+		class:sm:grid-cols-3={mode !== 'target-time'}
+		class:sm:grid-cols-2={mode === 'target-time'}
+	>
+		{#if mode !== 'target-time'}
+			<div>
+				<label for="pb" class="mb-1.5 block text-sm font-medium text-ink">PB (optional)</label>
+				<input
+					id="pb"
+					type="text"
+					inputmode="decimal"
+					placeholder="e.g. 24:30"
+					value={pbRaw}
+					oninput={onPbInput}
+					aria-label="PB, optional"
+					class="h-12 w-full rounded-lg border border-gray-300 bg-bg px-3 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
+				/>
+			</div>
+		{/if}
 		<InputField
 			id="age"
 			label="Age (optional)"
@@ -392,18 +447,40 @@
 			<p class="mt-3 text-sm text-muted">
 				{#if mode === 'recent-run'}
 					Enter a distance and time above to predict your parkrun.
-				{:else}
+				{:else if mode === 'average-pace'}
 					Enter your average pace above to predict your parkrun.
+				{:else}
+					Enter a target time above to calculate your required pace.
 				{/if}
 			</p>
 		</div>
 	{:else}
-		<ResultDisplay value={formatTime(predictedSeconds)} label="Predicted Parkrun Time" />
+		{#if mode === 'target-time'}
+			{#if paceMinPerKm !== null}
+				<ResultDisplay value={formatPace(paceMinPerKm) + ' /km'} label="Required Pace" />
 
-		{#if paceMinPerKm !== null}
-			<p class="mt-3 text-center text-sm text-muted">
-				{formatPace(paceMinPerKm)} /km · {formatPace(minPerKmToMinPerMile(paceMinPerKm))} /mile
+				<p class="mt-3 text-center text-sm text-muted">
+					Target: {formatTime(predictedSeconds)} · {formatPace(minPerKmToMinPerMile(paceMinPerKm))} /mile
+				</p>
+			{/if}
+
+			<p class="mt-2 text-center text-xs">
+				See full training paces for this effort &rarr;
+				<a
+					href="/training-paces"
+					aria-label="Training Pace Calculator, see full training paces"
+					class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					>Training Pace Calculator</a
+				>
 			</p>
+		{:else}
+			<ResultDisplay value={formatTime(predictedSeconds)} label="Predicted Parkrun Time" />
+
+			{#if paceMinPerKm !== null}
+				<p class="mt-3 text-center text-sm text-muted">
+					{formatPace(paceMinPerKm)} /km · {formatPace(minPerKmToMinPerMile(paceMinPerKm))} /mile
+				</p>
+			{/if}
 		{/if}
 
 		<hr class="my-6 border-t border-ink/10" />
