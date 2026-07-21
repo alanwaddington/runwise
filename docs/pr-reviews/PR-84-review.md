@@ -1,6 +1,6 @@
 # PR #84 Review — Add 'Target Time' tab to Parkrun Predictor (#83)
 
-**Date:** 2026-07-21
+**Date:** 2026-07-21 (m1, m2 fixed same day)
 **Author:** alanwaddington
 **Branch:** `feature/83-parkrun-target-time-tab` → `main`
 **State:** Open
@@ -117,17 +117,19 @@ None.
 
 ### Minor (nice to fix)
 
-#### m1 — Non-whole-minute target time not exercised at the page-test level
+#### m1 — Non-whole-minute target time not exercised at the page-test level — ✅ Fixed
 - **Category:** Test Coverage
 - **Location:** `src/routes/parkrun/parkrun.test.ts:286-293`
 - **Description:** The Design's own acceptance criterion asks for pace math to be "verified for at least whole-minute and non-whole-minute targets (e.g. 28:00 → 5:36/km; 24:37 → 4:55.4/km...)". The new page-level tests only exercise the whole-minute case (`28:00`). The underlying rounding behavior is covered at the unit level in `pace.test.ts` (e.g. `formatPace(8.85) → '8:51'`), and I independently traced `24:37` through the code to confirm `4:55/km` is correct, so there's no evidence of an actual defect — just a gap between what the AC asked to be demonstrated at the page level and what's actually asserted there.
 - **Recommendation:** Add one more `parkrun.test.ts` case asserting a non-whole-minute target (e.g. `24:37` → some exact pace string) for direct page-level evidence, matching the AC's own wording. Not blocking.
+- **Outcome:** Fixed. Added `entering a non-whole-minute target time (24:37) shows correctly rounded pace of 4:55 /km` to `parkrun.test.ts`, asserting the exact `4:55 /km` headline. Passes alongside the full 41-test file.
 
-#### m2 — Unreachable defensive fallback
+#### m2 — Unreachable defensive fallback — ✅ Fixed
 - **Category:** Code Quality
 - **Location:** `src/routes/parkrun/+page.svelte:459`
 - **Description:** `formatPace(paceMinPerKm ?? 0)` — `paceMinPerKm` is derived as `predictedSeconds !== null ? ... : null` (line 101-103), and this line only renders inside the `predictedSeconds !== null` branch (line 457), so `paceMinPerKm` can never be `null` here. The `?? 0` is unreachable.
 - **Recommendation:** Drop the `?? 0` (or assert non-null) for clarity — purely cosmetic, no functional impact since it's provably dead code.
+- **Outcome:** Fixed. Restructured so the `ResultDisplay`/secondary-text block sits inside the existing `{#if paceMinPerKm !== null}` guard (previously that guard only wrapped the secondary text, redundantly duplicating the same null-check the outer branch already made). This lets Svelte's own type narrowing prove `paceMinPerKm` non-null at the `formatPace(paceMinPerKm)` call site with no fallback needed. `svelte-check` confirms 0 errors after the change.
 
 ### Suggestions (optional)
 
@@ -152,8 +154,8 @@ None beyond the above.
 None.
 
 ### Post-merge improvements
-- [ ] m1: Add a non-whole-minute target-time test case to `parkrun.test.ts` for direct page-level evidence of the AC's stated example
-- [ ] m2: Remove the unreachable `?? 0` fallback in the Target Time `ResultDisplay` value expression
+- [x] m1: Add a non-whole-minute target-time test case to `parkrun.test.ts` for direct page-level evidence of the AC's stated example. Fixed same day.
+- [x] m2: Remove the unreachable `?? 0` fallback in the Target Time `ResultDisplay` value expression. Fixed same day.
 
 ---
 
