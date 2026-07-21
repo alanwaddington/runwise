@@ -148,11 +148,15 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 	'/parkrun': {
 		heading: 'About the parkrun predictor',
 		intro:
-			'A recent training run or average pace can be used to estimate your parkrun (5K) time, which is then compared against your personal best and shown alongside an age-adjusted performance rating.',
+			'A recent training run or average pace can be used to estimate your parkrun (5K) time, which is then compared against your personal best and shown alongside an age-adjusted performance rating. A third mode, Target Time, works the other way round: enter the finish time you\'re chasing and get the pace you need to hold.',
 		sections: [
 			{
 				heading: 'How predictions are calculated',
 				body: 'Your input is converted to an equivalent 5K time using the Riegel formula, the same method behind the Race Time Predictor, adjusted for the specific distance and effort of your training run.'
+			},
+			{
+				heading: 'Setting a goal pace',
+				body: 'The Target Time tab reverses the calculation: enter the finish time you\'re chasing and it returns the even pace per km needed to hit it over the full 5K, along with the age-grade rating that time would earn. Since parkrun is always exactly 5K, this is a direct pace-from-time calculation rather than a Riegel-based prediction, so there\'s no reference distance to choose and no PB comparison shown for this mode.'
 			},
 			{
 				heading: 'How the age-adjusted rating works',
