@@ -209,10 +209,11 @@ describe('Pace Calculator page', () => {
 			expect(document.getElementById('pace-kmh-unit')).toHaveTextContent('km/h');
 		});
 
-		it('min/km and min/mile inputs have inputmode="decimal"', () => {
+		it('min/km and min/mile inputs allow colon character for time entry', () => {
 			render(PacePage);
-			expect(getMinkmInput()).toHaveAttribute('inputmode', 'decimal');
-			expect(getMinmileInput()).toHaveAttribute('inputmode', 'decimal');
+			// No inputmode restriction so users can access full keyboard (including colon) on iOS
+			expect(getMinkmInput().getAttribute('inputmode')).toBeNull();
+			expect(getMinmileInput().getAttribute('inputmode')).toBeNull();
 		});
 	});
 });

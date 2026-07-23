@@ -110,7 +110,6 @@
 		bind:value={minkmRaw}
 		unit="min/km"
 		type="text"
-		inputmode="decimal"
 		placeholder="e.g. 5:30"
 		required
 		error={minkmError}
@@ -125,7 +124,6 @@
 		bind:value={minmileRaw}
 		unit="min/mile"
 		type="text"
-		inputmode="decimal"
 		placeholder="e.g. 8:51"
 		required
 		error={minmileError}

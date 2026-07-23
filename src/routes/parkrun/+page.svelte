@@ -256,7 +256,6 @@
 			label="Time"
 			bind:value={timeRaw}
 			type="text"
-			inputmode="decimal"
 			placeholder="e.g. 48:00"
 			required
 			error={timeError}
@@ -274,7 +273,6 @@
 			bind:value={paceRaw}
 			unit="/km"
 			type="text"
-			inputmode="decimal"
 			placeholder="e.g. 6:00"
 			required
 			error={paceError}
@@ -291,7 +289,6 @@
 			label="Target Time"
 			bind:value={targetTimeRaw}
 			type="text"
-			inputmode="decimal"
 			placeholder="e.g. 28:00"
 			required
 			error={targetTimeError}
@@ -365,7 +362,6 @@
 				<input
 					id="pb"
 					type="text"
-					inputmode="decimal"
 					placeholder="e.g. 24:30"
 					value={pbRaw}
 					oninput={onPbInput}

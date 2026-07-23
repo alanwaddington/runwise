@@ -137,7 +137,6 @@
 		label="Race time"
 		bind:value={timeRaw}
 		type="text"
-		inputmode="decimal"
 		placeholder="e.g. 25:00 or 1:56:20"
 		required
 		error={timeError}
