@@ -16,21 +16,26 @@
 		/>
 	</svg>
 
-	<div class="relative flex flex-col gap-4">
-		<div class="flex items-center gap-3">
-			<img
-				src="/favicon.svg"
-				alt=""
-				aria-hidden="true"
-				width="48"
-				height="48"
-				class="animate-pulse-mark"
-			/>
-			<h1 class="font-sans text-4xl font-bold tracking-tight text-ink">Runwise</h1>
+	<div class="relative flex flex-col gap-6">
+		<div class="flex flex-col gap-4">
+			<div class="flex items-center gap-3">
+				<img
+					src="/favicon.svg"
+					alt=""
+					aria-hidden="true"
+					width="48"
+					height="48"
+					class="animate-pulse-mark"
+				/>
+				<h1 class="font-sans text-4xl font-bold tracking-tight text-ink">Runwise</h1>
+			</div>
+			<p class="text-xl font-semibold text-ink">
+				Running calculators. <span class="text-accent-text">Fast.</span> Clean. Built for runners.
+			</p>
+			<p class="max-w-2xl text-lg text-muted">
+				Train smarter with science-backed calculators for pace, heart rate zones, race prediction, VO2 max, and training paces. No account required.
+			</p>
 		</div>
-		<p class="text-xl font-semibold text-ink">
-			Running calculators. <span class="text-accent-text">Fast.</span> Clean. Built for runners.
-		</p>
 
 		<div class="flex flex-wrap items-center gap-2">
 			<span
