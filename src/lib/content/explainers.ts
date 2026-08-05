@@ -175,5 +175,32 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 				body: 'A recent 10K or longer run tends to give a more optimistic (faster) 5K prediction than a shorter, harder effort, because Riegel assumes similar relative fitness across distances — pick a training run or race result reasonably close to 5K in duration if you want the most realistic estimate.'
 			}
 		]
+	},
+	'/power-zones': {
+		heading: 'About power zones',
+		intro:
+			'Running power meters (Stryd, COROS, Garmin, Polar) measure watts using different proprietary algorithms, so the same number on two different devices does not represent the same effort. This calculator asks which device your number came from and applies that device\'s own published zone model, rather than treating all "watts" as interchangeable.',
+		sections: [
+			{
+				heading: 'Critical Power, Threshold Power, and MAP are not the same thing',
+				body: 'Stryd and COROS use Critical Power (CP), the highest power you can sustain indefinitely without fatiguing. Garmin uses a similar concept it calls Threshold Power. Polar uses Maximal Aerobic Power (MAP), measured from a 6-minute all-out test, a meaningfully different metric to CP even though both are entered in watts. Always use the number your own device reports for its own metric, never mix and match.'
+			},
+			{
+				heading: 'Why COROS shows Stryd\'s zones',
+				body: 'COROS has no independent running power zone model of its own. When paired with a Stryd pod, COROS syncs and displays Stryd\'s Critical Power and zones directly, so selecting COROS here uses the exact same published 5-zone table as Stryd.'
+			},
+			{
+				heading: 'A note on Garmin\'s zones',
+				body: 'Garmin\'s own documentation states that its default running power zones are calculated from Threshold Power plus your gender, weight, and ability, using a formula Garmin does not publish. The 7-zone breakdown shown here comes from a third-party source, not from Garmin directly, so treat it as a reasonable approximation rather than a guaranteed match to the zones on your Garmin Connect account.'
+			},
+			{
+				heading: 'Worked example',
+				body: 'A Stryd Critical Power of 252W puts Zone 1 (Easy) at 164-202W, Zone 3 (Threshold) at 227-252W, and Zone 5 (Repetition) at 290-328W. The same 252W entered under Garmin, Polar, or COROS would return different zone boundaries, because each device\'s percentages and metric differ, not because the arithmetic changes.'
+			},
+			{
+				heading: 'Using power zones alongside pace and heart rate',
+				body: 'Power responds instantly to effort and stays consistent on hills and in wind, where pace slows and heart rate lags behind. Many runners use power for real-time pacing on variable terrain, then cross-check against the Training Paces or HR Zones calculators for sessions run on flat, controlled routes.'
+			}
+		]
 	}
 };
