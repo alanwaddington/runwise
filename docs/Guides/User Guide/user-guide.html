@@ -31,7 +31,7 @@
 <p>Runwise is a free collection of running calculators. No account required.</p>
 <hr>
 <h2>Getting Started</h2>
-<p>Open <a href="/">runwise</a> in any browser. The home page lists all six tools — click any card to open it.</p>
+<p>Open <a href="/">runwise</a> in any browser. The home page lists all seven tools — click any card to open it.</p>
 <hr>
 <h2>Tools</h2>
 <h3>Pace Calculator — <code>/pace</code></h3>
@@ -384,6 +384,48 @@
 </tbody></table>
 <p>Age grading uses real per-integer-age WMA (World Masters Athletics) factor data for 5K, covering ages 5–100 for both genders.</p>
 <p>Cross-links to the Race Time Predictor, Training Pace Calculator, and VO2 Max Estimator are displayed with results.</p>
+<hr>
+<h3>Power Zones Calculator — <code>/power-zones</code></h3>
+<p>Calculate your running power training zones for four power meter platforms: Stryd, COROS, Garmin, or Polar.</p>
+<p><strong>Device selector:</strong> Choose your device using the four-way segmented control at the top of the page. Each device uses its own published zone model — switching devices clears your entered value and updates the input&#39;s label to that device&#39;s own metric name.</p>
+<table>
+<thead>
+<tr>
+<th>Device</th>
+<th>Input label</th>
+<th>Metric</th>
+<th>Zones</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stryd</td>
+<td>Critical Power (CP)</td>
+<td>Critical Power</td>
+<td>5 (Easy, Moderate, Threshold, Interval, Repetition)</td>
+</tr>
+<tr>
+<td>COROS</td>
+<td>Critical Power (CP)</td>
+<td>Critical Power</td>
+<td>5 — identical to Stryd&#39;s zones, since COROS syncs and reuses Stryd&#39;s CP when paired with a Stryd pod</td>
+</tr>
+<tr>
+<td>Garmin</td>
+<td>Threshold Power</td>
+<td>Threshold Power</td>
+<td>7 (Active Recovery, Endurance, Tempo, Threshold, VO2 Max, Anaerobic, Neuromuscular)</td>
+</tr>
+<tr>
+<td>Polar</td>
+<td>Maximal Aerobic Power (MAP)</td>
+<td>Maximal Aerobic Power</td>
+<td>5 (Endurance Running ×2, High-Intensity Interval Training ×2, Sprint Interval Training)</td>
+</tr>
+</tbody></table>
+<p><strong>Input:</strong> A single power value in watts (50–700W accepted). Enter the number your own device reports for its own metric — never mix a Stryd CP figure into the Garmin or Polar tab, since they&#39;re not the same measurement.</p>
+<p><strong>Garmin note:</strong> A disclaimer is shown below the device selector when Garmin is chosen, since Garmin&#39;s own documentation doesn&#39;t publish a fixed zone percentage table — Garmin computes defaults from an undisclosed formula. The zones shown here are a third-party-sourced approximation and may not exactly match your Garmin Connect account.</p>
+<p><strong>Output:</strong> A zone table with watt ranges and training purpose for each zone, using that device&#39;s own zone count and names (5 rows for Stryd/COROS/Polar, 7 rows for Garmin).</p>
+<p>Cross-links to the HR Zone Calculator are displayed with results.</p>
 <hr>
 <h2>Recommended Gear</h2>
 <p>Each tool page shows affiliate product recommendations alongside the tool — GPS watches and heart rate monitors relevant to the tool you&#39;re using. On desktop the recommendations appear in a sidebar to the right of the tool; on mobile they appear below it. These link to Amazon search results. As an Amazon Associate, Runwise may earn a small commission from qualifying purchases at no extra cost to you.</p>
