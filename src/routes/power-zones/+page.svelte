@@ -9,6 +9,7 @@
 		calculatePowerZones,
 		DEVICE_METRIC_LABEL,
 		DEVICE_DISPLAY_NAME,
+		DEVICE_DISCLAIMER,
 		type PowerMeterDevice,
 		type PowerZone
 	} from '$lib/utils/power-zones';
@@ -98,11 +99,11 @@
 		{/each}
 	</div>
 
-	<!-- Garmin disclaimer -->
-	{#if device === 'garmin'}
+	<!-- Approximation disclaimer (Garmin, COROS) -->
+	{#if DEVICE_DISCLAIMER[device]}
 		<p class="mb-4 text-xs text-muted">
-			<span class="font-medium text-ink">Note:</span> These zone percentages are sourced from a third
-			party, not Garmin's own documentation, and may not exactly match the zones shown in Garmin Connect.
+			<span class="font-medium text-ink">Note:</span>
+			{DEVICE_DISCLAIMER[device]}
 		</p>
 	{/if}
 

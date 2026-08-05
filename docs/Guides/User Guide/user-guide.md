@@ -203,15 +203,17 @@ Calculate your running power training zones for four power meter platforms: Stry
 | Device | Input label | Metric | Zones |
 |--------|-------------|--------|-------|
 | Stryd | Critical Power (CP) | Critical Power | 5 (Easy, Moderate, Threshold, Interval, Repetition) |
-| COROS | Critical Power (CP) | Critical Power | 5 — identical to Stryd's zones, since COROS syncs and reuses Stryd's CP when paired with a Stryd pod |
+| COROS | Critical Power (CP) | Critical Power | 7 (Recovery, Aerobic Endurance, Aerobic Power, Threshold, Anaerobic Endurance, Anaerobic Power, Sprint) — COROS's own algorithm, independent of Stryd |
 | Garmin | Threshold Power | Threshold Power | 7 (Active Recovery, Endurance, Tempo, Threshold, VO2 Max, Anaerobic, Neuromuscular) |
 | Polar | Maximal Aerobic Power (MAP) | Maximal Aerobic Power | 5 (Endurance Running ×2, High-Intensity Interval Training ×2, Sprint Interval Training) |
 
-**Input:** A single power value in watts (50–700W accepted). Enter the number your own device reports for its own metric — never mix a Stryd CP figure into the Garmin or Polar tab, since they're not the same measurement.
+**Input:** A single power value in watts (50–700W accepted). Enter the number your own device reports for its own metric — never mix a Stryd CP figure into another tab, since devices are not interchangeable.
+
+**COROS note:** COROS calculates power independently (from the wrist, or via the COROS Pod) using its own algorithm — this is a genuinely different number to Stryd's, not just a different percentage table on the same measurement. If you've paired an actual Stryd pod to your COROS watch, use the Stryd tab instead, since in that setup COROS syncs and displays Stryd's own numbers. COROS hasn't published a running-specific power zone table, so the zones shown for COROS are adapted from COROS's own published cycling power zone model — a disclaimer is shown below the device selector to flag this as an approximation.
 
 **Garmin note:** A disclaimer is shown below the device selector when Garmin is chosen, since Garmin's own documentation doesn't publish a fixed zone percentage table — Garmin computes defaults from an undisclosed formula. The zones shown here are a third-party-sourced approximation and may not exactly match your Garmin Connect account.
 
-**Output:** A zone table with watt ranges and training purpose for each zone, using that device's own zone count and names (5 rows for Stryd/COROS/Polar, 7 rows for Garmin).
+**Output:** A zone table with watt ranges and training purpose for each zone, using that device's own zone count and names (5 rows for Stryd/Polar, 7 rows for COROS/Garmin).
 
 Cross-links to the HR Zone Calculator are displayed with results.
 

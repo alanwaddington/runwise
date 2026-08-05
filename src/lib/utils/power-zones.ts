@@ -60,6 +60,73 @@ const STRYD_ZONE_META: PowerZoneMeta[] = [
 	}
 ];
 
+// ─── COROS Running Power zones ──────────────────────────────────────────────
+// COROS calculates running power independently — natively from the wrist on
+// all current watches, and via its own COROS Pod hardware — using its own
+// algorithm, confirmed distinct from Stryd's (COROS also supports pairing an
+// actual Stryd pod, in which case it syncs and displays Stryd's own CP/zones
+// directly; that case is just the Stryd tab, not this one).
+//
+// COROS has NOT published a running-specific power zone percentage table.
+// The 7-zone breakdown below is adapted from COROS's own published CYCLING
+// power zone model (support.coros.com, "Cycling Power Zones") — the same
+// zone names COROS also uses for its pace-based EvoLab zones — extended here
+// to running Critical Power as the closest available real COROS data. This
+// is an approximation for running, not a confirmed running-specific source.
+// Revisit if/when COROS publishes a running power zone table directly.
+
+const COROS_ZONE_META: PowerZoneMeta[] = [
+	{
+		zone: 1,
+		name: 'Recovery',
+		lowPct: null,
+		highPct: 0.56,
+		purpose: 'Very light effort for warm-ups, cool-downs, and active recovery.'
+	},
+	{
+		zone: 2,
+		name: 'Aerobic Endurance',
+		lowPct: 0.56,
+		highPct: 0.75,
+		purpose: 'Long, easy aerobic running. Most weekly volume should live here.'
+	},
+	{
+		zone: 3,
+		name: 'Aerobic Power',
+		lowPct: 0.76,
+		highPct: 0.9,
+		purpose: 'Tempo effort. Comfortably hard, sustainable for extended periods.'
+	},
+	{
+		zone: 4,
+		name: 'Threshold',
+		lowPct: 0.91,
+		highPct: 1.05,
+		purpose: 'At or near critical power. Threshold intervals and tempo work.'
+	},
+	{
+		zone: 5,
+		name: 'Anaerobic Endurance',
+		lowPct: 1.06,
+		highPct: 1.2,
+		purpose: 'Hard VO2 max intervals, sustainable for several minutes.'
+	},
+	{
+		zone: 6,
+		name: 'Anaerobic Power',
+		lowPct: 1.21,
+		highPct: 1.5,
+		purpose: 'Very hard, short intervals developing anaerobic capacity.'
+	},
+	{
+		zone: 7,
+		name: 'Sprint',
+		lowPct: 1.5,
+		highPct: null,
+		purpose: 'Maximal short sprints for neuromuscular power.'
+	}
+];
+
 // ─── Garmin Running Power zones ─────────────────────────────────────────────
 // Source: third-party publication, NOT confirmed against Garmin's own
 // documentation. Garmin's own manuals state default zones are computed from
@@ -165,10 +232,11 @@ const POLAR_ZONE_META: PowerZoneMeta[] = [
 
 const DEVICE_ZONE_META: Record<PowerMeterDevice, PowerZoneMeta[]> = {
 	stryd: STRYD_ZONE_META,
-	// COROS has no independent zone model of its own: it syncs and reuses
-	// Stryd's CP and zones when paired with a Stryd pod, so this intentionally
-	// points at the same table reference rather than a duplicated copy.
-	coros: STRYD_ZONE_META,
+	// COROS calculates its own power independently (wrist-based or via the
+	// COROS Pod) using its own algorithm, distinct from Stryd's. A user who
+	// pairs an actual Stryd pod to their COROS watch gets Stryd's own CP and
+	// zones directly — that's the Stryd tab, not this one. No alias here.
+	coros: COROS_ZONE_META,
 	garmin: GARMIN_ZONE_META,
 	polar: POLAR_ZONE_META
 };
@@ -178,6 +246,16 @@ export const DEVICE_METRIC_LABEL: Record<PowerMeterDevice, string> = {
 	coros: 'Critical Power (CP)',
 	garmin: 'Threshold Power',
 	polar: 'Maximal Aerobic Power (MAP)'
+};
+
+/**
+ * Disclaimer shown when a device's zone table is an approximation rather
+ * than a confirmed, device-published source. Omitted (no key) for devices
+ * with a verified table (Stryd, Polar).
+ */
+export const DEVICE_DISCLAIMER: Partial<Record<PowerMeterDevice, string>> = {
+	coros: "These zone percentages are adapted from COROS's own published cycling power zone model — COROS has not published a running-specific power zone table, and this approximation is not confirmed against COROS's app or Training Hub for running.",
+	garmin: "These zone percentages are sourced from a third party, not Garmin's own documentation, and may not exactly match the zones shown in Garmin Connect."
 };
 
 export const DEVICE_DISPLAY_NAME: Record<PowerMeterDevice, string> = {

@@ -39,15 +39,33 @@ describe('calculatePowerZones (stryd)', () => {
 	});
 });
 
-// ─── COROS (shares Stryd's exact table) ────────────────────────────────────
+// ─── COROS ──────────────────────────────────────────────────────────────────
+// COROS has its own independent power algorithm (wrist-based or via the
+// COROS Pod), so its zone table is NOT the same as Stryd's — verified below
+// to be genuinely different, not just structurally separate.
 
 describe('calculatePowerZones (coros)', () => {
-	it('calculatePowerZones_CorosCp252_MatchesStrydExactly', () => {
-		expect(calculatePowerZones(252, 'coros')).toEqual(calculatePowerZones(252, 'stryd'));
+	it('calculatePowerZones_CorosCp300_Returns7Zones', () => {
+		expect(calculatePowerZones(300, 'coros')).toHaveLength(7);
 	});
 
-	it('calculatePowerZones_CorosCp300_Returns5Zones', () => {
-		expect(calculatePowerZones(300, 'coros')).toHaveLength(5);
+	it('calculatePowerZones_CorosCp300_DoesNotMatchStryd', () => {
+		expect(calculatePowerZones(300, 'coros')).not.toEqual(calculatePowerZones(300, 'stryd'));
+	});
+
+	it('calculatePowerZones_CorosCp300_Zone1IsOpenEndedLow', () => {
+		const zones = calculatePowerZones(300, 'coros')!;
+		expect(zones[0]).toMatchObject({ zone: 1, name: 'Recovery', wattsLow: null, wattsHigh: 168 });
+	});
+
+	it('calculatePowerZones_CorosCp300_Zone4Is273to315', () => {
+		const zones = calculatePowerZones(300, 'coros')!;
+		expect(zones[3]).toMatchObject({ zone: 4, name: 'Threshold', wattsLow: 273, wattsHigh: 315 });
+	});
+
+	it('calculatePowerZones_CorosCp300_Zone7IsOpenEndedHigh', () => {
+		const zones = calculatePowerZones(300, 'coros')!;
+		expect(zones[6]).toMatchObject({ zone: 7, name: 'Sprint', wattsLow: 450, wattsHigh: null });
 	});
 });
 

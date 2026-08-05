@@ -113,11 +113,12 @@ describe('PowerZones page', () => {
 		expect(screen.getByLabelText(/threshold power/i)).toHaveValue(null);
 	});
 
-	// ── Garmin disclaimer ────────────────────────────────────────────────────
+	// ── Approximation disclaimers (Garmin, COROS) ────────────────────────────
 
-	it('does not show Garmin disclaimer for Stryd', () => {
+	it('does not show a disclaimer for Stryd', () => {
 		render(PowerZones);
 		expect(screen.queryByText(/sourced from a third party/i)).toBeNull();
+		expect(screen.queryByText(/training hub for running/i)).toBeNull();
 	});
 
 	it('shows Garmin disclaimer when Garmin is selected', async () => {
@@ -131,6 +132,20 @@ describe('PowerZones page', () => {
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		await fireEvent.click(screen.getByRole('tab', { name: 'Polar' }));
 		expect(screen.queryByText(/sourced from a third party/i)).toBeNull();
+	});
+
+	it('shows COROS disclaimer when COROS is selected', async () => {
+		render(PowerZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
+		expect(screen.getByText(/training hub for running/i)).toBeInTheDocument();
+	});
+
+	it('does not show COROS disclaimer for Stryd, Garmin, or Polar', async () => {
+		render(PowerZones);
+		for (const name of ['Garmin', 'Polar', 'Stryd']) {
+			await fireEvent.click(screen.getByRole('tab', { name }));
+			expect(screen.queryByText(/training hub for running/i)).toBeNull();
+		}
 	});
 
 	// ── Validation ───────────────────────────────────────────────────────────
@@ -237,12 +252,29 @@ describe('PowerZones page', () => {
 		expect(screen.getByText('> 345')).toBeInTheDocument();
 	});
 
-	it('shows 5 zone rows for COROS CP 252, matching Stryd', async () => {
+	it('shows 7 zone rows for COROS CP 300, independent of Stryd', async () => {
 		render(PowerZones);
 		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
 		const input = screen.getByLabelText(/critical power \(cp\)/i);
-		await fireEvent.input(input, { target: { value: 252, valueAsNumber: 252 } });
-		expect(screen.getByText('164-202')).toBeInTheDocument();
+		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
+		// 1 header row + 7 main rows + 7 description rows = 15
+		expect(screen.getAllByRole('row')).toHaveLength(15);
+	});
+
+	it('COROS CP 300 Zone 1 is open-ended low (< 168)', async () => {
+		render(PowerZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
+		const input = screen.getByLabelText(/critical power \(cp\)/i);
+		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
+		expect(screen.getByText('< 168')).toBeInTheDocument();
+	});
+
+	it('COROS CP 300 Zone 7 is open-ended high (> 450)', async () => {
+		render(PowerZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
+		const input = screen.getByLabelText(/critical power \(cp\)/i);
+		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
+		expect(screen.getByText('> 450')).toBeInTheDocument();
 	});
 
 	// ── Reset ────────────────────────────────────────────────────────────────
