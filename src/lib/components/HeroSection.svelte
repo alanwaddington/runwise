@@ -53,7 +53,7 @@
 				>
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
-				Six free tools
+				Seven free tools
 			</span>
 			<span
 				class="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-bg px-3 py-1 text-xs font-medium text-muted"

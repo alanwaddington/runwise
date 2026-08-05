@@ -44,7 +44,7 @@
 	</div>
 
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-		{#each concepts as concept}
+		{#each concepts as concept (concept.title)}
 			<div
 				class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/[0.03]"
 			>
@@ -106,7 +106,7 @@
 	<div class="space-y-4">
 		<h2 class="font-sans text-3xl font-bold text-ink">How Runwise Helps</h2>
 		<p class="max-w-2xl text-lg text-muted">
-			Six free calculators to train smarter and race faster.
+			Seven free calculators to train smarter and race faster.
 		</p>
 	</div>
 
@@ -150,6 +150,13 @@
 			<span class="shrink-0 text-accent-text">→</span>
 			<span
 				><strong class="text-ink">Predict parkrun times</strong> with pacing splits and age grading</span
+			>
+		</li>
+		<li class="flex gap-3">
+			<span class="shrink-0 text-accent-text">→</span>
+			<span
+				><strong class="text-ink">Get power training zones</strong> for Stryd, COROS, Garmin, and
+				Polar</span
 			>
 		</li>
 	</ul>

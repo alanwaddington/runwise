@@ -15,7 +15,8 @@
 		{ href: '/training-paces', label: 'Training Paces' },
 		{ href: '/hr-zones', label: 'HR Zones' },
 		{ href: '/vo2max', label: 'VO2 Max' },
-		{ href: '/parkrun', label: 'Parkrun' }
+		{ href: '/parkrun', label: 'Parkrun' },
+		{ href: '/power-zones', label: 'Power Zones' }
 	];
 
 	function isActive(href: string) {
