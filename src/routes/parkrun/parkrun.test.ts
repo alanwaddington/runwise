@@ -259,6 +259,20 @@ describe('Parkrun page', () => {
 		expect(screen.getByRole('tab', { name: 'Target Time' })).toHaveAttribute('aria-selected', 'true');
 	});
 
+	it('pressing ArrowRight moves DOM focus to the newly-selected tab, not just aria-selected', async () => {
+		render(Parkrun);
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Average Pace' }));
+	});
+
+	it('pressing ArrowLeft moves DOM focus to the newly-selected tab (wrap-around)', async () => {
+		render(Parkrun);
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowLeft' });
+		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Target Time' }));
+	});
+
 	it('shows target-time-specific empty state', async () => {
 		render(Parkrun);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Target Time' }));

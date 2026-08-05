@@ -195,7 +195,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Worked example',
-				body: 'A Stryd Critical Power of 252W puts Zone 1 (Easy) at 164-202W, Zone 3 (Threshold) at 227-252W, and Zone 5 (Repetition) at 290-328W. The same 252W entered under Garmin, Polar, or COROS would return different zone boundaries, because each device\'s percentages and metric differ, not because the arithmetic changes.'
+				body: 'A Stryd Critical Power of 252W puts Zone 1 (Easy) at 164-202W, Zone 3 (Threshold) at 227-252W, and Zone 5 (Repetition) at 290-328W. The same 252W entered under Garmin or Polar would return different zone boundaries, because each device\'s percentages and metric differ (COROS returns the same boundaries as Stryd, since it uses Stryd\'s exact zone table).'
 			},
 			{
 				heading: 'Using power zones alongside pace and heart rate',

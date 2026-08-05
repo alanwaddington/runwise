@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { BASE_URL, SITE_NAME, DEFAULT_OG_IMAGE, PAGES } from './seo';
 
-const TOOL_ROUTES = ['/pace', '/race-predictor', '/training-paces', '/hr-zones', '/vo2max', '/parkrun'];
+// Derived from PAGES rather than hardcoded so every new tool route automatically
+// inherits these quality checks (description length, keyword, JSON-LD type, etc.)
+// without needing a matching edit here — mirrors sitemap.test.ts's ALL_ROUTES.
+const TOOL_ROUTES = Object.keys(PAGES).filter((route) => route !== '/' && route !== '/privacy');
 const ALL_ROUTES = ['/', ...TOOL_ROUTES];
 
 const TARGET_KEYWORDS: Record<string, string> = {
@@ -10,7 +13,8 @@ const TARGET_KEYWORDS: Record<string, string> = {
 	'/training-paces': 'training pace calculator',
 	'/hr-zones': 'heart rate zone calculator',
 	'/vo2max': 'VO2 max calculator',
-	'/parkrun': 'parkrun predictor'
+	'/parkrun': 'parkrun predictor',
+	'/power-zones': 'power zone calculator'
 };
 
 describe('seo config constants', () => {

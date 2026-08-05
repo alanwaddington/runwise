@@ -78,7 +78,7 @@ export const PAGES: Record<string, PageSeo> = {
 	'/power-zones': {
 		title: 'Power Zones Calculator | Runwise',
 		description:
-			'Free running power zone calculator for Stryd, COROS, Garmin, and Polar. Enter your Critical Power, Threshold Power, or MAP to get device-specific training zones.',
+			'Free running power zone calculator for Stryd, COROS, Garmin, and Polar. Enter your Critical Power, Threshold Power, or MAP for device-specific training zones.',
 		ogImage: '/og/og-power-zones.png',
 		jsonLdType: 'WebApplication',
 		changefreq: 'monthly',

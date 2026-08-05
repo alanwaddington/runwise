@@ -102,6 +102,22 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
+	],
+	'/power-zones': [
+		{
+			name: 'Stryd Running Power Meter',
+			description: 'Dedicated footpod power meter — the device behind the Stryd and COROS Critical Power model.',
+			url: 'https://www.amazon.co.uk/s?k=Stryd+Running+Power+Meter&tag=runwise21-21',
+			program: 'amazon',
+			tag: 'runwise21-21'
+		},
+		{
+			name: 'Garmin HRM 600',
+			description: 'Premium rechargeable chest strap that generates Garmin Running Power alongside HR data.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+HRM+600&tag=runwise21-21',
+			program: 'amazon',
+			tag: 'runwise21-21'
+		}
 	]
 };
 

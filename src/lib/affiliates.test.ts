@@ -1,7 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { getAffiliateLinks, AFFILIATE_LINKS, type AffiliateProduct } from './affiliates';
 
-const TOOL_ROUTES = ['/pace', '/race-predictor', '/training-paces', '/hr-zones', '/vo2max', '/parkrun'];
+const TOOL_ROUTES = [
+	'/pace',
+	'/race-predictor',
+	'/training-paces',
+	'/hr-zones',
+	'/vo2max',
+	'/parkrun',
+	'/power-zones'
+];
 
 describe('AFFILIATE_LINKS config', () => {
 	it('AFFILIATE_LINKS_everyToolRoute_hasAtLeastOneProduct', () => {

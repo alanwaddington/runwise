@@ -66,6 +66,20 @@ describe('PowerZones page', () => {
 		expect(screen.getByRole('tab', { name: 'Polar' })).toHaveAttribute('aria-selected', 'true');
 	});
 
+	it('pressing ArrowRight moves DOM focus to the newly-selected tab, not just aria-selected', async () => {
+		render(PowerZones);
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'COROS' }));
+	});
+
+	it('pressing ArrowLeft moves DOM focus to the newly-selected tab (wrap-around)', async () => {
+		render(PowerZones);
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowLeft' });
+		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Polar' }));
+	});
+
 	// ── Input label swaps per device ────────────────────────────────────────
 
 	it('shows Critical Power (CP) label for Stryd', () => {
