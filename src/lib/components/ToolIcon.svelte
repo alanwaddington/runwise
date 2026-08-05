@@ -5,7 +5,8 @@
 		| 'training-paces'
 		| 'hr-zones'
 		| 'vo2max'
-		| 'parkrun';
+		| 'parkrun'
+		| 'power-zones';
 </script>
 
 <script lang="ts">
@@ -51,5 +52,7 @@
 	{:else if name === 'parkrun'}
 		<path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11Z" />
 		<circle cx="12" cy="10" r="3" />
+	{:else if name === 'power-zones'}
+		<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />
 	{/if}
 </svg>
