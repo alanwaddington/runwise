@@ -127,11 +127,13 @@
 		e.preventDefault();
 		const modes: InputMode[] = ['recent-run', 'average-pace', 'target-time'];
 		const currentIndex = modes.indexOf(mode);
-		if (e.key === 'ArrowRight') {
-			selectMode(modes[(currentIndex + 1) % modes.length]);
-		} else {
-			selectMode(modes[(currentIndex - 1 + modes.length) % modes.length]);
-		}
+		const nextIndex =
+			e.key === 'ArrowRight'
+				? (currentIndex + 1) % modes.length
+				: (currentIndex - 1 + modes.length) % modes.length;
+		selectMode(modes[nextIndex]);
+		const tabs = (e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]');
+		tabs[nextIndex]?.focus();
 	}
 
 	function onDistanceInput(e: Event) {

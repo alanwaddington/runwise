@@ -57,11 +57,13 @@
 		if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
 		e.preventDefault();
 		const currentIndex = DEVICES.indexOf(device);
-		if (e.key === 'ArrowRight') {
-			selectDevice(DEVICES[(currentIndex + 1) % DEVICES.length]);
-		} else {
-			selectDevice(DEVICES[(currentIndex - 1 + DEVICES.length) % DEVICES.length]);
-		}
+		const nextIndex =
+			e.key === 'ArrowRight'
+				? (currentIndex + 1) % DEVICES.length
+				: (currentIndex - 1 + DEVICES.length) % DEVICES.length;
+		selectDevice(DEVICES[nextIndex]);
+		const tabs = (e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]');
+		tabs[nextIndex]?.focus();
 	}
 </script>
 

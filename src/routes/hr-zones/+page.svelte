@@ -103,11 +103,13 @@
 		e.preventDefault();
 		const methods: HrMethod[] = ['maxhr', 'lthr'];
 		const currentIndex = methods.indexOf(method);
-		if (e.key === 'ArrowRight') {
-			selectMethod(methods[(currentIndex + 1) % methods.length]);
-		} else {
-			selectMethod(methods[(currentIndex - 1 + methods.length) % methods.length]);
-		}
+		const nextIndex =
+			e.key === 'ArrowRight'
+				? (currentIndex + 1) % methods.length
+				: (currentIndex - 1 + methods.length) % methods.length;
+		selectMethod(methods[nextIndex]);
+		const tabs = (e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]');
+		tabs[nextIndex]?.focus();
 	}
 </script>
 
