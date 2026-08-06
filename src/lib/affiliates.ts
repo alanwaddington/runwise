@@ -111,10 +111,22 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 			// Stryd doesn't sell through Amazon, so this points at Stryd's own store
 			// instead. Alan has applied to Stryd's affiliate program (run via
 			// UpPromote, af.uppromote.com/strydos/register) — once approved, replace
-			// this url with the tracking link and add program: 'amazon'-style tag.
+			// this url with the tracking link and add program: 'amazon'-style tag
+			// (check first that the tracking link still preserves the auto-region
+			// redirect described below, rather than assuming it does).
+			//
+			// This is Stryd's own region-auto-detecting entry point, not a specific
+			// region's store -- region routing is delegated entirely to Stryd's own
+			// infrastructure rather than reimplemented here. Verified directly via
+			// curl (2026-08-06): stryd.com/store -> 307 /r/store -> 307
+			// /<region>/en/store, resolved from the requester's own IP. Confirmed
+			// working for US/EU/UK/Canada/Australia/Japan regional stores (correct
+			// local currency for each) plus a "Global" fallback tier for everyone
+			// else. It's also the literal URL used in Stryd's own homepage "Buy"
+			// nav link, not an internal implementation detail. See issue #88.
 			name: 'Stryd Running Power Meter',
 			description: 'Dedicated footpod power meter — the device behind the Stryd Critical Power model.',
-			url: 'https://www.stryd.com/uk/en/store',
+			url: 'https://www.stryd.com/store',
 			program: 'direct',
 			brand: 'Stryd'
 		},
