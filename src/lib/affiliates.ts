@@ -2,8 +2,11 @@ export interface AffiliateProduct {
 	name: string;
 	description: string;
 	url: string;
-	program: 'amazon' | 'garmin';
-	tag: string;
+	program: 'amazon' | 'garmin' | 'direct';
+	/** Affiliate tracking tag. Only present for 'amazon'/'garmin' programs. */
+	tag?: string;
+	/** Display badge for 'direct' (non-affiliate) links, e.g. 'Stryd'. */
+	brand?: string;
 }
 
 export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
@@ -105,11 +108,15 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 	],
 	'/power-zones': [
 		{
+			// Stryd doesn't sell through Amazon, so this points at Stryd's own store
+			// instead. Alan has applied to Stryd's affiliate program (run via
+			// UpPromote, af.uppromote.com/strydos/register) — once approved, replace
+			// this url with the tracking link and add program: 'amazon'-style tag.
 			name: 'Stryd Running Power Meter',
 			description: 'Dedicated footpod power meter — the device behind the Stryd Critical Power model.',
-			url: 'https://www.amazon.co.uk/s?k=Stryd+Running+Power+Meter&tag=runwise21-21',
-			program: 'amazon',
-			tag: 'runwise21-21'
+			url: 'https://www.stryd.com/uk/en/store',
+			program: 'direct',
+			brand: 'Stryd'
 		},
 		{
 			name: 'Garmin HRM 600',

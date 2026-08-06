@@ -21,6 +21,17 @@ vi.mock('$lib/affiliates', () => ({
 				}
 			];
 		}
+		if (route === '/power-zones') {
+			return [
+				{
+					name: 'Stryd Running Power Meter',
+					description: 'Dedicated footpod power meter.',
+					url: 'https://www.stryd.com/uk/en/store',
+					program: 'direct',
+					brand: 'Stryd'
+				}
+			];
+		}
 		return [];
 	})
 }));
@@ -107,6 +118,25 @@ describe('AffiliateLinks', () => {
 		const { default: AffiliateLinks } = await import('./AffiliateLinks.svelte');
 		const { getByText } = render(AffiliateLinks, { props: { route: '/hr-zones' } });
 		expect(getByText('View on Amazon →')).toBeInTheDocument();
+	});
+
+	it('AffiliateLinks_directProduct_showsBrandBadge', async () => {
+		const { default: AffiliateLinks } = await import('./AffiliateLinks.svelte');
+		const { getByText } = render(AffiliateLinks, { props: { route: '/power-zones' } });
+		expect(getByText('Stryd')).toBeInTheDocument();
+	});
+
+	it('AffiliateLinks_directProduct_showsViewAtBrandLink', async () => {
+		const { default: AffiliateLinks } = await import('./AffiliateLinks.svelte');
+		const { getByText } = render(AffiliateLinks, { props: { route: '/power-zones' } });
+		expect(getByText('View at Stryd →')).toBeInTheDocument();
+	});
+
+	it('AffiliateLinks_directProduct_relHasNoSponsored', async () => {
+		const { default: AffiliateLinks } = await import('./AffiliateLinks.svelte');
+		const { getByText } = render(AffiliateLinks, { props: { route: '/power-zones' } });
+		const link = getByText('View at Stryd →');
+		expect(link).toHaveAttribute('rel', 'noopener noreferrer');
 	});
 
 	it('productLink_hasFocusVisibleClasses', async () => {

@@ -25,10 +25,22 @@ describe('AFFILIATE_LINKS config', () => {
 				expect(product.name, `${route} product missing name`).toBeTruthy();
 				expect(product.description, `${route} product missing description`).toBeTruthy();
 				expect(product.url, `${route} product missing url`).toBeTruthy();
-				expect(product.program, `${route} product missing program`).toMatch(/^(amazon|garmin)$/);
-				expect(product.tag, `${route} product missing tag`).toBeTruthy();
+				expect(product.program, `${route} product missing program`).toMatch(
+					/^(amazon|garmin|direct)$/
+				);
+				if (product.program === 'direct') {
+					expect(product.brand, `${route} direct product missing brand`).toBeTruthy();
+				} else {
+					expect(product.tag, `${route} ${product.program} product missing tag`).toBeTruthy();
+				}
 			}
 		}
+	});
+
+	it('AFFILIATE_LINKS_powerZones_strydIsDirectLink', () => {
+		const stryd = AFFILIATE_LINKS['/power-zones'].find((p) => p.name.startsWith('Stryd'));
+		expect(stryd).toMatchObject({ program: 'direct', brand: 'Stryd' });
+		expect(stryd?.url).toMatch(/^https:\/\/www\.stryd\.com/);
 	});
 
 	it('AFFILIATE_LINKS_everyUrl_isHttps', () => {
