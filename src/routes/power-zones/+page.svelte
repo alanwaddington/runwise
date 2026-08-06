@@ -153,7 +153,7 @@
 						>
 						<th
 							scope="col"
-							class="hidden pb-2 text-left text-xs font-medium uppercase tracking-wide text-muted sm:table-cell"
+							class="pb-2 text-left text-xs font-medium uppercase tracking-wide text-muted"
 							>Name</th
 						>
 						<th
@@ -174,7 +174,7 @@
 									{zone.zone}
 								</span>
 							</td>
-							<td class="hidden py-3 pr-4 font-medium text-ink sm:table-cell">
+							<td class="py-3 pr-2 font-medium text-ink sm:pr-4">
 								{zone.name}
 								<span class="font-normal text-muted">({formatPctRange(zone)})</span>
 							</td>
@@ -182,9 +182,6 @@
 						</tr>
 						<tr class="border-b border-ink/10 last:border-0">
 							<td colspan="3" class="pb-3 pt-0.5 text-xs leading-relaxed text-muted">
-								<p class="mb-1 font-medium text-ink sm:hidden">
-									{zone.name} ({formatPctRange(zone)})
-								</p>
 								{zone.purpose}
 							</td>
 						</tr>

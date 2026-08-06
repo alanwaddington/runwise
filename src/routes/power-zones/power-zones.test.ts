@@ -196,7 +196,13 @@ describe('PowerZones page', () => {
 		render(PowerZones);
 		const input = screen.getByLabelText(/critical power \(cp\)/i);
 		await fireEvent.input(input, { target: { value: 252, valueAsNumber: 252 } });
-		expect(screen.getAllByText(/Easy\s*\(65-80%\)/).length).toBeGreaterThan(0);
+		// Name and % are in separate text/element nodes within the same cell, so
+		// match against the cell's combined textContent rather than a plain string.
+		expect(
+			screen.getAllByText(
+				(_, el) => el?.tagName === 'TD' && /Easy\s*\(65-80%\)/.test(el.textContent ?? '')
+			).length
+		).toBeGreaterThan(0);
 	});
 
 	it('shows 5 zone rows for Garmin power 300', async () => {
@@ -229,7 +235,11 @@ describe('PowerZones page', () => {
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		const input = screen.getByLabelText(/threshold power/i);
 		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		expect(screen.getAllByText(/Easy\s*\(65-80%\)/).length).toBeGreaterThan(0);
+		expect(
+			screen.getAllByText(
+				(_, el) => el?.tagName === 'TD' && /Easy\s*\(65-80%\)/.test(el.textContent ?? '')
+			).length
+		).toBeGreaterThan(0);
 	});
 
 	it('Garmin power 300 shows the open-ended % range next to Zone 5 name (> 115%)', async () => {
@@ -237,7 +247,11 @@ describe('PowerZones page', () => {
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		const input = screen.getByLabelText(/threshold power/i);
 		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		expect(screen.getAllByText(/Short Interval\s*\(> 115%\)/).length).toBeGreaterThan(0);
+		expect(
+			screen.getAllByText(
+				(_, el) => el?.tagName === 'TD' && /Short Interval\s*\(> 115%\)/.test(el.textContent ?? '')
+			).length
+		).toBeGreaterThan(0);
 	});
 
 	it('shows 5 zone rows for Polar MAP 300', async () => {
