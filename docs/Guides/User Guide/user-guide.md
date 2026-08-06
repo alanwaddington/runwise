@@ -208,9 +208,9 @@ Calculate your running power training zones for three power meter platforms: Str
 
 **Input:** A single power value in watts (50–700W accepted). Enter the number your own device reports for its own metric — never mix a Stryd CP figure into another tab, since devices are not interchangeable.
 
-**Garmin note:** A disclaimer is shown below the device selector when Garmin is chosen. The zone percentages (66-80%, 81-90%, 91-100%, 101-115%, >115% of Threshold Power) match Garmin Connect's own running power zones screen, but Garmin does not publish this table in its own official documentation.
+**Garmin note:** A disclaimer is shown below the device selector when Garmin is chosen. The zone percentages (65-80%, 80-90%, 90-100%, 100-115%, >115% of Threshold Power — Garmin's own app rounds these to 66-80%, 81-90%, 91-100%, 101-115%, >115% for display) match Garmin Connect's own running power zones screen, but Garmin does not publish this table in its own official documentation.
 
-**Output:** A zone table with watt ranges and training purpose for each zone, using that device's own zone count and names (5 rows for every device).
+**Output:** A zone table with watt ranges and training purpose for each zone, using that device's own zone count and names (5 rows for every device). Each zone name is also shown with its % range (e.g. "Easy (65-80%)"), for both the desktop table and the mobile layout.
 
 Cross-links to the HR Zone Calculator are displayed with results.
 
