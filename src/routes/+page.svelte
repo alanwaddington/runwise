@@ -46,6 +46,13 @@
 			description: 'Predict 5K times with pacing splits and WMA age grading',
 			route: '/parkrun',
 			icon: 'parkrun' as const
+		},
+		{
+			href: '/power-zones',
+			name: 'Power Zones Calculator',
+			description: 'Get running power training zones for Stryd, Garmin, and Polar',
+			route: '/power-zones',
+			icon: 'power-zones' as const
 		}
 	];
 </script>

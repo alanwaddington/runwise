@@ -9,12 +9,18 @@
 
 	let products: AffiliateProduct[] = $derived(getAffiliateLinks(route));
 
-	function badgeLabel(program: AffiliateProduct['program']): string {
-		return program === 'garmin' ? 'Garmin' : 'Amazon';
+	function badgeLabel(product: AffiliateProduct): string {
+		if (product.program === 'direct') return product.brand ?? 'Direct';
+		return product.program === 'garmin' ? 'Garmin' : 'Amazon';
 	}
 
-	function linkLabel(program: AffiliateProduct['program']): string {
-		return program === 'garmin' ? 'View on Garmin →' : 'View on Amazon →';
+	function linkLabel(product: AffiliateProduct): string {
+		if (product.program === 'direct') return `View at ${product.brand ?? 'store'} →`;
+		return product.program === 'garmin' ? 'View on Garmin →' : 'View on Amazon →';
+	}
+
+	function relAttr(product: AffiliateProduct): string {
+		return product.program === 'direct' ? 'noopener noreferrer' : 'noopener noreferrer sponsored';
 	}
 </script>
 
@@ -32,17 +38,17 @@
 					<span
 						class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-muted dark:bg-gray-800"
 					>
-						{badgeLabel(product.program)}
+						{badgeLabel(product)}
 					</span>
 					<p class="mt-2 text-sm font-medium text-ink">{product.name}</p>
 					<p class="mt-1 text-xs text-muted">{product.description}</p>
 					<a
 						href={product.url}
 						target="_blank"
-						rel="noopener noreferrer sponsored"
+						rel={relAttr(product)}
 						class="mt-2 block rounded-sm text-xs font-medium text-accent-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
-						{linkLabel(product.program)}
+						{linkLabel(product)}
 					</a>
 				</div>
 			{/each}

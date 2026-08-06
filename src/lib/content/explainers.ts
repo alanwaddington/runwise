@@ -175,5 +175,28 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 				body: 'A recent 10K or longer run tends to give a more optimistic (faster) 5K prediction than a shorter, harder effort, because Riegel assumes similar relative fitness across distances — pick a training run or race result reasonably close to 5K in duration if you want the most realistic estimate.'
 			}
 		]
+	},
+	'/power-zones': {
+		heading: 'About power zones',
+		intro:
+			'Running power meters (Stryd, Garmin, Polar) measure watts using different proprietary algorithms, so the same number on two different devices does not represent the same effort. This calculator asks which device your number came from and applies that device\'s own published zone model, rather than treating all "watts" as interchangeable.',
+		sections: [
+			{
+				heading: 'Critical Power, Threshold Power, and MAP are not the same thing',
+				body: 'Stryd uses Critical Power (CP), the highest power you can sustain indefinitely without fatiguing. Garmin uses a similar concept it calls Threshold Power. Polar uses Maximal Aerobic Power (MAP), measured from a 6-minute all-out test, a meaningfully different metric to CP even though both are entered in watts. Always use the number your own device reports for its own metric, never mix and match.'
+			},
+			{
+				heading: 'A note on Garmin\'s zones',
+				body: 'The 5-zone breakdown shown here (Easy, Moderate, Tempo, Long Interval, Short Interval) matches the percentages shown on Garmin Connect\'s own running power zones screen, though Garmin does not publish this table in its own official documentation, so treat it as closely matching rather than a guaranteed match to every Garmin Connect account.'
+			},
+			{
+				heading: 'Worked example',
+				body: 'A Stryd Critical Power of 252W puts Zone 1 (Easy) at 164-202W, Zone 3 (Threshold) at 227-252W, and Zone 5 (Repetition) at 290-328W.'
+			},
+			{
+				heading: 'Using power zones alongside pace and heart rate',
+				body: 'Power responds instantly to effort and stays consistent on hills and in wind, where pace slows and heart rate lags behind. Many runners use power for real-time pacing on variable terrain, then cross-check against the Training Paces or HR Zones calculators for sessions run on flat, controlled routes.'
+			}
+		]
 	}
 };

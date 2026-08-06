@@ -24,7 +24,7 @@ describe('SiteNav', () => {
 		expect(brand).toHaveAttribute('href', '/');
 	});
 
-	it('renders all six tool links', async () => {
+	it('renders all seven tool links', async () => {
 		const { default: SiteNav } = await import('./SiteNav.svelte');
 		const { getByRole } = render(SiteNav);
 		expect(getByRole('link', { name: 'Pace' })).toHaveAttribute('href', '/pace');
@@ -39,6 +39,7 @@ describe('SiteNav', () => {
 		expect(getByRole('link', { name: 'HR Zones' })).toHaveAttribute('href', '/hr-zones');
 		expect(getByRole('link', { name: 'VO2 Max' })).toHaveAttribute('href', '/vo2max');
 		expect(getByRole('link', { name: 'Parkrun' })).toHaveAttribute('href', '/parkrun');
+		expect(getByRole('link', { name: 'Power Zones' })).toHaveAttribute('href', '/power-zones');
 	});
 
 	it('marks the active route with aria-current="page"', async () => {

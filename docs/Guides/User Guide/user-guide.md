@@ -6,7 +6,7 @@ Runwise is a free collection of running calculators. No account required.
 
 ## Getting Started
 
-Open [runwise](/) in any browser. The home page lists all six tools — click any card to open it.
+Open [runwise](/) in any browser. The home page lists all seven tools — click any card to open it.
 
 ---
 
@@ -191,6 +191,28 @@ Longer reference distances imply more fitness in reserve, so they produce a fast
 Age grading uses real per-integer-age WMA (World Masters Athletics) factor data for 5K, covering ages 5–100 for both genders.
 
 Cross-links to the Race Time Predictor, Training Pace Calculator, and VO2 Max Estimator are displayed with results.
+
+---
+
+### Power Zones Calculator — `/power-zones`
+
+Calculate your running power training zones for three power meter platforms: Stryd, Garmin, or Polar.
+
+**Device selector:** Choose your device using the three-way segmented control at the top of the page. Each device uses its own published zone model — switching devices clears your entered value and updates the input's label to that device's own metric name.
+
+| Device | Input label | Metric | Zones |
+|--------|-------------|--------|-------|
+| Stryd | Critical Power (CP) | Critical Power | 5 (Easy, Moderate, Threshold, Interval, Repetition) |
+| Garmin | Threshold Power | Threshold Power | 5 (Easy, Moderate, Tempo, Long Interval, Short Interval) |
+| Polar | Maximal Aerobic Power (MAP) | Maximal Aerobic Power | 5 (Endurance Running ×2, High-Intensity Interval Training ×2, Sprint Interval Training) |
+
+**Input:** A single power value in watts (50–700W accepted). Enter the number your own device reports for its own metric — never mix a Stryd CP figure into another tab, since devices are not interchangeable.
+
+**Garmin note:** A disclaimer is shown below the device selector when Garmin is chosen. The zone percentages (65-80%, 80-90%, 90-100%, 100-115%, >115% of Threshold Power — Garmin's own app rounds these to 66-80%, 81-90%, 91-100%, 101-115%, >115% for display) match Garmin Connect's own running power zones screen, but Garmin does not publish this table in its own official documentation.
+
+**Output:** A zone table with watt ranges and training purpose for each zone, using that device's own zone count and names (5 rows for every device). Each zone name is also shown with its % range (e.g. "Easy (65-80%)"), for both the desktop table and the mobile layout.
+
+Cross-links to the HR Zone Calculator are displayed with results.
 
 ---
 

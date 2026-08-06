@@ -11,7 +11,8 @@
 		{ href: '/training-paces', label: 'Training Paces' },
 		{ href: '/hr-zones', label: 'HR Zone Calculator' },
 		{ href: '/vo2max', label: 'VO2 Max Estimator' },
-		{ href: '/parkrun', label: 'Parkrun Predictor' }
+		{ href: '/parkrun', label: 'Parkrun Predictor' },
+		{ href: '/power-zones', label: 'Power Zones Calculator' }
 	];
 </script>
 

@@ -90,6 +90,21 @@ describe('HrZones page', () => {
 		expect(screen.getByRole('tab', { name: 'Max HR' })).toHaveAttribute('aria-selected', 'true');
 	});
 
+	it('pressing ArrowRight moves DOM focus to the newly-selected tab, not just aria-selected', async () => {
+		render(HrZones);
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
+		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'LTHR' }));
+	});
+
+	it('pressing ArrowLeft moves DOM focus to the newly-selected tab', async () => {
+		render(HrZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'LTHR' }));
+		const tablist = screen.getByRole('tablist');
+		await fireEvent.keyDown(tablist, { key: 'ArrowLeft' });
+		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Max HR' }));
+	});
+
 	// ── LTHR zone gap note ────────────────────────────────────────────────────
 
 	it('shows zone gap note when LTHR results are displayed (m1 finding fix)', async () => {
