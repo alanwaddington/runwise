@@ -35,6 +35,12 @@
 		return `${zone.wattsLow}-${zone.wattsHigh}`;
 	}
 
+	function formatPctRange(zone: PowerZone): string {
+		if (zone.pctLow === null) return `< ${zone.pctHigh}%`;
+		if (zone.pctHigh === null) return `> ${zone.pctLow}%`;
+		return `${zone.pctLow}-${zone.pctHigh}%`;
+	}
+
 	function onPowerInput(e: Event) {
 		const raw = (e.target as HTMLInputElement).value;
 		powerRaw = raw ? parseFloat(raw) : '';
@@ -168,12 +174,17 @@
 									{zone.zone}
 								</span>
 							</td>
-							<td class="hidden py-3 pr-4 font-medium text-ink sm:table-cell">{zone.name}</td>
+							<td class="hidden py-3 pr-4 font-medium text-ink sm:table-cell">
+								{zone.name}
+								<span class="font-normal text-muted">({formatPctRange(zone)})</span>
+							</td>
 							<td class="py-3 text-right tabular-nums text-ink">{formatWattsRange(zone)}</td>
 						</tr>
 						<tr class="border-b border-ink/10 last:border-0">
 							<td colspan="3" class="pb-3 pt-0.5 text-xs leading-relaxed text-muted">
-								<span class="mr-1 font-medium text-ink sm:hidden">{zone.name}.</span>
+								<span class="mr-1 font-medium text-ink sm:hidden"
+									>{zone.name} ({formatPctRange(zone)}).</span
+								>
 								{zone.purpose}
 							</td>
 						</tr>

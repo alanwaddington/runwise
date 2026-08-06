@@ -13,6 +13,11 @@ describe('calculatePowerZones (stryd)', () => {
 		expect(zones[0]).toMatchObject({ zone: 1, name: 'Easy', wattsLow: 164, wattsHigh: 202 });
 	});
 
+	it('calculatePowerZones_StrydCp252_Zone1PctIs65to80', () => {
+		const zones = calculatePowerZones(252, 'stryd')!;
+		expect(zones[0]).toMatchObject({ pctLow: 65, pctHigh: 80 });
+	});
+
 	it('calculatePowerZones_StrydCp252_Zone2Is202to227', () => {
 		const zones = calculatePowerZones(252, 'stryd')!;
 		expect(zones[1]).toMatchObject({ zone: 2, name: 'Moderate', wattsLow: 202, wattsHigh: 227 });
@@ -78,14 +83,19 @@ describe('calculatePowerZones (garmin)', () => {
 		expect(calculatePowerZones(300, 'garmin')).toHaveLength(5);
 	});
 
-	it('calculatePowerZones_GarminPower300_Zone1IsOpenEndedLow', () => {
+	it('calculatePowerZones_GarminPower300_Zone1Is195to240', () => {
 		const zones = calculatePowerZones(300, 'garmin')!;
 		expect(zones[0]).toMatchObject({
 			zone: 1,
 			name: 'Easy',
-			wattsLow: null,
+			wattsLow: 195,
 			wattsHigh: 240
 		});
+	});
+
+	it('calculatePowerZones_GarminPower300_Zone1PctIs65to80', () => {
+		const zones = calculatePowerZones(300, 'garmin')!;
+		expect(zones[0]).toMatchObject({ pctLow: 65, pctHigh: 80 });
 	});
 
 	it('calculatePowerZones_GarminPower300_Zone3Is270to300', () => {
@@ -101,6 +111,11 @@ describe('calculatePowerZones (garmin)', () => {
 			wattsLow: 345,
 			wattsHigh: null
 		});
+	});
+
+	it('calculatePowerZones_GarminPower300_Zone5PctIsOpenEndedHigh', () => {
+		const zones = calculatePowerZones(300, 'garmin')!;
+		expect(zones[4]).toMatchObject({ pctLow: 115, pctHigh: null });
 	});
 });
 

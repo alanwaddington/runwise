@@ -192,6 +192,13 @@ describe('PowerZones page', () => {
 		expect(screen.getByText('290-328')).toBeInTheDocument();
 	});
 
+	it('Stryd CP 252 shows the % range next to Zone 1 name (65-80%)', async () => {
+		render(PowerZones);
+		const input = screen.getByLabelText(/critical power \(cp\)/i);
+		await fireEvent.input(input, { target: { value: 252, valueAsNumber: 252 } });
+		expect(screen.getAllByText(/Easy\s*\(65-80%\)/).length).toBeGreaterThan(0);
+	});
+
 	it('shows 5 zone rows for Garmin power 300', async () => {
 		render(PowerZones);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
@@ -201,12 +208,12 @@ describe('PowerZones page', () => {
 		expect(screen.getAllByRole('row')).toHaveLength(11);
 	});
 
-	it('Garmin power 300 Zone 1 is open-ended low (< 240)', async () => {
+	it('Garmin power 300 Zone 1 is 195-240 (bounded by the 65% minimum)', async () => {
 		render(PowerZones);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		const input = screen.getByLabelText(/threshold power/i);
 		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		expect(screen.getByText('< 240')).toBeInTheDocument();
+		expect(screen.getByText('195-240')).toBeInTheDocument();
 	});
 
 	it('Garmin power 300 Zone 5 is open-ended high (> 345)', async () => {
@@ -215,6 +222,22 @@ describe('PowerZones page', () => {
 		const input = screen.getByLabelText(/threshold power/i);
 		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
 		expect(screen.getByText('> 345')).toBeInTheDocument();
+	});
+
+	it('Garmin power 300 shows the % range next to Zone 1 name (65-80%)', async () => {
+		render(PowerZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
+		const input = screen.getByLabelText(/threshold power/i);
+		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
+		expect(screen.getAllByText(/Easy\s*\(65-80%\)/).length).toBeGreaterThan(0);
+	});
+
+	it('Garmin power 300 shows the open-ended % range next to Zone 5 name (> 115%)', async () => {
+		render(PowerZones);
+		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
+		const input = screen.getByLabelText(/threshold power/i);
+		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
+		expect(screen.getAllByText(/Short Interval\s*\(> 115%\)/).length).toBeGreaterThan(0);
 	});
 
 	it('shows 5 zone rows for Polar MAP 300', async () => {

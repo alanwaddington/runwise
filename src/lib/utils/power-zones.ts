@@ -7,6 +7,10 @@ export interface PowerZone {
 	wattsLow: number | null;
 	/** null = open-ended upper bound (display as "> {wattsLow}") */
 	wattsHigh: number | null;
+	/** Zone's lower bound as a whole-number percentage of the device's metric, or null if open-ended. */
+	pctLow: number | null;
+	/** Zone's upper bound as a whole-number percentage of the device's metric, or null if open-ended. */
+	pctHigh: number | null;
 	purpose: string;
 }
 
@@ -132,7 +136,9 @@ const COROS_ZONE_META: PowerZoneMeta[] = [
 // directly against a live account, 2026-08-06) for the 5-zone boundaries —
 // Minimum 65%, Zone 1 66-80%, Zone 2 81-90%, Zone 3 91-100%, Zone 4 101-115%,
 // Zone 5 >115% of Threshold Power — stored here as continuous cut points
-// (0.80/0.90/1.00/1.15) rather than Garmin's rounded integer display.
+// (0.65/0.80/0.90/1.00/1.15) rather than Garmin's rounded integer display.
+// Zone 1's lower bound is the screen's "Minimum" setting (65%), not open-ended
+// — below that, Garmin doesn't classify the effort into any zone at all.
 // Zone names (Easy, Moderate, Tempo, Long Interval, Short Interval) are
 // Garmin's own, confirmed via a Garmin Connect forum thread quoting Garmin's
 // in-app help text (forums.garmin.com, "Running Power Zones Names?"). Garmin
@@ -143,7 +149,7 @@ const GARMIN_ZONE_META: PowerZoneMeta[] = [
 	{
 		zone: 1,
 		name: 'Easy',
-		lowPct: null,
+		lowPct: 0.65,
 		highPct: 0.8,
 		purpose: 'Genuinely easy running for warm-ups, cool-downs, and recovery.'
 	},
@@ -271,6 +277,8 @@ export function calculatePowerZones(power: number, device: PowerMeterDevice): Po
 		name,
 		wattsLow: lowPct === null ? null : Math.round(power * lowPct),
 		wattsHigh: highPct === null ? null : Math.round(power * highPct),
+		pctLow: lowPct === null ? null : Math.round(lowPct * 100),
+		pctHigh: highPct === null ? null : Math.round(highPct * 100),
 		purpose
 	}));
 }
