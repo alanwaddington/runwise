@@ -31,7 +31,7 @@
 		</p>
 
 		<div class="grid grid-cols-1 gap-3">
-			{#each products as product (product.url)}
+			{#each products as product (product.name)}
 				<div
 					class="rounded-xl border border-gray-200 bg-gray-50/50 p-4 shadow-sm dark:border-gray-700 dark:bg-white/3"
 				>

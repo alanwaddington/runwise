@@ -40,7 +40,11 @@ describe('AFFILIATE_LINKS config', () => {
 	it('AFFILIATE_LINKS_powerZones_strydIsDirectLink', () => {
 		const stryd = AFFILIATE_LINKS['/power-zones'].find((p) => p.name.startsWith('Stryd'));
 		expect(stryd).toMatchObject({ program: 'direct', brand: 'Stryd' });
-		expect(stryd?.url).toMatch(/^https:\/\/www\.stryd\.com/);
+		// Exact match, not just a stryd.com prefix -- a prefix check would still
+		// pass for a hardcoded region path (e.g. /uk/en/store), silently losing
+		// this regression guard. Stryd's own site auto-redirects visitors to
+		// their regional store from this URL (verified via curl, #88).
+		expect(stryd?.url).toBe('https://www.stryd.com/store');
 	});
 
 	it('AFFILIATE_LINKS_everyUrl_isHttps', () => {

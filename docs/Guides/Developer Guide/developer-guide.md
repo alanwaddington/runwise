@@ -52,12 +52,12 @@ src/
 ├── app.css              # Global styles + Tailwind theme tokens
 ├── app.html             # SvelteKit HTML shell
 ├── lib/
-│   ├── affiliates.ts    # Affiliate product definitions per route (Amazon Associates)
+│   ├── affiliates.ts    # Affiliate product definitions per route (Amazon Associates, Garmin, and direct/non-affiliate links)
 │   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images
 │   ├── components/      # Shared UI components
 │   │   ├── AdUnit.svelte            # Consent-gated Google AdSense ad unit
 │   │   ├── AdUnit.test.ts
-│   │   ├── AffiliateLinks.svelte    # Per-route affiliate product cards (Amazon)
+│   │   ├── AffiliateLinks.svelte    # Per-route affiliate product cards (Amazon, Garmin, or direct links)
 │   │   ├── AffiliateLinks.test.ts
 │   │   ├── CollapsibleField.svelte  # Generic animated show/hide wrapper (max-height/opacity, aria-hidden, inert)
 │   │   ├── CollapsibleField.test.ts
