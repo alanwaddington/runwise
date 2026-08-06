@@ -112,21 +112,21 @@ describe('PowerZones page', () => {
 
 	it('does not show a disclaimer for Stryd', () => {
 		render(PowerZones);
-		expect(screen.queryByText(/sourced from a third party/i)).toBeNull();
+		expect(screen.queryByText(/running power screen/i)).toBeNull();
 		expect(screen.queryByText(/training hub for running/i)).toBeNull();
 	});
 
 	it('shows Garmin disclaimer when Garmin is selected', async () => {
 		render(PowerZones);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
-		expect(screen.getByText(/sourced from a third party/i)).toBeInTheDocument();
+		expect(screen.getByText(/running power screen/i)).toBeInTheDocument();
 	});
 
 	it('hides Garmin disclaimer when switching away from Garmin', async () => {
 		render(PowerZones);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		await fireEvent.click(screen.getByRole('tab', { name: 'Polar' }));
-		expect(screen.queryByText(/sourced from a third party/i)).toBeNull();
+		expect(screen.queryByText(/running power screen/i)).toBeNull();
 	});
 
 	// ── Validation ───────────────────────────────────────────────────────────
@@ -192,13 +192,13 @@ describe('PowerZones page', () => {
 		expect(screen.getByText('290-328')).toBeInTheDocument();
 	});
 
-	it('shows 7 zone rows for Garmin power 300', async () => {
+	it('shows 5 zone rows for Garmin power 300', async () => {
 		render(PowerZones);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		const input = screen.getByLabelText(/threshold power/i);
 		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		// 1 header row + 7 main rows + 7 description rows = 15
-		expect(screen.getAllByRole('row')).toHaveLength(15);
+		// 1 header row + 5 main rows + 5 description rows = 11
+		expect(screen.getAllByRole('row')).toHaveLength(11);
 	});
 
 	it('Garmin power 300 Zone 1 is open-ended low (< 240)', async () => {
@@ -209,12 +209,12 @@ describe('PowerZones page', () => {
 		expect(screen.getByText('< 240')).toBeInTheDocument();
 	});
 
-	it('Garmin power 300 Zone 7 is open-ended high (> 420)', async () => {
+	it('Garmin power 300 Zone 5 is open-ended high (> 345)', async () => {
 		render(PowerZones);
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		const input = screen.getByLabelText(/threshold power/i);
 		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		expect(screen.getByText('> 420')).toBeInTheDocument();
+		expect(screen.getByText('> 345')).toBeInTheDocument();
 	});
 
 	it('shows 5 zone rows for Polar MAP 300', async () => {

@@ -70,33 +70,35 @@ describe('calculatePowerZones (coros)', () => {
 });
 
 // ─── Garmin ─────────────────────────────────────────────────────────────────
+// Verified against a live Garmin Connect "Running > Power Zones" screen
+// (5 zones, %TP-based) — see power-zones.ts for the source note.
 
 describe('calculatePowerZones (garmin)', () => {
-	it('calculatePowerZones_GarminPower300_Returns7Zones', () => {
-		expect(calculatePowerZones(300, 'garmin')).toHaveLength(7);
+	it('calculatePowerZones_GarminPower300_Returns5Zones', () => {
+		expect(calculatePowerZones(300, 'garmin')).toHaveLength(5);
 	});
 
 	it('calculatePowerZones_GarminPower300_Zone1IsOpenEndedLow', () => {
 		const zones = calculatePowerZones(300, 'garmin')!;
 		expect(zones[0]).toMatchObject({
 			zone: 1,
-			name: 'Active Recovery',
+			name: 'Easy',
 			wattsLow: null,
 			wattsHigh: 240
 		});
 	});
 
-	it('calculatePowerZones_GarminPower300_Zone4Is300to330', () => {
+	it('calculatePowerZones_GarminPower300_Zone3Is270to300', () => {
 		const zones = calculatePowerZones(300, 'garmin')!;
-		expect(zones[3]).toMatchObject({ zone: 4, name: 'Threshold', wattsLow: 300, wattsHigh: 330 });
+		expect(zones[2]).toMatchObject({ zone: 3, name: 'Tempo', wattsLow: 270, wattsHigh: 300 });
 	});
 
-	it('calculatePowerZones_GarminPower300_Zone7IsOpenEndedHigh', () => {
+	it('calculatePowerZones_GarminPower300_Zone5IsOpenEndedHigh', () => {
 		const zones = calculatePowerZones(300, 'garmin')!;
-		expect(zones[6]).toMatchObject({
-			zone: 7,
-			name: 'Neuromuscular',
-			wattsLow: 420,
+		expect(zones[4]).toMatchObject({
+			zone: 5,
+			name: 'Short Interval',
+			wattsLow: 345,
 			wattsHigh: null
 		});
 	});

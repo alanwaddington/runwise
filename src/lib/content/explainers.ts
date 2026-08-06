@@ -187,7 +187,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'A note on Garmin\'s zones',
-				body: 'Garmin\'s own documentation states that its default running power zones are calculated from Threshold Power plus your gender, weight, and ability, using a formula Garmin does not publish. The 7-zone breakdown shown here comes from a third-party source, not from Garmin directly, so treat it as a reasonable approximation rather than a guaranteed match to the zones on your Garmin Connect account.'
+				body: 'The 5-zone breakdown shown here (Easy, Moderate, Tempo, Long Interval, Short Interval) matches the percentages shown on Garmin Connect\'s own running power zones screen, though Garmin does not publish this table in its own official documentation, so treat it as closely matching rather than a guaranteed match to every Garmin Connect account.'
 			},
 			{
 				heading: 'Worked example',

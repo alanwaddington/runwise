@@ -128,23 +128,28 @@ const COROS_ZONE_META: PowerZoneMeta[] = [
 ];
 
 // ─── Garmin Running Power zones ─────────────────────────────────────────────
-// Source: third-party publication, NOT confirmed against Garmin's own
-// documentation. Garmin's own manuals state default zones are computed from
-// threshold power plus gender/weight/ability via an undisclosed formula, so
-// these percentages are an approximation, not an official Garmin table.
-// Revisit if/when an authoritative Garmin source becomes available.
+// Source: Garmin Connect's own "Running > Power Zones" screen (verified
+// directly against a live account, 2026-08-06) for the 5-zone boundaries —
+// Minimum 65%, Zone 1 66-80%, Zone 2 81-90%, Zone 3 91-100%, Zone 4 101-115%,
+// Zone 5 >115% of Threshold Power — stored here as continuous cut points
+// (0.80/0.90/1.00/1.15) rather than Garmin's rounded integer display.
+// Zone names (Easy, Moderate, Tempo, Long Interval, Short Interval) are
+// Garmin's own, confirmed via a Garmin Connect forum thread quoting Garmin's
+// in-app help text (forums.garmin.com, "Running Power Zones Names?"). Garmin
+// does not publish a per-zone purpose/training description anywhere; the
+// purpose text below is our own, in the same style as the other tables.
 
 const GARMIN_ZONE_META: PowerZoneMeta[] = [
 	{
 		zone: 1,
-		name: 'Active Recovery',
+		name: 'Easy',
 		lowPct: null,
 		highPct: 0.8,
 		purpose: 'Genuinely easy running for warm-ups, cool-downs, and recovery.'
 	},
 	{
 		zone: 2,
-		name: 'Endurance',
+		name: 'Moderate',
 		lowPct: 0.8,
 		highPct: 0.9,
 		purpose: 'Bread-and-butter aerobic zone. The majority of weekly volume should live here.'
@@ -158,31 +163,17 @@ const GARMIN_ZONE_META: PowerZoneMeta[] = [
 	},
 	{
 		zone: 4,
-		name: 'Threshold',
+		name: 'Long Interval',
 		lowPct: 1.0,
-		highPct: 1.1,
-		purpose: 'Hard but sustainable for 20-40 minutes. Threshold/tempo interval work.'
+		highPct: 1.15,
+		purpose: 'Hard, VO2 max-building effort sustainable for several minutes at a time.'
 	},
 	{
 		zone: 5,
-		name: 'VO2 Max',
-		lowPct: 1.1,
-		highPct: 1.25,
-		purpose: 'Very hard efforts that develop maximal aerobic power.'
-	},
-	{
-		zone: 6,
-		name: 'Anaerobic',
-		lowPct: 1.25,
-		highPct: 1.4,
-		purpose: 'Short, very intense intervals developing anaerobic capacity.'
-	},
-	{
-		zone: 7,
-		name: 'Neuromuscular',
-		lowPct: 1.4,
+		name: 'Short Interval',
+		lowPct: 1.15,
 		highPct: null,
-		purpose: 'Maximal sprint efforts lasting only a few seconds.'
+		purpose: 'Maximal short-effort intensity. Sprint and short repetition work.'
 	}
 ];
 
@@ -255,7 +246,7 @@ export const DEVICE_METRIC_LABEL: Record<PowerMeterDevice, string> = {
  */
 export const DEVICE_DISCLAIMER: Partial<Record<PowerMeterDevice, string>> = {
 	coros: "These zone percentages are adapted from COROS's own published cycling power zone model — COROS has not published a running-specific power zone table, and this approximation is not confirmed against COROS's app or Training Hub for running.",
-	garmin: "These zone percentages are sourced from a third party, not Garmin's own documentation, and may not exactly match the zones shown in Garmin Connect."
+	garmin: "These zone percentages match Garmin Connect's running power screen; Garmin does not publish this table in its own official documentation."
 };
 
 export const DEVICE_DISPLAY_NAME: Record<PowerMeterDevice, string> = {

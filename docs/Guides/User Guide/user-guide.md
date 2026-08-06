@@ -203,14 +203,14 @@ Calculate your running power training zones for three power meter platforms: Str
 | Device | Input label | Metric | Zones |
 |--------|-------------|--------|-------|
 | Stryd | Critical Power (CP) | Critical Power | 5 (Easy, Moderate, Threshold, Interval, Repetition) |
-| Garmin | Threshold Power | Threshold Power | 7 (Active Recovery, Endurance, Tempo, Threshold, VO2 Max, Anaerobic, Neuromuscular) |
+| Garmin | Threshold Power | Threshold Power | 5 (Easy, Moderate, Tempo, Long Interval, Short Interval) |
 | Polar | Maximal Aerobic Power (MAP) | Maximal Aerobic Power | 5 (Endurance Running ×2, High-Intensity Interval Training ×2, Sprint Interval Training) |
 
 **Input:** A single power value in watts (50–700W accepted). Enter the number your own device reports for its own metric — never mix a Stryd CP figure into another tab, since devices are not interchangeable.
 
-**Garmin note:** A disclaimer is shown below the device selector when Garmin is chosen, since Garmin's own documentation doesn't publish a fixed zone percentage table — Garmin computes defaults from an undisclosed formula. The zones shown here are a third-party-sourced approximation and may not exactly match your Garmin Connect account.
+**Garmin note:** A disclaimer is shown below the device selector when Garmin is chosen. The zone percentages (66-80%, 81-90%, 91-100%, 101-115%, >115% of Threshold Power) match Garmin Connect's own running power zones screen, but Garmin does not publish this table in its own official documentation.
 
-**Output:** A zone table with watt ranges and training purpose for each zone, using that device's own zone count and names (5 rows for Stryd/Polar, 7 rows for Garmin).
+**Output:** A zone table with watt ranges and training purpose for each zone, using that device's own zone count and names (5 rows for every device).
 
 Cross-links to the HR Zone Calculator are displayed with results.
 
