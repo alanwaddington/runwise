@@ -182,9 +182,9 @@
 						</tr>
 						<tr class="border-b border-ink/10 last:border-0">
 							<td colspan="3" class="pb-3 pt-0.5 text-xs leading-relaxed text-muted">
-								<span class="mr-1 font-medium text-ink sm:hidden"
-									>{zone.name} ({formatPctRange(zone)}).</span
-								>
+								<p class="mb-1 font-medium text-ink sm:hidden">
+									{zone.name} ({formatPctRange(zone)})
+								</p>
 								{zone.purpose}
 							</td>
 						</tr>
