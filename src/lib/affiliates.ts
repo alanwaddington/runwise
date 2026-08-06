@@ -106,7 +106,7 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 	'/power-zones': [
 		{
 			name: 'Stryd Running Power Meter',
-			description: 'Dedicated footpod power meter — the device behind the Stryd and COROS Critical Power model.',
+			description: 'Dedicated footpod power meter — the device behind the Stryd Critical Power model.',
 			url: 'https://www.amazon.co.uk/s?k=Stryd+Running+Power+Meter&tag=runwise21-21',
 			program: 'amazon',
 			tag: 'runwise21-21'

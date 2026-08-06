@@ -14,7 +14,8 @@
 		type PowerZone
 	} from '$lib/utils/power-zones';
 
-	const DEVICES: PowerMeterDevice[] = ['stryd', 'coros', 'garmin', 'polar'];
+	// COROS hidden pending further research (see power-zones.ts COROS_ZONE_META comment) — keep out of DEVICES, don't delete backing code.
+	const DEVICES: PowerMeterDevice[] = ['stryd', 'garmin', 'polar'];
 
 	let device = $state<PowerMeterDevice>('stryd');
 	let powerRaw = $state<number | string>('');
@@ -72,7 +73,7 @@
 
 <ToolLayout
 	title="Power Zones Calculator"
-	description="Calculate your running power training zones for Stryd, COROS, Garmin, or Polar."
+	description="Calculate your running power training zones for Stryd, Garmin, or Polar."
 	route="/power-zones"
 >
 	<!-- Device selector -->

@@ -50,7 +50,7 @@
 		{
 			href: '/power-zones',
 			name: 'Power Zones Calculator',
-			description: 'Get running power training zones for Stryd, COROS, Garmin, and Polar',
+			description: 'Get running power training zones for Stryd, Garmin, and Polar',
 			route: '/power-zones',
 			icon: 'power-zones' as const
 		}

@@ -179,15 +179,11 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 	'/power-zones': {
 		heading: 'About power zones',
 		intro:
-			'Running power meters (Stryd, COROS, Garmin, Polar) measure watts using different proprietary algorithms, so the same number on two different devices does not represent the same effort. This calculator asks which device your number came from and applies that device\'s own published zone model, rather than treating all "watts" as interchangeable.',
+			'Running power meters (Stryd, Garmin, Polar) measure watts using different proprietary algorithms, so the same number on two different devices does not represent the same effort. This calculator asks which device your number came from and applies that device\'s own published zone model, rather than treating all "watts" as interchangeable.',
 		sections: [
 			{
 				heading: 'Critical Power, Threshold Power, and MAP are not the same thing',
-				body: 'Stryd and COROS use Critical Power (CP), the highest power you can sustain indefinitely without fatiguing. Garmin uses a similar concept it calls Threshold Power. Polar uses Maximal Aerobic Power (MAP), measured from a 6-minute all-out test, a meaningfully different metric to CP even though both are entered in watts. Always use the number your own device reports for its own metric, never mix and match.'
-			},
-			{
-				heading: 'COROS\'s own power vs. Stryd',
-				body: 'COROS calculates running power independently — natively from the wrist on current watches, and via its own COROS Pod hardware — using an algorithm confirmed distinct from Stryd\'s. COROS has not published a running-specific power zone table, so the breakdown shown here is adapted from COROS\'s own published cycling power zone model as the closest real COROS data available, and should be treated as an approximation. If you\'ve paired an actual Stryd pod to your COROS watch, use the Stryd tab instead — in that setup COROS syncs and displays Stryd\'s own Critical Power and zones directly, with no COROS-specific approximation involved.'
+				body: 'Stryd uses Critical Power (CP), the highest power you can sustain indefinitely without fatiguing. Garmin uses a similar concept it calls Threshold Power. Polar uses Maximal Aerobic Power (MAP), measured from a 6-minute all-out test, a meaningfully different metric to CP even though both are entered in watts. Always use the number your own device reports for its own metric, never mix and match.'
 			},
 			{
 				heading: 'A note on Garmin\'s zones',
@@ -195,7 +191,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Worked example',
-				body: 'A Stryd Critical Power of 252W puts Zone 1 (Easy) at 164-202W, Zone 3 (Threshold) at 227-252W, and Zone 5 (Repetition) at 290-328W. The same 252W entered under COROS (using its cycling-derived approximation) instead gives Zone 1 (Recovery) at under 141W and Zone 7 (Sprint) above 378W — a different shape entirely, both in zone count and boundaries, because COROS\'s model is genuinely independent of Stryd\'s, not just a different percentage table on the same metric.'
+				body: 'A Stryd Critical Power of 252W puts Zone 1 (Easy) at 164-202W, Zone 3 (Threshold) at 227-252W, and Zone 5 (Repetition) at 290-328W.'
 			},
 			{
 				heading: 'Using power zones alongside pace and heart rate',

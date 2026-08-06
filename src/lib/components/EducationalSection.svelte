@@ -155,7 +155,7 @@
 		<li class="flex gap-3">
 			<span class="shrink-0 text-accent-text">→</span>
 			<span
-				><strong class="text-ink">Get power training zones</strong> for Stryd, COROS, Garmin, and
+				><strong class="text-ink">Get power training zones</strong> for Stryd, Garmin, and
 				Polar</span
 			>
 		</li>

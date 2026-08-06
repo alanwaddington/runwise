@@ -23,18 +23,21 @@ describe('PowerZones page', () => {
 
 	// ── Device selector ──────────────────────────────────────────────────────
 
-	it('renders all four device tabs', () => {
+	it('renders all three device tabs', () => {
 		render(PowerZones);
 		expect(screen.getByRole('tab', { name: 'Stryd' })).toBeInTheDocument();
-		expect(screen.getByRole('tab', { name: 'COROS' })).toBeInTheDocument();
 		expect(screen.getByRole('tab', { name: 'Garmin' })).toBeInTheDocument();
 		expect(screen.getByRole('tab', { name: 'Polar' })).toBeInTheDocument();
+	});
+
+	it('does not render a COROS tab', () => {
+		render(PowerZones);
+		expect(screen.queryByRole('tab', { name: 'COROS' })).toBeNull();
 	});
 
 	it('Stryd tab is selected by default', () => {
 		render(PowerZones);
 		expect(screen.getByRole('tab', { name: 'Stryd' })).toHaveAttribute('aria-selected', 'true');
-		expect(screen.getByRole('tab', { name: 'COROS' })).toHaveAttribute('aria-selected', 'false');
 		expect(screen.getByRole('tab', { name: 'Garmin' })).toHaveAttribute('aria-selected', 'false');
 		expect(screen.getByRole('tab', { name: 'Polar' })).toHaveAttribute('aria-selected', 'false');
 	});
@@ -46,11 +49,9 @@ describe('PowerZones page', () => {
 		expect(screen.getByRole('tab', { name: 'Stryd' })).toHaveAttribute('aria-selected', 'false');
 	});
 
-	it('pressing ArrowRight cycles through all four devices and wraps around', async () => {
+	it('pressing ArrowRight cycles through all three devices and wraps around', async () => {
 		render(PowerZones);
 		const tablist = screen.getByRole('tablist');
-		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
-		expect(screen.getByRole('tab', { name: 'COROS' })).toHaveAttribute('aria-selected', 'true');
 		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
 		expect(screen.getByRole('tab', { name: 'Garmin' })).toHaveAttribute('aria-selected', 'true');
 		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
@@ -70,7 +71,7 @@ describe('PowerZones page', () => {
 		render(PowerZones);
 		const tablist = screen.getByRole('tablist');
 		await fireEvent.keyDown(tablist, { key: 'ArrowRight' });
-		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'COROS' }));
+		expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Garmin' }));
 	});
 
 	it('pressing ArrowLeft moves DOM focus to the newly-selected tab (wrap-around)', async () => {
@@ -84,12 +85,6 @@ describe('PowerZones page', () => {
 
 	it('shows Critical Power (CP) label for Stryd', () => {
 		render(PowerZones);
-		expect(screen.getByLabelText(/critical power \(cp\)/i)).toBeInTheDocument();
-	});
-
-	it('shows Critical Power (CP) label for COROS', async () => {
-		render(PowerZones);
-		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
 		expect(screen.getByLabelText(/critical power \(cp\)/i)).toBeInTheDocument();
 	});
 
@@ -113,7 +108,7 @@ describe('PowerZones page', () => {
 		expect(screen.getByLabelText(/threshold power/i)).toHaveValue(null);
 	});
 
-	// ── Approximation disclaimers (Garmin, COROS) ────────────────────────────
+	// ── Approximation disclaimers (Garmin) ───────────────────────────────────
 
 	it('does not show a disclaimer for Stryd', () => {
 		render(PowerZones);
@@ -132,20 +127,6 @@ describe('PowerZones page', () => {
 		await fireEvent.click(screen.getByRole('tab', { name: 'Garmin' }));
 		await fireEvent.click(screen.getByRole('tab', { name: 'Polar' }));
 		expect(screen.queryByText(/sourced from a third party/i)).toBeNull();
-	});
-
-	it('shows COROS disclaimer when COROS is selected', async () => {
-		render(PowerZones);
-		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
-		expect(screen.getByText(/training hub for running/i)).toBeInTheDocument();
-	});
-
-	it('does not show COROS disclaimer for Stryd, Garmin, or Polar', async () => {
-		render(PowerZones);
-		for (const name of ['Garmin', 'Polar', 'Stryd']) {
-			await fireEvent.click(screen.getByRole('tab', { name }));
-			expect(screen.queryByText(/training hub for running/i)).toBeNull();
-		}
 	});
 
 	// ── Validation ───────────────────────────────────────────────────────────
@@ -250,31 +231,6 @@ describe('PowerZones page', () => {
 		const input = screen.getByLabelText(/maximal aerobic power \(map\)/i);
 		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
 		expect(screen.getByText('> 345')).toBeInTheDocument();
-	});
-
-	it('shows 7 zone rows for COROS CP 300, independent of Stryd', async () => {
-		render(PowerZones);
-		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
-		const input = screen.getByLabelText(/critical power \(cp\)/i);
-		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		// 1 header row + 7 main rows + 7 description rows = 15
-		expect(screen.getAllByRole('row')).toHaveLength(15);
-	});
-
-	it('COROS CP 300 Zone 1 is open-ended low (< 168)', async () => {
-		render(PowerZones);
-		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
-		const input = screen.getByLabelText(/critical power \(cp\)/i);
-		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		expect(screen.getByText('< 168')).toBeInTheDocument();
-	});
-
-	it('COROS CP 300 Zone 7 is open-ended high (> 450)', async () => {
-		render(PowerZones);
-		await fireEvent.click(screen.getByRole('tab', { name: 'COROS' }));
-		const input = screen.getByLabelText(/critical power \(cp\)/i);
-		await fireEvent.input(input, { target: { value: 300, valueAsNumber: 300 } });
-		expect(screen.getByText('> 450')).toBeInTheDocument();
 	});
 
 	// ── Reset ────────────────────────────────────────────────────────────────
