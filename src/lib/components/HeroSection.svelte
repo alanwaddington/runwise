@@ -1,5 +1,5 @@
 <div
-	class="relative mb-10 overflow-hidden rounded-2xl border border-ink/10 bg-gradient-to-br from-accent/[0.07] via-transparent to-transparent px-6 py-10 sm:px-10 sm:py-14"
+	class="relative mb-10 overflow-hidden rounded-2xl border border-ink/10 bg-linear-to-br from-accent/7 via-transparent to-transparent px-6 py-10 sm:px-10 sm:py-14"
 >
 	<svg
 		class="pointer-events-none absolute -right-10 -top-10 h-56 w-56 text-accent/10 sm:h-72 sm:w-72"

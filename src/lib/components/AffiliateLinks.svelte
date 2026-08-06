@@ -33,7 +33,7 @@
 		<div class="grid grid-cols-1 gap-3">
 			{#each products as product (product.url)}
 				<div
-					class="rounded-xl border border-gray-200 bg-gray-50/50 p-4 shadow-sm dark:border-gray-700 dark:bg-white/[0.03]"
+					class="rounded-xl border border-gray-200 bg-gray-50/50 p-4 shadow-sm dark:border-gray-700 dark:bg-white/3"
 				>
 					<span
 						class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-muted dark:bg-gray-800"

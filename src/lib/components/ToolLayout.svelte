@@ -34,7 +34,7 @@
 		<p class="mt-2 text-muted">{description}</p>
 
 		<div
-			class="mt-8 rounded-2xl border border-gray-200 bg-gray-50/50 p-6 shadow-sm dark:border-gray-700 dark:bg-white/[0.03]"
+			class="mt-8 rounded-2xl border border-gray-200 bg-gray-50/50 p-6 shadow-sm dark:border-gray-700 dark:bg-white/3"
 		>
 			{@render children?.()}
 		</div>

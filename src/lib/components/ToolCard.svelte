@@ -20,7 +20,7 @@
 <a
 	{href}
 	aria-label="Go to {name}"
-	class="group block rounded-md border border-ink/10 bg-gray-50/50 p-6 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:bg-white/[0.03]"
+	class="group block rounded-md border border-ink/10 bg-gray-50/50 p-6 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:bg-white/3"
 >
 	<div class="flex items-start justify-between gap-4">
 		<div class="flex flex-col gap-2">

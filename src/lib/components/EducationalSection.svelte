@@ -46,7 +46,7 @@
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		{#each concepts as concept (concept.title)}
 			<div
-				class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/[0.03]"
+				class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/3"
 			>
 				<div class="mb-3 text-3xl">{concept.icon}</div>
 				<h3 class="mb-2 font-sans font-semibold text-ink">{concept.title}</h3>
@@ -65,7 +65,7 @@
 	</div>
 
 	<div class="space-y-4">
-		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/[0.03]">
+		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/3">
 			<h3 class="mb-2 font-sans font-semibold text-ink">Running all easy runs too fast</h3>
 			<p class="text-sm text-muted leading-relaxed">
 				Without pace targets, most runners run easy efforts too hard, which wastes recovery time
@@ -74,7 +74,7 @@
 			</p>
 		</div>
 
-		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/[0.03]">
+		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/3">
 			<h3 class="mb-2 font-sans font-semibold text-ink">Training at the wrong heart rate zones</h3>
 			<p class="text-sm text-muted leading-relaxed">
 				Training intensity should match your goal. Without HR zone targets, you might do easy runs
@@ -83,7 +83,7 @@
 			</p>
 		</div>
 
-		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/[0.03]">
+		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/3">
 			<h3 class="mb-2 font-sans font-semibold text-ink">Setting unrealistic race goals</h3>
 			<p class="text-sm text-muted leading-relaxed">
 				Without a scientific prediction method, it's easy to aim too high (demoralizing) or too low
@@ -92,7 +92,7 @@
 			</p>
 		</div>
 
-		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/[0.03]">
+		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/3">
 			<h3 class="mb-2 font-sans font-semibold text-ink">Ignoring aerobic fitness data</h3>
 			<p class="text-sm text-muted leading-relaxed">
 				VO2 max is the strongest predictor of running performance. Knowing yours lets you track
