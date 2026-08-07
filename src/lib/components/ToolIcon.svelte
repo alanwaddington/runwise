@@ -6,7 +6,8 @@
 		| 'hr-zones'
 		| 'vo2max'
 		| 'parkrun'
-		| 'power-zones';
+		| 'power-zones'
+		| 'workouts';
 </script>
 
 <script lang="ts">
@@ -54,5 +55,13 @@
 		<circle cx="12" cy="10" r="3" />
 	{:else if name === 'power-zones'}
 		<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />
+	{:else if name === 'workouts'}
+		<path d="M6.5 6.5 4 4" />
+		<path d="M17.5 17.5 20 20" />
+		<path d="m14.5 9.5 4-4 3 3-4 4" />
+		<path d="m9.5 14.5-4 4-3-3 4-4" />
+		<path d="m6.5 12 5.5 5.5" />
+		<path d="m12 6.5 5.5 5.5" />
+		<path d="m8 10 6 6" />
 	{/if}
 </svg>

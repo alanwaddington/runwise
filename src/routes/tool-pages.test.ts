@@ -6,6 +6,7 @@ import TrainingPaces from './training-paces/+page.svelte';
 import HrZones from './hr-zones/+page.svelte';
 import Vo2max from './vo2max/+page.svelte';
 import Parkrun from './parkrun/+page.svelte';
+import Workouts from './workouts/+page.svelte';
 
 afterEach(() => {
 	cleanup();
@@ -33,6 +34,12 @@ const pages = [
 		component: Parkrun,
 		title: 'Parkrun Predictor',
 		description: 'Predict your parkrun time from recent race performances.'
+	},
+	{
+		component: Workouts,
+		title: 'Workout Suggestions',
+		description:
+			'Turn your training paces into concrete session plans, scaled to your weekly mileage.'
 	}
 ];
 
