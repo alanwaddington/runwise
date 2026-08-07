@@ -241,7 +241,7 @@ Both a valid race result and a valid weekly mileage are required before results 
 | I | Two rep-distance variants (e.g. 1000m and 1200m) at the same computed volume |
 | R | Two rep-distance variants (e.g. 200m and 400m) at the same computed volume |
 
-Each workout card shows the session format, target pace, recovery, total quality volume, estimated duration, and a warm-up/cool-down line that scales with the session's intensity and length — longer for harder efforts like Interval and Repetition, shorter for Easy running — plus a small visual profile chart underneath: a bar for each segment of the session (warm-up, work, recovery, cool-down), sized by duration and coloured by intensity, so you can see a session's shape (e.g. steady continuous effort vs. repeated intervals) at a glance alongside the text.
+Each workout card shows the session format, target pace, recovery, total quality volume, estimated duration, and a warm-up/cool-down line — each scaled independently to the session's intensity and length (longer for harder efforts like Interval and Repetition, shorter for Easy running), with cool-down typically the shorter of the two — plus a small visual profile chart underneath: a bar for each segment of the session (warm-up, work, recovery, cool-down), sized by duration and coloured by intensity, so you can see a session's shape (e.g. steady continuous effort vs. repeated intervals) at a glance alongside the text.
 
 **Time-available filter:** A dropdown (Any time / Under 30 min / 30–45 min / 45–60 min / 60+ min) filters which workouts are shown across every zone at once. If no workout in a zone fits the selected window, that zone shows a short message instead of a mismatched or hidden result.
 
