@@ -137,6 +137,22 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 			program: 'amazon',
 			tag: 'runwise21-21'
 		}
+	],
+	'/workouts': [
+		{
+			name: 'Garmin Forerunner 265',
+			description: 'AMOLED watch with structured interval workout support, audio prompts, and daily suggested workouts.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+265&tag=runwise21-21',
+			program: 'amazon',
+			tag: 'runwise21-21'
+		},
+		{
+			name: 'Garmin Forerunner 570',
+			description: 'Multi-sport watch with training load monitoring and built-in speaker for rep/interval alerts.',
+			url: 'https://www.amazon.co.uk/s?k=Garmin+Forerunner+570&tag=runwise21-21',
+			program: 'amazon',
+			tag: 'runwise21-21'
+		}
 	]
 };
 
