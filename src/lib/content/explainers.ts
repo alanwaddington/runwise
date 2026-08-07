@@ -214,7 +214,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Reading a workout card',
-				body: 'Each card shows a session format (reps and distance, or a continuous block), the target pace pulled straight from your Training Paces zone range, the recovery between reps or segments, the total quality volume, and an estimated total duration that includes a fixed 10-minute warm-up and 10-minute cool-down.'
+				body: 'Each card shows a session format (reps and distance, or a continuous block), the target pace pulled straight from your Training Paces zone range, the recovery between reps or segments, the total quality volume, and an estimated total duration that includes a warm-up and cool-down that scales with the session\'s intensity and length — longer for harder efforts like Interval and Repetition, shorter for Easy running.'
 			},
 			{
 				heading: 'Using the time filter',
