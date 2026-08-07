@@ -6,17 +6,20 @@
 **State:** Open
 **Commits reviewed:** 9 (0b82d61, 4cdfd17, eb0d313, a578fd4, c4ec886, 91b7b95, d6842e2, 045dd07, 699b694)
 
+**Update (2026-08-07):** All 5 findings below (M1, M2, m1, m2, S1) have been addressed rather than left for future work — see each finding's "Resolution" note. Commits `5d706a5`, `3f4c2d1`, `de2950c`, `9bd39c3`. Full suite (49 files / 932 tests) and lint (0 errors/warnings) reconfirmed green after the fixes.
+
 ---
 
 ## Summary
 
 | Item | Result |
 |------|--------|
-| Overall Assessment | Pass with comments ⚠️ |
+| Overall Assessment | Pass ✅ |
 | Risk Level | Low |
-| Test Coverage | Adequate, with one gap identified |
+| Test Coverage | Adequate — coverage gaps (M2, m1) closed |
 | Acceptance Criteria | 14 Met / 14 Total |
 | Lint | 0 errors / 0 warnings (0 in diff, 0 pre-existing) |
+| Findings | 0 Critical, 0 Major (2 fixed), 0 Minor (2 fixed), 1 Suggestion (no action needed) |
 
 ---
 
@@ -304,12 +307,14 @@ None.
 - **Location:** `src/routes/workouts/+page.svelte:395-405` vs. `src/routes/training-paces/+page.svelte:285-294`
 - **Description:** On `/workouts`, the outbound "View training paces →" link block sits **outside** the empty/out-of-range/valid-results `{#if}` chain, gated only on `raceResultQuery !== null` (which only checks `distanceKm > 0` and `timeSeconds !== null` — it does not check whether the VDOT is in the supported 20–85 range). On `/training-paces`, the equivalent "See workout suggestions →" link is nested **inside** the valid-results branch only. Verified live: entering an out-of-range time (e.g. 5K in 1:20:00) on `/workouts` still shows the "View training paces →" link alongside the "outside the supported range" message, while the same input on `/training-paces` shows no such link at all. The Design explicitly describes this cross-link as "symmetric in both directions" — this is a real asymmetry, not a documentation nit. It's not a *dead* link (the target page loads and shows a consistent out-of-range message too), but it is user-facing inconsistency between two directions of the same feature, and worth deciding deliberately rather than leaving as an accident of where each `{#if}` block happens to sit.
 - **Recommendation:** Pick one behavior and match it on both pages — either gate both links on `result !== null` (valid results only, matching `/training-paces`' current behavior) or gate both on `raceResultQuery !== null` (parseable input regardless of VDOT range, matching `/workouts`' current behavior). The former is more conservative and matches the AC's "no dead/placeholder link" framing most literally.
+- **Resolution:** Fixed in `5d706a5`. Moved `/workouts`' footer link block inside its own valid-results branch (the conservative option), so both pages now require the full result to be valid before showing their cross-link. Re-verified live via Playwright: out-of-range input on either page now hides both links identically; entering weekly mileage on `/workouts` after a valid race result correctly reveals the link only once results are visible. Updated `workouts.test.ts` accordingly (renamed the happy-path test, added two negative cases for "race result only, no mileage" and "out-of-range").
 
 #### M2 — No automated test coverage for the new homepage tool-grid card
 - **Category:** Reliability / Test Coverage
 - **Location:** `src/routes/home-page.test.ts` (not modified by this PR)
 - **Description:** `src/routes/+page.svelte` gained an 8th tool card (`/workouts`) in this PR, satisfying part of AC 8. `home-page.test.ts`, however, was not touched — it still hardcodes `'renders all 6 tool card links'` and a 6-entry `expectedLinks`/`routes` array that predates even the prior `/power-zones` PR. The test currently reports 5/5 passing because it never asserts the *total* card count, only that its 6 named links exist — so it cannot fail even though 2 of the site's 8 real tool cards (including this PR's own `/workouts` card) are completely unverified by CI. I confirmed this file has an empty diff against `main` and still passes as-is. Functionally the card does render correctly (verified manually via Playwright during `/verify` this session), so this is a coverage gap, not a live bug — but it means a future regression to the homepage grid (e.g. an accidental removal of the `/workouts` entry) would ship undetected.
 - **Recommendation:** Extend `home-page.test.ts`'s `expectedLinks`/`routes` arrays to include `/power-zones` and `/workouts` (both currently missing), and consider asserting the total link count matches `Object.keys(PAGES).length` minus non-tool routes, mirroring the self-updating pattern already used in `seo.test.ts`'s `TOOL_ROUTES` derivation, so this can't go stale again.
+- **Resolution:** Fixed in `de2950c`. Added both missing cards to the named `expectedLinks`/`routes` arrays and a new self-updating test deriving the expected total from `PAGES` (same `TOOL_ROUTES` pattern as `seo.test.ts`), so a future tool addition without a matching homepage-test update now fails the count assertion instead of shipping silently uncovered.
 
 ### Minor (nice to fix)
 
@@ -318,12 +323,14 @@ None.
 - **Location:** `src/routes/workouts/workouts.test.ts`
 - **Description:** The bug fixed in commit `045dd07` (`each_key_duplicate` runtime error crashing the entire results section at low weekly mileage) is now well-covered at the data layer (`workouts.test.ts`'s two `LowMileage_StillReturnsTwoDistinctLabels` tests, plus the structural fix itself — `buildRepsWorkout` now builds each variant at a fixed, non-overlapping distance, which provably prevents the collision class entirely, not just the one reported case). There is, however, no test that actually renders the `/workouts` **page** at the exact reported reproduction input (5K/30:22/10km) and asserts it renders without throwing — the failure mode was a Svelte runtime error specifically triggered by the keyed `{#each}` in the component, and the current tests don't exercise that render path under the original failure conditions.
 - **Recommendation:** Add one `workouts.test.ts` (page) case rendering with weekly mileage in the low range (e.g. 10km) and asserting all 10 cards render / no error is thrown, as a direct regression guard at the layer where the bug actually manifested.
+- **Resolution:** Fixed in `3f4c2d1`. Added a page-level test reproducing the exact manually-reported input (5K/30:22, 10km weekly mileage) and asserting the VDOT headline, all 5 zone badges, and all 10 workout cards render — confirmed passing against the current fix.
 
 #### m2 — User Guide doesn't mention the new workout profile chart
 - **Category:** Documentation
 - **Location:** `docs/Guides/User Guide/user-guide.md`
 - **Description:** The `/workouts` subsection was written before the visual intensity-profile chart was added (commit `699b694`, later in the same PR) and doesn't describe it. Minor since the chart is self-explanatory and decorative, but the doc's "Reading a workout card" language ("Each card shows...") is now incomplete.
 - **Recommendation:** Add one sentence noting the visual profile chart under each card, if/when this PR is revisited before merge; otherwise fine as a fast-follow doc tweak.
+- **Resolution:** Fixed in `9bd39c3`. Added a sentence to the "workout card" paragraph describing the profile chart, and corrected the cross-link paragraph, which had gone stale after the M1 fix changed the link's visibility condition from "a valid race result is entered" to "results are visible." Regenerated the User Guide's derived HTML/PDF only, per `CLAUDE.md`'s convention (Deployment/Developer Guide binaries restored unmodified).
 
 ### Suggestions (optional)
 
@@ -332,6 +339,7 @@ None.
 - **Location:** `src/lib/components/EducationalSection.svelte`
 - **Description:** Two of the four new homepage content blocks in this PR (the "Running Power Zones" fundamentals card and the "Trusting pace on hills and in the wind" mistake entry) describe `/power-zones`, a tool that shipped in a prior PR, not #19. This was an explicit, deliberate request made in the same working session as this PR, so it's not scope creep in the sense of unrequested work — just noting it doesn't map to any #19 acceptance criterion, for anyone auditing this PR against #19 specifically in the future.
 - **Recommendation:** None required — purely informational for traceability.
+- **Resolution:** No action needed, per the finding's own recommendation. Left as-is.
 
 ---
 
@@ -353,10 +361,12 @@ None.
 - None — no Critical findings.
 
 ### Post-merge improvements
-- [ ] M1: Decide and align the cross-link visibility condition between `/workouts` and `/training-paces` (both should show/hide under the same rule)
-- [ ] M2: Extend `home-page.test.ts` to cover `/power-zones` and `/workouts` tool cards, ideally via a self-updating assertion
-- [ ] m1: Add a page-level `/workouts` render test at low weekly mileage as a direct regression guard for the duplicate-key crash
-- [ ] m2: Add a line to the User Guide's `/workouts` subsection mentioning the profile chart
+- [x] M1: Decide and align the cross-link visibility condition between `/workouts` and `/training-paces` (both should show/hide under the same rule) — fixed in `5d706a5`
+- [x] M2: Extend `home-page.test.ts` to cover `/power-zones` and `/workouts` tool cards, ideally via a self-updating assertion — fixed in `de2950c`
+- [x] m1: Add a page-level `/workouts` render test at low weekly mileage as a direct regression guard for the duplicate-key crash — fixed in `3f4c2d1`
+- [x] m2: Add a line to the User Guide's `/workouts` subsection mentioning the profile chart — fixed in `9bd39c3`
+
+All findings addressed; none left open for future work.
 
 ---
 
@@ -371,4 +381,4 @@ None.
 - [x] Error handling complete and consistent
 - [x] Logging adequate for debugging production issues (N/A — static site, no server-side logging surface)
 - [x] Code follows existing codebase conventions
-- [ ] No unnecessary changes outside scope of the issue — see S1 (informational, not blocking)
+- [x] No unnecessary changes outside scope of the issue — S1 reviewed and left as informational per its own recommendation; no blocking scope issues
