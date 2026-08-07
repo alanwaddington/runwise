@@ -108,6 +108,26 @@ describe('computeELongRunVolumeKm', () => {
 		const duration = km * ePace;
 		expect(duration).toBeCloseTo(150, 1);
 	});
+
+	it('computeELongRunVolumeKm_LowMileage_ClampsDurationTo30MinMinimum', () => {
+		// Regression: at very low weekly mileage the long run's raw duration could fall well
+		// below the regular easy run's own 30-min floor, producing a "Long run" shorter than a
+		// "Regular easy run" — this floor matches computeZoneVolumeKm's E branch exactly, so a
+		// long run is never prescribed less running than a regular easy day.
+		const ePace = parsePace(VDOT_40_ZONES[0]);
+		const km = computeELongRunVolumeKm(1, ePace);
+		const duration = km * ePace;
+		expect(duration).toBeCloseTo(30, 1);
+	});
+
+	it('computeELongRunVolumeKm_AtLowMileage_IsNeverShorterThanRegularEasyRun', () => {
+		const ePace = parsePace(VDOT_40_ZONES[0]);
+		for (const weeklyMileageKm of [1, 5, 10, 20, 50]) {
+			const regularDuration = computeZoneVolumeKm('E', weeklyMileageKm, ePace) * ePace;
+			const longDuration = computeELongRunVolumeKm(weeklyMileageKm, ePace) * ePace;
+			expect(longDuration).toBeGreaterThanOrEqual(regularDuration);
+		}
+	});
 });
 
 describe('buildZoneWorkouts', () => {

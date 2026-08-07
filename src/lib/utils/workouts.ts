@@ -181,20 +181,25 @@ export function computeZoneVolumeKm(zone: ZoneKey, weeklyMileageKm: number, pace
 	}
 }
 
-/** E zone's long-run volume (km) — distinct share and cap from the regular easy day. */
+/**
+ * E zone's long-run volume (km) — distinct share and cap from the regular easy day, but shares
+ * the same E_DURATION_MIN_MINUTES floor: a long run should never be prescribed less running than
+ * a regular easy day. Without this floor, very low weekly mileage could push the long run's raw
+ * duration below the regular run's own 30-min floor, producing a "Long run" shorter than the
+ * "Regular easy run" beside it.
+ */
 export function computeELongRunVolumeKm(weeklyMileageKm: number, ePace: number): number {
 	const share =
 		weeklyMileageKm < E_LONG_MILEAGE_THRESHOLD_KM
 			? E_LONG_SHARE_UNDER_64KM
 			: E_LONG_SHARE_AT_OR_OVER_64KM;
 	const raw = weeklyMileageKm * share;
+	const rawDuration = raw * ePace;
+	let clampedDuration = Math.max(E_DURATION_MIN_MINUTES, rawDuration);
 	if (weeklyMileageKm >= E_LONG_MILEAGE_THRESHOLD_KM) {
-		const rawDuration = raw * ePace;
-		if (rawDuration > E_DURATION_MAX_MINUTES) {
-			return E_DURATION_MAX_MINUTES / ePace;
-		}
+		clampedDuration = Math.min(E_DURATION_MAX_MINUTES, clampedDuration);
 	}
-	return raw;
+	return clampedDuration / ePace;
 }
 
 function continuousWorkout(
