@@ -4,7 +4,8 @@ import {
 	computeELongRunVolumeKm,
 	buildZoneWorkouts,
 	buildWorkoutsResult,
-	WARMUP_COOLDOWN_MINUTES
+	computeWarmupCooldownMinutes,
+	WARMUP_COOLDOWN_BAND
 } from './workouts';
 import { getTrainingPaces } from './training-paces';
 
@@ -123,11 +124,12 @@ describe('buildZoneWorkouts', () => {
 		}
 	});
 
-	it('buildZoneWorkouts_EveryWorkout_IncludesWarmupCooldownInDuration', () => {
+	it('buildZoneWorkouts_EveryWorkout_IncludesAtLeastItsZonesMinWarmupCooldownInDuration', () => {
 		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
 			const workouts = buildZoneWorkouts(zone, VDOT_40_ZONES, 80);
+			const { min } = WARMUP_COOLDOWN_BAND[zone];
 			for (const w of workouts) {
-				expect(w.estimatedDurationMinutes).toBeGreaterThanOrEqual(WARMUP_COOLDOWN_MINUTES);
+				expect(w.estimatedDurationMinutes).toBeGreaterThanOrEqual(min * 2);
 			}
 		}
 	});
@@ -188,6 +190,48 @@ describe('buildZoneWorkouts', () => {
 		const [continuous, cruise] = buildZoneWorkouts('T', VDOT_40_ZONES, 80);
 		expect(continuous.recovery).toBe('None (continuous)');
 		expect(cruise.description).toMatch(/x/);
+	});
+});
+
+describe('computeWarmupCooldownMinutes', () => {
+	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
+		'%sZone_AtZeroQualityMinutes_ReturnsBandMin',
+		(zone) => {
+			expect(computeWarmupCooldownMinutes(zone, 0)).toBe(WARMUP_COOLDOWN_BAND[zone].min);
+		}
+	);
+
+	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
+		'%sZone_AtOrAbove60QualityMinutes_ReturnsBandMax',
+		(zone) => {
+			expect(computeWarmupCooldownMinutes(zone, 60)).toBe(WARMUP_COOLDOWN_BAND[zone].max);
+			expect(computeWarmupCooldownMinutes(zone, 200)).toBe(WARMUP_COOLDOWN_BAND[zone].max);
+		}
+	);
+
+	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
+		'%sZone_AtNegativeQualityMinutes_ClampsToBandMin',
+		(zone) => {
+			expect(computeWarmupCooldownMinutes(zone, -10)).toBe(WARMUP_COOLDOWN_BAND[zone].min);
+		}
+	);
+
+	it('EZone_At30QualityMinutes_ReturnsMidpointOfBand', () => {
+		// t = 30/60 = 0.5 → 5 + 0.5*(10-5) = 7.5 → rounds to 8
+		expect(computeWarmupCooldownMinutes('E', 30)).toBe(8);
+	});
+
+	it('RZone_At30QualityMinutes_ReturnsMidpointOfBand', () => {
+		// t = 30/60 = 0.5 → 12 + 0.5*(16-12) = 14
+		expect(computeWarmupCooldownMinutes('R', 30)).toBe(14);
+	});
+
+	it('IZone_ReturnsLongerWarmupThanEZone_AtSameQualityMinutes', () => {
+		// I/R sessions get a longer warm-up band than E/M, per the design's
+		// "harder efforts need more build-up" decision.
+		expect(computeWarmupCooldownMinutes('I', 20)).toBeGreaterThan(
+			computeWarmupCooldownMinutes('E', 20)
+		);
 	});
 });
 
@@ -253,6 +297,25 @@ describe('workout segments', () => {
 		const eWork = eRegular.segments.find((s) => s.type === 'work')!;
 		const rWork = rA.segments.find((s) => s.type === 'work')!;
 		expect(rWork.intensity).toBeGreaterThan(eWork.intensity);
+	});
+
+	it('everyWorkout_warmupDuration_equalsCooldownDuration', () => {
+		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+			for (const workout of buildZoneWorkouts(zone, VDOT_40_ZONES, 80)) {
+				const warmup = workout.segments[0];
+				const cooldown = workout.segments[workout.segments.length - 1];
+				expect(warmup.durationMinutes).toBe(cooldown.durationMinutes);
+			}
+		}
+	});
+
+	it('shortRZoneWorkout_atLowMileage_fitsUnderThirtyMinutesTotal', () => {
+		// Regression target from the PR #90 review: under the old flat +20min rule, every zone
+		// showed "none fit" for the "Under 30 min" filter at realistic mileage. A short R-zone
+		// session's own warm-up/cool-down should now be small enough (near its zone's band
+		// minimum) that a genuinely short session can fit under 30 minutes total.
+		const [rA] = buildZoneWorkouts('R', VDOT_40_ZONES, 10);
+		expect(rA.estimatedDurationMinutes).toBeLessThan(30);
 	});
 });
 

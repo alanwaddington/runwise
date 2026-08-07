@@ -46,11 +46,43 @@ export interface WorkoutsResult {
 }
 
 /**
- * Fixed warm-up + cool-down guidance applied uniformly to every workout, regardless of zone.
- * This is an ordinary product convention (a short, consistent line per the Analysis), not a
- * zone-specific Daniels citation — unlike the volume/session-shape rules below.
+ * Per-zone warm-up/cool-down band (minutes, applied symmetrically — warm-up duration always
+ * equals cool-down duration for a given workout) and the reference curve used to interpolate a
+ * specific workout's value within its zone's band, based on that workout's own quality-session
+ * duration (its pre-warm-up/cool-down time).
+ *
+ * This is an ordinary product convention, not a Daniels citation — unlike the volume/session-shape
+ * rules below, there is no external source for warm-up/cool-down duration. I/R bands are longer
+ * than E/M/T's, matching common coaching practice that harder, faster efforts need a more gradual
+ * physiological build-up (often including strides/drills) before going near-max effort, whereas an
+ * Easy run starts easy by definition and needs little formal warm-up.
+ *
+ * One shared 0-60 min reference curve is used for every zone (rather than a separate reference
+ * range per zone) since only E (30-150 min, via E_DURATION_MIN/MAX_MINUTES) and M (110 min, via
+ * M_DURATION_CAP_MINUTES) have an existing duration constant to anchor a per-zone range to; T/I/R
+ * would each need a newly-invented range with no more justification than the shared curve.
  */
-export const WARMUP_COOLDOWN_MINUTES = 20;
+export const WARMUP_COOLDOWN_BAND: Record<ZoneKey, { min: number; max: number }> = {
+	E: { min: 5, max: 10 },
+	M: { min: 8, max: 12 },
+	T: { min: 10, max: 14 },
+	I: { min: 12, max: 16 },
+	R: { min: 12, max: 16 }
+};
+const WARMUP_COOLDOWN_REFERENCE_MAX_MINUTES = 60;
+
+/**
+ * A workout's warm-up/cool-down duration (each side), interpolated within its zone's band based
+ * on its quality-session duration: 0 minutes of quality time lands at the band minimum, 60+
+ * minutes lands at the band maximum, linear in between, rounded to the nearest whole minute.
+ */
+export function computeWarmupCooldownMinutes(zone: ZoneKey, qualityMinutes: number): number {
+	const { min, max } = WARMUP_COOLDOWN_BAND[zone];
+	const t =
+		Math.min(Math.max(qualityMinutes, 0), WARMUP_COOLDOWN_REFERENCE_MAX_MINUTES) /
+		WARMUP_COOLDOWN_REFERENCE_MAX_MINUTES;
+	return Math.round(min + t * (max - min));
+}
 
 /**
  * Per-zone weekly-mileage-share and absolute-cap rules for quality-session volume.
@@ -92,12 +124,20 @@ const COOLDOWN_INTENSITY = 0.25;
 const RECOVERY_INTENSITY = 0.2;
 const ZONE_INTENSITY: Record<ZoneKey, number> = { E: 0.35, M: 0.55, T: 0.7, I: 0.85, R: 1 };
 
-function warmupSegment(): WorkoutSegment {
-	return { type: 'warmup', durationMinutes: WARMUP_COOLDOWN_MINUTES / 2, intensity: WARMUP_INTENSITY };
+function warmupSegment(zone: ZoneKey, qualityMinutes: number): WorkoutSegment {
+	return {
+		type: 'warmup',
+		durationMinutes: computeWarmupCooldownMinutes(zone, qualityMinutes),
+		intensity: WARMUP_INTENSITY
+	};
 }
 
-function cooldownSegment(): WorkoutSegment {
-	return { type: 'cooldown', durationMinutes: WARMUP_COOLDOWN_MINUTES / 2, intensity: COOLDOWN_INTENSITY };
+function cooldownSegment(zone: ZoneKey, qualityMinutes: number): WorkoutSegment {
+	return {
+		type: 'cooldown',
+		durationMinutes: computeWarmupCooldownMinutes(zone, qualityMinutes),
+		intensity: COOLDOWN_INTENSITY
+	};
 }
 
 /** Parse a zone's low/high formatted paces to the midpoint decimal min/km. */
@@ -165,16 +205,17 @@ function continuousWorkout(
 	zone: ZoneKey
 ): Workout {
 	const qualityMinutes = volumeKm * pace;
+	const warmupCooldownMinutes = computeWarmupCooldownMinutes(zone, qualityMinutes);
 	return {
 		label,
 		description,
 		totalVolumeKm: round1(volumeKm),
 		recovery: 'None (continuous)',
-		estimatedDurationMinutes: Math.round(qualityMinutes + WARMUP_COOLDOWN_MINUTES),
+		estimatedDurationMinutes: Math.round(qualityMinutes + 2 * warmupCooldownMinutes),
 		segments: [
-			warmupSegment(),
+			warmupSegment(zone, qualityMinutes),
 			{ type: 'work', durationMinutes: qualityMinutes, intensity: ZONE_INTENSITY[zone] },
-			cooldownSegment()
+			cooldownSegment(zone, qualityMinutes)
 		]
 	};
 }
@@ -213,18 +254,22 @@ function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): [Workou
 	const jogKm = 1.5;
 	const jogMinutes = jogKm * ePace;
 	const segmentMinutes = (volumeKm / 2) * mPace;
+	const segmentedQualityMinutes = volumeKm * mPace + jogMinutes;
+	const segmentedWarmupCooldownMinutes = computeWarmupCooldownMinutes('M', segmentedQualityMinutes);
 	const segmented: Workout = {
 		label: 'Marathon-pace segments',
 		description: `2 x ${segmentKm}km at M pace, ${jogKm}km easy jog recovery between`,
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${jogKm}km easy jog between segments`,
-		estimatedDurationMinutes: Math.round(volumeKm * mPace + jogMinutes + WARMUP_COOLDOWN_MINUTES),
+		estimatedDurationMinutes: Math.round(
+			segmentedQualityMinutes + 2 * segmentedWarmupCooldownMinutes
+		),
 		segments: [
-			warmupSegment(),
+			warmupSegment('M', segmentedQualityMinutes),
 			{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
 			{ type: 'recovery', durationMinutes: jogMinutes, intensity: RECOVERY_INTENSITY },
 			{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
-			cooldownSegment()
+			cooldownSegment('M', segmentedQualityMinutes)
 		]
 	};
 	return [continuous, segmented];
@@ -245,7 +290,8 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
 	const repCount = Math.max(2, Math.round(durationMinutes / repMinutes));
 	const recoveryPerRep = round1(repMinutes / 5);
 	const totalDuration = repCount * repMinutes + (repCount - 1) * recoveryPerRep;
-	const cruiseSegments: WorkoutSegment[] = [warmupSegment()];
+	const cruiseWarmupCooldownMinutes = computeWarmupCooldownMinutes('T', totalDuration);
+	const cruiseSegments: WorkoutSegment[] = [warmupSegment('T', totalDuration)];
 	for (let i = 0; i < repCount; i++) {
 		cruiseSegments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY.T });
 		if (i < repCount - 1) {
@@ -256,13 +302,13 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
 			});
 		}
 	}
-	cruiseSegments.push(cooldownSegment());
+	cruiseSegments.push(cooldownSegment('T', totalDuration));
 	const cruise: Workout = {
 		label: 'Cruise intervals',
 		description: `${repCount} x ${repMinutes} min at T pace, ${recoveryPerRep} min jog recovery between reps`,
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${recoveryPerRep} min jog between reps`,
-		estimatedDurationMinutes: Math.round(totalDuration + WARMUP_COOLDOWN_MINUTES),
+		estimatedDurationMinutes: Math.round(totalDuration + 2 * cruiseWarmupCooldownMinutes),
 		segments: cruiseSegments
 	};
 	return [continuous, cruise];
@@ -293,22 +339,23 @@ function buildRepsWorkout(
 	const recoveryMinutes = round1(repMinutes * recoveryFraction(repMinutes));
 	const totalVolumeKm = round1(reps * repKm);
 	const totalDuration = reps * repMinutes + (reps - 1) * recoveryMinutes;
+	const warmupCooldownMinutes = computeWarmupCooldownMinutes(zone, totalDuration);
 
-	const segments: WorkoutSegment[] = [warmupSegment()];
+	const segments: WorkoutSegment[] = [warmupSegment(zone, totalDuration)];
 	for (let i = 0; i < reps; i++) {
 		segments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY[zone] });
 		if (i < reps - 1) {
 			segments.push({ type: 'recovery', durationMinutes: recoveryMinutes, intensity: RECOVERY_INTENSITY });
 		}
 	}
-	segments.push(cooldownSegment());
+	segments.push(cooldownSegment(zone, totalDuration));
 
 	return {
 		label: `${repDistanceM}m reps`,
 		description: `${reps} x ${repDistanceM}m at ${zone} pace, ${recoveryDescription(repDistanceM, recoveryMinutes)}`,
 		totalVolumeKm,
 		recovery: recoveryDescription(repDistanceM, recoveryMinutes),
-		estimatedDurationMinutes: Math.round(totalDuration + WARMUP_COOLDOWN_MINUTES),
+		estimatedDurationMinutes: Math.round(totalDuration + 2 * warmupCooldownMinutes),
 		segments
 	};
 }
