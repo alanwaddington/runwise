@@ -84,6 +84,15 @@ export const PAGES: Record<string, PageSeo> = {
 		changefreq: 'monthly',
 		priority: 0.8
 	},
+	'/workouts': {
+		title: 'Workout Suggestions | Runwise',
+		description:
+			'Free workout generator for runners. Enter a race result and weekly mileage for structured session prescriptions across all five Daniels training zones.',
+		ogImage: '/og/og-workouts.png',
+		jsonLdType: 'WebApplication',
+		changefreq: 'monthly',
+		priority: 0.8
+	},
 	'/privacy': {
 		title: 'Privacy Policy | Runwise',
 		description:

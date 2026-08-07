@@ -53,6 +53,13 @@
 			description: 'Get running power training zones for Stryd, Garmin, and Polar',
 			route: '/power-zones',
 			icon: 'power-zones' as const
+		},
+		{
+			href: '/workouts',
+			name: 'Workout Suggestions',
+			description: 'Turn your training paces into concrete session plans, scaled to your weekly mileage',
+			route: '/workouts',
+			icon: 'workouts' as const
 		}
 	];
 </script>

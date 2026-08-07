@@ -27,7 +27,8 @@ const OG_IMAGES = [
 	{ file: 'og-hr-zones.png', tool: 'Heart Rate Zone Calculator' },
 	{ file: 'og-vo2max.png', tool: 'VO2 Max Estimator' },
 	{ file: 'og-parkrun.png', tool: 'Parkrun Predictor' },
-	{ file: 'og-power-zones.png', tool: 'Power Zones Calculator' }
+	{ file: 'og-power-zones.png', tool: 'Power Zones Calculator' },
+	{ file: 'og-workouts.png', tool: 'Workout Suggestions' }
 ];
 
 const FAVICONS = [

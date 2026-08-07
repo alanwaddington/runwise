@@ -13,6 +13,7 @@ Fast, clean running calculators: pace, race time predictor, HR zones, VO2 max, a
 - **[VO2 Max Estimator](https://runwise.app/vo2max)** — `/vo2max`
 - **[Parkrun Predictor](https://runwise.app/parkrun)** — `/parkrun`
 - **[Power Zones Calculator](https://runwise.app/power-zones)** — `/power-zones`
+- **[Workout Suggestions](https://runwise.app/workouts)** — `/workouts`
 
 ## Requirements
 
@@ -57,7 +58,7 @@ Shared components in `src/lib/components/`:
 | Component | Purpose |
 |---|---|
 | `ToolLayout` | Page wrapper — back link, `<h1>`, description, bordered content card, and `<title>` |
-| `SiteNav` | Top navigation with brand link, all seven tool links, and active-route highlighting |
+| `SiteNav` | Top navigation with brand link, all eight tool links, and active-route highlighting |
 | `InputField` | Labelled numeric/text input with optional unit suffix and focus ring |
 | `ResultDisplay` | Prominent result block — large mono value, uppercase label, copy-to-clipboard |
 

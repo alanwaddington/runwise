@@ -30,6 +30,18 @@
 			description:
 				'Modern race prediction models use power laws to extrapolate performance across distances. The Riegel formula (used by Runwise) assumes performance consistency and lets you confidently predict marathon times from a 5K result.',
 			icon: '🎯'
+		},
+		{
+			title: 'Running Power Zones',
+			description:
+				'Power, measured in watts, reflects effort directly rather than the outcome of that effort — unlike pace, it doesn\'t slow on hills or into a headwind at constant effort. Stryd, Garmin, and Polar each calculate running power with their own proprietary model, so zone tables have to be device-specific rather than universal.',
+			icon: '⚡'
+		},
+		{
+			title: 'Scaling Training Load',
+			description:
+				'Knowing your training paces only answers half the question — how much quality running at each pace suits your current mileage matters just as much. Jack Daniels\' methodology scales each zone\'s session volume as a percentage of weekly mileage, so hard efforts stay proportional as your training load changes.',
+			icon: '📈'
 		}
 	];
 </script>
@@ -99,6 +111,26 @@
 				progress, predict across all distances, and see how training investments pay off over time.
 			</p>
 		</div>
+
+		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/3">
+			<h3 class="mb-2 font-sans font-semibold text-ink">Trusting pace on hills and in the wind</h3>
+			<p class="text-sm text-muted leading-relaxed">
+				Pace slows on hills and into a headwind even when effort stays constant, and heart rate
+				lags behind sudden intensity changes. The Power Zones Calculator turns your device's watt
+				output into training zones that stay consistent regardless of terrain or conditions.
+			</p>
+		</div>
+
+		<div class="rounded-lg border border-ink/10 bg-gray-50/50 p-6 dark:bg-white/3">
+			<h3 class="mb-2 font-sans font-semibold text-ink">
+				Running the same quality volume every week
+			</h3>
+			<p class="text-sm text-muted leading-relaxed">
+				A fixed number of intervals or tempo minutes can be too much in a low-mileage week and too
+				little in a high-mileage one. Workout Suggestions scales each zone's session volume to your
+				actual weekly mileage, so quality work stays proportional as your training load changes.
+			</p>
+		</div>
 	</div>
 </section>
 
@@ -106,7 +138,7 @@
 	<div class="space-y-4">
 		<h2 class="font-sans text-3xl font-bold text-ink">How Runwise Helps</h2>
 		<p class="max-w-2xl text-lg text-muted">
-			Seven free calculators to train smarter and race faster.
+			Eight free calculators to train smarter and race faster.
 		</p>
 	</div>
 
@@ -157,6 +189,13 @@
 			<span
 				><strong class="text-ink">Get power training zones</strong> for Stryd, Garmin, and
 				Polar</span
+			>
+		</li>
+		<li class="flex gap-3">
+			<span class="shrink-0 text-accent-text">→</span>
+			<span
+				><strong class="text-ink">Generate workout suggestions</strong> scaled to your weekly
+				mileage</span
 			>
 		</li>
 	</ul>
