@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import CollapsibleField from '$lib/components/CollapsibleField.svelte';
@@ -7,10 +8,13 @@
 	import { validatePositive } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
 	import { buildTrainingPaceResult } from '$lib/utils/training-paces';
+	import { parseRaceResultParams, serializeRaceResult } from '$lib/utils/race-result-params';
 
-	let selectedOption = $state('5K');
-	let customKmRaw = $state('');
-	let timeRaw = $state('');
+	const prefill = parseRaceResultParams(page.url.searchParams);
+
+	let selectedOption = $state(prefill?.selectedOption ?? '5K');
+	let customKmRaw = $state(prefill?.customKmRaw ?? '');
+	let timeRaw = $state(prefill?.timeRaw ?? '');
 
 	let customKmTouched = $state(false);
 	let timeTouched = $state(false);
@@ -31,6 +35,12 @@
 	);
 
 	let timeSeconds = $derived(parseTime(timeRaw));
+
+	let raceResultQuery = $derived(
+		timeSeconds !== null && distanceKm > 0
+			? serializeRaceResult({ selectedOption, customKmRaw, timeRaw })
+			: null
+	);
 
 	let result = $derived(
 		timeSeconds !== null && distanceKm > 0
@@ -265,13 +275,23 @@
 			</table>
 		</div>
 
-		<!-- Footer link -->
+		<!-- Footer links -->
 		<p class="mt-6 text-center text-xs text-muted">
 			Want to know your aerobic capacity?
 			<a href="/vo2max" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Estimate your VO2 max →</a
 			>
 		</p>
+		{#if raceResultQuery !== null}
+			<p class="mt-2 text-center text-xs text-muted">
+				Ready to turn these paces into sessions?
+				<a
+					href="/workouts?{raceResultQuery}"
+					class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					>See workout suggestions →</a
+				>
+			</p>
+		{/if}
 	{/if}
 
 	{#if result !== null}

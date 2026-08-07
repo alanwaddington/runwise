@@ -1,9 +1,17 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, cleanup, screen, fireEvent } from '@testing-library/svelte';
-import TrainingPaces from './+page.svelte';
+
+const mockPage = { url: new URL('http://localhost/training-paces') };
+
+vi.mock('$app/state', () => ({
+	page: mockPage
+}));
+
+const { default: TrainingPaces } = await import('./+page.svelte');
 
 afterEach(() => {
 	cleanup();
+	mockPage.url = new URL('http://localhost/training-paces');
 });
 
 describe('TrainingPaces page', () => {
@@ -169,5 +177,36 @@ describe('TrainingPaces page', () => {
 	it('does not show VO2 max link in empty state', () => {
 		render(TrainingPaces);
 		expect(screen.queryByRole('link', { name: /vo2 max/i })).toBeNull();
+	});
+
+	it('shows workout suggestions link when results are visible', async () => {
+		render(TrainingPaces);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '25:00' } });
+		const link = screen.getByRole('link', { name: /workout suggestions/i });
+		expect(link).toHaveAttribute('href', expect.stringContaining('/workouts?'));
+		expect(link).toHaveAttribute('href', expect.stringContaining('distance=5K'));
+		expect(link).toHaveAttribute('href', expect.stringContaining('time=25%3A00'));
+	});
+
+	it('does not show workout suggestions link in empty state', () => {
+		render(TrainingPaces);
+		expect(screen.queryByRole('link', { name: /workout suggestions/i })).toBeNull();
+	});
+
+	it('prefills race fields from valid query params on load', () => {
+		mockPage.url = new URL('http://localhost/training-paces?distance=10K&time=45:00');
+		render(TrainingPaces);
+		const select = screen.getByRole('combobox', { name: /race distance/i }) as HTMLSelectElement;
+		expect(select.value).toBe('10K');
+		expect(screen.getByLabelText(/race time/i)).toHaveValue('45:00');
+	});
+
+	it('falls back to the normal empty state for malformed query params', () => {
+		mockPage.url = new URL('http://localhost/training-paces?distance=Bogus&time=notatime');
+		render(TrainingPaces);
+		expect(
+			screen.getByText(/enter a race result above to see your training paces/i)
+		).toBeInTheDocument();
 	});
 });
