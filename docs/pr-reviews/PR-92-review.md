@@ -6,17 +6,20 @@
 **State:** Open
 **Commits reviewed:** 3 (6b3f2a6, c440228, cb6d5e9)
 
+**Update (2026-08-07):** The one finding below (m1) has been fixed rather than left for future work — see its "Resolution" note. Commit `5ccd771`. Full suite (49 files / 956 tests) and lint (0 errors/warnings) reconfirmed green after the fix.
+
 ---
 
 ## Summary
 
 | Item | Result |
 |------|--------|
-| Overall Assessment | Pass with comments ⚠️ |
+| Overall Assessment | Pass ✅ |
 | Risk Level | Low |
 | Test Coverage | Adequate |
 | Acceptance Criteria | 12 Met / 12 Total |
 | Lint | 0 errors / 0 warnings (0 in diff, 0 pre-existing) |
+| Findings | 0 Critical, 0 Major, 0 Minor (1 fixed), 0 Suggestions |
 
 ---
 
@@ -132,6 +135,7 @@ None.
 - **Location:** `src/lib/utils/workouts.ts:184-198` (`computeELongRunVolumeKm`) interacting with the new `computeWarmupCooldownMinutes` at `workouts.ts:79-85`
 - **Description:** `computeZoneVolumeKm`'s E-zone branch clamps quality duration to a **minimum** of 30 minutes (`E_DURATION_MIN_MINUTES`), but `computeELongRunVolumeKm` has no equivalent lower floor — only an upper cap that applies at ≥64km/week. At very low weekly mileage (e.g. 1km/week, within the app's allowed 1–300km input range), the "Long run" workout's own quality duration can be far smaller than the "Regular easy run"'s (which is floored at 30 min), so the Long run's interpolated warm-up lands near the E-zone band minimum (5 min) while the Regular run's lands higher (8 min) — verified live via `/verify` this session: at 1km/week, "Regular easy run" showed "8 min warm-up" while "Long run" (a 2-minute session) showed "5 min warm-up," right next to each other on the same row. This isn't a bug introduced by this PR — the tiny 2-minute "long run" itself is pre-existing #19 behaviour, unrelated to warm-up/cool-down — but #91's per-workout scaling makes an already-odd edge case newly visible and specifically jarring: a card literally named "Long run" showing a *shorter* warm-up than the "Regular easy run" beside it contradicts the card's own name. Previously both cards said "10 min" regardless, which masked this.
 - **Recommendation:** Not blocking — this only manifests at an unrealistic weekly-mileage input (1km/week is far below any real runner's training volume) and doesn't break anything functionally. Worth a follow-up issue if it's worth polishing (e.g. giving the Long run its own lower quality-duration floor, matching the Regular run's), but out of scope for #91 itself, which was specifically about warm-up/cool-down, not E-zone volume-floor logic.
+- **Resolution:** Fixed in `5ccd771` rather than left for future work. Applied the same `E_DURATION_MIN_MINUTES` (30 min) floor to `computeELongRunVolumeKm` that the Regular easy run's own `computeZoneVolumeKm` E branch already uses — mirrors the existing pattern exactly rather than inventing a new one. This was a deliberate choice between two options (confirmed with the user): float the actual prescribed Long run duration/volume up to the floor (chosen), vs. a narrower fix that only adjusted the warm-up calculation's input while leaving the prescribed session untouched. The chosen approach fixes the root cause directly — a Long run is now never prescribed less running than a Regular easy day, in both its own duration/volume and its scaled warm-up/cool-down — rather than papering over a symptom. Re-verified live at the exact 1km/week input that originally surfaced the finding: "Long run" now shows 30 min (up from 2 min) and an 8 min warm-up matching "Regular easy run" exactly. Two new tests added (`computeELongRunVolumeKm_LowMileage_ClampsDurationTo30MinMinimum`, `computeELongRunVolumeKm_AtLowMileage_IsNeverShorterThanRegularEasyRun`); all 3 pre-existing `computeELongRunVolumeKm` tests continue to pass unmodified (their inputs are all well above where the new floor binds).
 
 ### Suggestions (optional)
 
@@ -156,7 +160,9 @@ None.
 - None — no Critical or Major findings.
 
 ### Post-merge improvements
-- [ ] m1: Consider a lower quality-duration floor for the E-zone "Long run" (matching the Regular run's existing 30-min floor), to avoid the "Long run" ever showing a shorter warm-up than the "Regular easy run" beside it — low priority, only manifests at unrealistic weekly-mileage inputs
+- [x] m1: Floor the E-zone "Long run"'s duration at 30 min, matching the Regular run's existing floor — fixed in `5ccd771`
+
+All findings addressed; none left open for future work.
 
 ---
 
