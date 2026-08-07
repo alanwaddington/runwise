@@ -72,6 +72,24 @@ describe('Workouts page', () => {
 		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(10);
 	});
 
+	it('renders all 10 workout cards without error at low weekly mileage (regression)', async () => {
+		// Regression: 5K/30:22 + 10km/week previously crashed the whole results section with a
+		// Svelte each_key_duplicate runtime error — the computed I/R-zone volume was too small
+		// for 3 reps at either standard distance, and both workout variants fell back to the
+		// same smaller distance, producing an identical label+description pair for the page's
+		// keyed {#each}. Reproduces the exact manually-reported input.
+		render(Workouts);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '30:22' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '10' } });
+		expect(screen.getByText(/your vdot/i)).toBeInTheDocument();
+		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
+			expect(screen.getByLabelText(`Zone ${zoneLabel}`)).toBeInTheDocument();
+		}
+		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(10);
+	});
+
 	it('renders the time-band filter select', async () => {
 		await fillValidForm();
 		expect(screen.getByRole('combobox', { name: /time available/i })).toBeInTheDocument();
