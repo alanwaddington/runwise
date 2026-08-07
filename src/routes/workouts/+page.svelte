@@ -7,7 +7,7 @@
 	import PageExplainer from '$lib/components/PageExplainer.svelte';
 	import { validatePositive, validateRange } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
-	import { buildWorkoutsResult } from '$lib/utils/workouts';
+	import { buildWorkoutsResult, formatDurationMinutes } from '$lib/utils/workouts';
 	import { parseRaceResultParams, serializeRaceResult } from '$lib/utils/race-result-params';
 	import WorkoutProfileChart from '$lib/components/WorkoutProfileChart.svelte';
 
@@ -364,12 +364,12 @@
 									</div>
 									<div class="flex justify-between gap-2">
 										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{workout.estimatedDurationMinutes} min</dd>
+										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
 									</div>
 								</dl>
 								<p class="mt-3 text-xs text-muted">
-									Includes a {workout.segments[0].durationMinutes} min warm-up and {workout
-										.segments[workout.segments.length - 1].durationMinutes} min cool-down.
+									Includes a {formatDurationMinutes(workout.segments[0].durationMinutes)} warm-up and {formatDurationMinutes(workout
+										.segments[workout.segments.length - 1].durationMinutes)} cool-down.
 								</p>
 								<div class="mt-auto">
 									<WorkoutProfileChart segments={workout.segments} />

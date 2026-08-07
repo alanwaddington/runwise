@@ -1,4 +1,5 @@
 import { parsePace } from './pace';
+import { formatTime } from './race-predictor';
 import {
 	buildTrainingPaceResult,
 	ZONE_META,
@@ -43,6 +44,10 @@ export interface WorkoutZone {
 export interface WorkoutsResult {
 	vdot: number;
 	zones: WorkoutZone[];
+}
+
+export function formatDurationMinutes(minutes: number): string {
+	return formatTime(minutes * 60);
 }
 
 /**
@@ -332,9 +337,9 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
 	cruiseSegments.push(cooldownSegment(cruiseCooldownMinutes));
 	const cruise: Workout = {
 		label: 'Cruise intervals',
-		description: `${repCount} x ${repMinutes} min at T pace, ${recoveryPerRep} min jog recovery between reps`,
+		description: `${repCount} x ${repMinutes} min at T pace, ${formatDurationMinutes(recoveryPerRep)} jog recovery between reps`,
 		totalVolumeKm: round1(volumeKm),
-		recovery: `${recoveryPerRep} min jog between reps`,
+		recovery: `${formatDurationMinutes(recoveryPerRep)} jog between reps`,
 		estimatedDurationMinutes: Math.round(totalDuration + cruiseWarmupMinutes + cruiseCooldownMinutes),
 		segments: cruiseSegments
 	};
