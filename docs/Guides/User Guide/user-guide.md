@@ -6,7 +6,7 @@ Runwise is a free collection of running calculators. No account required.
 
 ## Getting Started
 
-Open [runwise](/) in any browser. The home page lists all seven tools — click any card to open it.
+Open [runwise](/) in any browser. The home page lists all eight tools — click any card to open it.
 
 ---
 

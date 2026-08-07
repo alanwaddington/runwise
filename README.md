@@ -58,7 +58,7 @@ Shared components in `src/lib/components/`:
 | Component | Purpose |
 |---|---|
 | `ToolLayout` | Page wrapper — back link, `<h1>`, description, bordered content card, and `<title>` |
-| `SiteNav` | Top navigation with brand link, all seven tool links, and active-route highlighting |
+| `SiteNav` | Top navigation with brand link, all eight tool links, and active-route highlighting |
 | `InputField` | Labelled numeric/text input with optional unit suffix and focus ring |
 | `ResultDisplay` | Prominent result block — large mono value, uppercase label, copy-to-clipboard |
 

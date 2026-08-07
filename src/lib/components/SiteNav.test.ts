@@ -24,7 +24,7 @@ describe('SiteNav', () => {
 		expect(brand).toHaveAttribute('href', '/');
 	});
 
-	it('renders all seven tool links', async () => {
+	it('renders all eight tool links', async () => {
 		const { default: SiteNav } = await import('./SiteNav.svelte');
 		const { getByRole } = render(SiteNav);
 		expect(getByRole('link', { name: 'Pace' })).toHaveAttribute('href', '/pace');
