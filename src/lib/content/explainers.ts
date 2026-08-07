@@ -214,7 +214,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Reading a workout card',
-				body: 'Each card shows a session format (reps and distance, or a continuous block), the target pace pulled straight from your Training Paces zone range, the recovery between reps or segments, the total quality volume, and an estimated total duration that includes a warm-up and cool-down that scales with the session\'s intensity and length — longer for harder efforts like Interval and Repetition, shorter for Easy running.'
+				body: 'Each card shows a session format (reps and distance, or a continuous block), the target pace pulled straight from your Training Paces zone range, the recovery between reps or segments, the total quality volume, and an estimated total duration that includes a warm-up and cool-down. Each is scaled independently to the session\'s intensity and length — longer for harder efforts like Interval and Repetition, shorter for Easy running — with cool-down typically the shorter of the two.'
 			},
 			{
 				heading: 'Using the time filter',
@@ -222,7 +222,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Source and confidence',
-				body: 'The percentage-of-mileage rules and the rep-distance conventions used here are corroborated across multiple independent secondary summaries of Daniels\' "Running Formula" — not a direct quote from the book itself, which is not available to fetch. Treat these as a reliable, well-sourced approximation of Daniels\' methodology, one notch below a primary-source citation.'
+				body: 'The percentage-of-mileage rules and the rep-distance conventions used here are corroborated across multiple independent secondary summaries of Daniels\' "Running Formula" rather than a direct quote from the book itself. Treat these as a reliable, well-sourced approximation of Daniels\' methodology, one notch below a primary-source citation.'
 			}
 		]
 	}

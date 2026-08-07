@@ -164,13 +164,19 @@ describe('Workouts page', () => {
 		expect(new Set(warmupMinutes).size).toBeGreaterThan(1);
 	});
 
-	it('shows a symmetric warm-up and cool-down value on each card', async () => {
+	it('shows warm-up greater than or equal to cool-down on every card, with at least one card strictly greater', async () => {
 		await fillValidForm();
 		const warmupLines = screen.getAllByText(/includes a \d+ min warm-up and \d+ min cool-down/i);
+		let hasStrictlyGreater = false;
 		for (const el of warmupLines) {
 			const match = el.textContent!.match(/includes a (\d+) min warm-up and (\d+) min cool-down/i);
-			expect(match![1]).toBe(match![2]);
+			const warmup = Number(match![1]);
+			const cooldown = Number(match![2]);
+			expect(warmup).toBeGreaterThanOrEqual(cooldown);
+			if (warmup > cooldown) hasStrictlyGreater = true;
 		}
+		// Proves the two are genuinely independent on-screen, not just theoretically able to differ.
+		expect(hasStrictlyGreater).toBe(true);
 	});
 
 	it('shows out-of-range message for an extremely slow time', async () => {
