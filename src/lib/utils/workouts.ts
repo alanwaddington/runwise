@@ -6,6 +6,15 @@ import {
 	type TrainingZone
 } from './training-paces';
 
+export type WorkoutSegmentType = 'warmup' | 'work' | 'recovery' | 'cooldown';
+
+export interface WorkoutSegment {
+	type: WorkoutSegmentType;
+	durationMinutes: number;
+	/** Relative intensity for chart display only, 0-1 — not a physiological unit. */
+	intensity: number;
+}
+
 export interface Workout {
 	/** e.g. "1000m reps", "Continuous tempo", "Long run" */
 	label: string;
@@ -17,6 +26,8 @@ export interface Workout {
 	recovery: string;
 	/** warm-up + quality time + recovery time + cool-down */
 	estimatedDurationMinutes: number;
+	/** Chronological warm-up/work/recovery/cool-down timeline, for the profile chart. Durations sum to estimatedDurationMinutes. */
+	segments: WorkoutSegment[];
 }
 
 export interface WorkoutZone {
@@ -70,6 +81,24 @@ const R_DISTANCE_CAP_KM = 8;
 const I_REP_DISTANCES_M = [1000, 1200];
 const R_REP_DISTANCES_M = [200, 400];
 const MIN_REPS = 3;
+
+/**
+ * Relative intensity values used only for the workout profile chart's y-axis — a visual
+ * ordering (E < M < T < I < R, with warm-up/cool-down/recovery lowest), not a physiological
+ * unit or a claim about actual %VO2max.
+ */
+const WARMUP_INTENSITY = 0.25;
+const COOLDOWN_INTENSITY = 0.25;
+const RECOVERY_INTENSITY = 0.2;
+const ZONE_INTENSITY: Record<ZoneKey, number> = { E: 0.35, M: 0.55, T: 0.7, I: 0.85, R: 1 };
+
+function warmupSegment(): WorkoutSegment {
+	return { type: 'warmup', durationMinutes: WARMUP_COOLDOWN_MINUTES / 2, intensity: WARMUP_INTENSITY };
+}
+
+function cooldownSegment(): WorkoutSegment {
+	return { type: 'cooldown', durationMinutes: WARMUP_COOLDOWN_MINUTES / 2, intensity: COOLDOWN_INTENSITY };
+}
 
 /** Parse a zone's low/high formatted paces to the midpoint decimal min/km. */
 function midpointPaceMinKm(zone: TrainingZone): number {
@@ -132,7 +161,8 @@ function continuousWorkout(
 	label: string,
 	description: string,
 	volumeKm: number,
-	pace: number
+	pace: number,
+	zone: ZoneKey
 ): Workout {
 	const qualityMinutes = volumeKm * pace;
 	return {
@@ -140,7 +170,12 @@ function continuousWorkout(
 		description,
 		totalVolumeKm: round1(volumeKm),
 		recovery: 'None (continuous)',
-		estimatedDurationMinutes: Math.round(qualityMinutes + WARMUP_COOLDOWN_MINUTES)
+		estimatedDurationMinutes: Math.round(qualityMinutes + WARMUP_COOLDOWN_MINUTES),
+		segments: [
+			warmupSegment(),
+			{ type: 'work', durationMinutes: qualityMinutes, intensity: ZONE_INTENSITY[zone] },
+			cooldownSegment()
+		]
 	};
 }
 
@@ -153,13 +188,15 @@ function buildEWorkouts(volumeKm: number, longRunVolumeKm: number, pace: number)
 		'Regular easy run',
 		`${formatMinutes(volumeKm * pace)} continuous easy run at E pace`,
 		volumeKm,
-		pace
+		pace,
+		'E'
 	);
 	const long = continuousWorkout(
 		'Long run',
 		`${formatMinutes(longRunVolumeKm * pace)} continuous long run at the easier end of E pace`,
 		longRunVolumeKm,
-		pace
+		pace,
+		'E'
 	);
 	return [regular, long];
 }
@@ -169,17 +206,26 @@ function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): [Workou
 		'Continuous marathon-pace run',
 		`${round1(volumeKm)}km (${formatMinutes(volumeKm * mPace)}) continuous at M pace`,
 		volumeKm,
-		mPace
+		mPace,
+		'M'
 	);
 	const segmentKm = round1(volumeKm / 2);
 	const jogKm = 1.5;
 	const jogMinutes = jogKm * ePace;
+	const segmentMinutes = (volumeKm / 2) * mPace;
 	const segmented: Workout = {
 		label: 'Marathon-pace segments',
 		description: `2 x ${segmentKm}km at M pace, ${jogKm}km easy jog recovery between`,
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${jogKm}km easy jog between segments`,
-		estimatedDurationMinutes: Math.round(volumeKm * mPace + jogMinutes + WARMUP_COOLDOWN_MINUTES)
+		estimatedDurationMinutes: Math.round(volumeKm * mPace + jogMinutes + WARMUP_COOLDOWN_MINUTES),
+		segments: [
+			warmupSegment(),
+			{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
+			{ type: 'recovery', durationMinutes: jogMinutes, intensity: RECOVERY_INTENSITY },
+			{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
+			cooldownSegment()
+		]
 	};
 	return [continuous, segmented];
 }
@@ -190,7 +236,8 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
 		'Continuous tempo run',
 		`${formatMinutes(durationMinutes)} continuous tempo at T pace`,
 		volumeKm,
-		tPace
+		tPace,
+		'T'
 	);
 	// Cruise intervals: reps of ~5.5 min (source: 3-15 min range, commonly 5-6 min in worked
 	// examples), recovery ~1 min per 5 min of work (~5:1 work:rest).
@@ -198,12 +245,25 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
 	const repCount = Math.max(2, Math.round(durationMinutes / repMinutes));
 	const recoveryPerRep = round1(repMinutes / 5);
 	const totalDuration = repCount * repMinutes + (repCount - 1) * recoveryPerRep;
+	const cruiseSegments: WorkoutSegment[] = [warmupSegment()];
+	for (let i = 0; i < repCount; i++) {
+		cruiseSegments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY.T });
+		if (i < repCount - 1) {
+			cruiseSegments.push({
+				type: 'recovery',
+				durationMinutes: recoveryPerRep,
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	}
+	cruiseSegments.push(cooldownSegment());
 	const cruise: Workout = {
 		label: 'Cruise intervals',
 		description: `${repCount} x ${repMinutes} min at T pace, ${recoveryPerRep} min jog recovery between reps`,
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${recoveryPerRep} min jog between reps`,
-		estimatedDurationMinutes: Math.round(totalDuration + WARMUP_COOLDOWN_MINUTES)
+		estimatedDurationMinutes: Math.round(totalDuration + WARMUP_COOLDOWN_MINUTES),
+		segments: cruiseSegments
 	};
 	return [continuous, cruise];
 }
@@ -218,8 +278,7 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
  * distance, crashing the results section entirely.
  */
 function buildRepsWorkout(
-	label: string,
-	zoneLetter: string,
+	zone: 'I' | 'R',
 	repDistanceM: number,
 	volumeKm: number,
 	pace: number,
@@ -235,12 +294,22 @@ function buildRepsWorkout(
 	const totalVolumeKm = round1(reps * repKm);
 	const totalDuration = reps * repMinutes + (reps - 1) * recoveryMinutes;
 
+	const segments: WorkoutSegment[] = [warmupSegment()];
+	for (let i = 0; i < reps; i++) {
+		segments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY[zone] });
+		if (i < reps - 1) {
+			segments.push({ type: 'recovery', durationMinutes: recoveryMinutes, intensity: RECOVERY_INTENSITY });
+		}
+	}
+	segments.push(cooldownSegment());
+
 	return {
 		label: `${repDistanceM}m reps`,
-		description: `${reps} x ${repDistanceM}m at ${zoneLetter} pace, ${recoveryDescription(repDistanceM, recoveryMinutes)}`,
+		description: `${reps} x ${repDistanceM}m at ${zone} pace, ${recoveryDescription(repDistanceM, recoveryMinutes)}`,
 		totalVolumeKm,
 		recovery: recoveryDescription(repDistanceM, recoveryMinutes),
-		estimatedDurationMinutes: Math.round(totalDuration + WARMUP_COOLDOWN_MINUTES)
+		estimatedDurationMinutes: Math.round(totalDuration + WARMUP_COOLDOWN_MINUTES),
+		segments
 	};
 }
 
@@ -250,7 +319,6 @@ function buildIWorkouts(volumeKm: number, iPace: number): [Workout, Workout] {
 	const recoveryDescription = (repDistanceM: number, recoveryMinutes: number) =>
 		`jog ${formatMinutes(recoveryMinutes)} recovery`;
 	const a = buildRepsWorkout(
-		'Interval',
 		'I',
 		I_REP_DISTANCES_M[0],
 		volumeKm,
@@ -259,7 +327,6 @@ function buildIWorkouts(volumeKm: number, iPace: number): [Workout, Workout] {
 		recoveryDescription
 	);
 	const b = buildRepsWorkout(
-		'Interval',
 		'I',
 		I_REP_DISTANCES_M[1],
 		volumeKm,
@@ -275,7 +342,6 @@ function buildRWorkouts(volumeKm: number, rPace: number): [Workout, Workout] {
 	const recoveryFraction = () => 1;
 	const recoveryDescription = (repDistanceM: number) => `${repDistanceM}m jog recovery`;
 	const a = buildRepsWorkout(
-		'Repetition',
 		'R',
 		R_REP_DISTANCES_M[0],
 		volumeKm,
@@ -284,7 +350,6 @@ function buildRWorkouts(volumeKm: number, rPace: number): [Workout, Workout] {
 		recoveryDescription
 	);
 	const b = buildRepsWorkout(
-		'Repetition',
 		'R',
 		R_REP_DISTANCES_M[1],
 		volumeKm,

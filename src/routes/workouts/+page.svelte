@@ -9,6 +9,7 @@
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
 	import { buildWorkoutsResult, WARMUP_COOLDOWN_MINUTES } from '$lib/utils/workouts';
 	import { parseRaceResultParams, serializeRaceResult } from '$lib/utils/race-result-params';
+	import WorkoutProfileChart from '$lib/components/WorkoutProfileChart.svelte';
 
 	const TIME_BANDS = ['Any time', 'Under 30 min', '30–45 min', '45–60 min', '60+ min'] as const;
 	type TimeBand = (typeof TIME_BANDS)[number];
@@ -369,6 +370,19 @@
 								<p class="mt-3 text-xs text-muted">
 									Includes a {WARMUP_COOLDOWN_MINUTES / 2} min warm-up and {WARMUP_COOLDOWN_MINUTES /
 										2} min cool-down.
+								</p>
+								<WorkoutProfileChart segments={workout.segments} />
+								<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
+									<span class="inline-flex items-center gap-1"
+										><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
+										></span>Work</span
+									>
+									<span class="inline-flex items-center gap-1"
+										><span
+											class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
+											aria-hidden="true"
+										></span>Warm-up / recovery / cool-down</span
+									>
 								</p>
 							</div>
 						{/each}

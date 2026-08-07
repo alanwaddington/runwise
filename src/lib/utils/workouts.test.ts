@@ -191,6 +191,71 @@ describe('buildZoneWorkouts', () => {
 	});
 });
 
+describe('workout segments', () => {
+	it('everyWorkout_segments_startWithWarmupAndEndWithCooldown', () => {
+		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+			for (const workout of buildZoneWorkouts(zone, VDOT_40_ZONES, 80)) {
+				expect(workout.segments[0].type).toBe('warmup');
+				expect(workout.segments[workout.segments.length - 1].type).toBe('cooldown');
+			}
+		}
+	});
+
+	it('everyWorkout_segmentDurations_sumToEstimatedDuration', () => {
+		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+			for (const workout of buildZoneWorkouts(zone, VDOT_40_ZONES, 80)) {
+				const total = workout.segments.reduce((sum, s) => sum + s.durationMinutes, 0);
+				expect(total).toBeCloseTo(workout.estimatedDurationMinutes, 0);
+			}
+		}
+	});
+
+	it('everyWorkout_segments_haveIntensityBetween0And1', () => {
+		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+			for (const workout of buildZoneWorkouts(zone, VDOT_40_ZONES, 80)) {
+				for (const segment of workout.segments) {
+					expect(segment.intensity).toBeGreaterThan(0);
+					expect(segment.intensity).toBeLessThanOrEqual(1);
+				}
+			}
+		}
+	});
+
+	it('continuousWorkouts_haveExactlyOneWorkSegment', () => {
+		const [eRegular] = buildZoneWorkouts('E', VDOT_40_ZONES, 80);
+		expect(eRegular.segments.filter((s) => s.type === 'work')).toHaveLength(1);
+
+		const [mContinuous] = buildZoneWorkouts('M', VDOT_40_ZONES, 80);
+		expect(mContinuous.segments.filter((s) => s.type === 'work')).toHaveLength(1);
+
+		const [tContinuous] = buildZoneWorkouts('T', VDOT_40_ZONES, 80);
+		expect(tContinuous.segments.filter((s) => s.type === 'work')).toHaveLength(1);
+	});
+
+	it('mSegmentedWorkout_hasTwoWorkSegmentsAndOneRecovery', () => {
+		const [, segmented] = buildZoneWorkouts('M', VDOT_40_ZONES, 80);
+		expect(segmented.segments.filter((s) => s.type === 'work')).toHaveLength(2);
+		expect(segmented.segments.filter((s) => s.type === 'recovery')).toHaveLength(1);
+	});
+
+	it('repsWorkout_workSegmentCount_matchesRepsInDescription', () => {
+		const [a] = buildZoneWorkouts('I', VDOT_40_ZONES, 80);
+		const reps = parseInt(a.description.split(' x ')[0], 10);
+		const workSegments = a.segments.filter((s) => s.type === 'work');
+		const recoverySegments = a.segments.filter((s) => s.type === 'recovery');
+		expect(workSegments).toHaveLength(reps);
+		expect(recoverySegments).toHaveLength(reps - 1);
+	});
+
+	it('rZoneWorkSegments_haveHigherIntensityThanEZoneWorkSegments', () => {
+		const [eRegular] = buildZoneWorkouts('E', VDOT_40_ZONES, 80);
+		const [rA] = buildZoneWorkouts('R', VDOT_40_ZONES, 80);
+		const eWork = eRegular.segments.find((s) => s.type === 'work')!;
+		const rWork = rA.segments.find((s) => s.type === 'work')!;
+		expect(rWork.intensity).toBeGreaterThan(eWork.intensity);
+	});
+});
+
 describe('buildWorkoutsResult', () => {
 	it('buildWorkoutsResult_ValidInput_ReturnsResult', () => {
 		const result = buildWorkoutsResult(5, 1500, 80);
