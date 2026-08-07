@@ -4,8 +4,10 @@ import {
 	computeELongRunVolumeKm,
 	buildZoneWorkouts,
 	buildWorkoutsResult,
-	computeWarmupCooldownMinutes,
-	WARMUP_COOLDOWN_BAND
+	computeWarmupMinutes,
+	computeCooldownMinutes,
+	WARMUP_BAND,
+	COOLDOWN_BAND
 } from './workouts';
 import { getTrainingPaces } from './training-paces';
 
@@ -147,9 +149,9 @@ describe('buildZoneWorkouts', () => {
 	it('buildZoneWorkouts_EveryWorkout_IncludesAtLeastItsZonesMinWarmupCooldownInDuration', () => {
 		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
 			const workouts = buildZoneWorkouts(zone, VDOT_40_ZONES, 80);
-			const { min } = WARMUP_COOLDOWN_BAND[zone];
+			const minTotal = WARMUP_BAND[zone].min + COOLDOWN_BAND[zone].min;
 			for (const w of workouts) {
-				expect(w.estimatedDurationMinutes).toBeGreaterThanOrEqual(min * 2);
+				expect(w.estimatedDurationMinutes).toBeGreaterThanOrEqual(minTotal);
 			}
 		}
 	});
@@ -213,46 +215,86 @@ describe('buildZoneWorkouts', () => {
 	});
 });
 
-describe('computeWarmupCooldownMinutes', () => {
+describe('computeWarmupMinutes', () => {
 	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
 		'%sZone_AtZeroQualityMinutes_ReturnsBandMin',
 		(zone) => {
-			expect(computeWarmupCooldownMinutes(zone, 0)).toBe(WARMUP_COOLDOWN_BAND[zone].min);
+			expect(computeWarmupMinutes(zone, 0)).toBe(WARMUP_BAND[zone].min);
 		}
 	);
 
 	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
 		'%sZone_AtOrAbove60QualityMinutes_ReturnsBandMax',
 		(zone) => {
-			expect(computeWarmupCooldownMinutes(zone, 60)).toBe(WARMUP_COOLDOWN_BAND[zone].max);
-			expect(computeWarmupCooldownMinutes(zone, 200)).toBe(WARMUP_COOLDOWN_BAND[zone].max);
+			expect(computeWarmupMinutes(zone, 60)).toBe(WARMUP_BAND[zone].max);
+			expect(computeWarmupMinutes(zone, 200)).toBe(WARMUP_BAND[zone].max);
 		}
 	);
 
 	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
 		'%sZone_AtNegativeQualityMinutes_ClampsToBandMin',
 		(zone) => {
-			expect(computeWarmupCooldownMinutes(zone, -10)).toBe(WARMUP_COOLDOWN_BAND[zone].min);
+			expect(computeWarmupMinutes(zone, -10)).toBe(WARMUP_BAND[zone].min);
 		}
 	);
 
 	it('EZone_At30QualityMinutes_ReturnsMidpointOfBand', () => {
 		// t = 30/60 = 0.5 → 5 + 0.5*(10-5) = 7.5 → rounds to 8
-		expect(computeWarmupCooldownMinutes('E', 30)).toBe(8);
+		expect(computeWarmupMinutes('E', 30)).toBe(8);
 	});
 
 	it('RZone_At30QualityMinutes_ReturnsMidpointOfBand', () => {
 		// t = 30/60 = 0.5 → 12 + 0.5*(16-12) = 14
-		expect(computeWarmupCooldownMinutes('R', 30)).toBe(14);
+		expect(computeWarmupMinutes('R', 30)).toBe(14);
 	});
 
 	it('IZone_ReturnsLongerWarmupThanEZone_AtSameQualityMinutes', () => {
 		// I/R sessions get a longer warm-up band than E/M, per the design's
 		// "harder efforts need more build-up" decision.
-		expect(computeWarmupCooldownMinutes('I', 20)).toBeGreaterThan(
-			computeWarmupCooldownMinutes('E', 20)
-		);
+		expect(computeWarmupMinutes('I', 20)).toBeGreaterThan(computeWarmupMinutes('E', 20));
 	});
+});
+
+describe('computeCooldownMinutes', () => {
+	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
+		'%sZone_AtZeroQualityMinutes_ReturnsBandMin',
+		(zone) => {
+			expect(computeCooldownMinutes(zone, 0)).toBe(COOLDOWN_BAND[zone].min);
+		}
+	);
+
+	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
+		'%sZone_AtOrAbove60QualityMinutes_ReturnsBandMax',
+		(zone) => {
+			expect(computeCooldownMinutes(zone, 60)).toBe(COOLDOWN_BAND[zone].max);
+			expect(computeCooldownMinutes(zone, 200)).toBe(COOLDOWN_BAND[zone].max);
+		}
+	);
+
+	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
+		'%sZone_AtNegativeQualityMinutes_ClampsToBandMin',
+		(zone) => {
+			expect(computeCooldownMinutes(zone, -10)).toBe(COOLDOWN_BAND[zone].min);
+		}
+	);
+
+	it('EZone_At30QualityMinutes_ReturnsMidpointOfBand', () => {
+		// t = 30/60 = 0.5 → 4 + 0.5*(6-4) = 5
+		expect(computeCooldownMinutes('E', 30)).toBe(5);
+	});
+
+	it('RZone_At30QualityMinutes_ReturnsMidpointOfBand', () => {
+		// t = 30/60 = 0.5 → 8 + 0.5*(11-8) = 9.5 → rounds to 10
+		expect(computeCooldownMinutes('R', 30)).toBe(10);
+	});
+
+	it.each(['E', 'M', 'T', 'I', 'R'] as const)(
+		'%sZone_BandIsNeverHigherThanWarmupBand',
+		(zone) => {
+			expect(COOLDOWN_BAND[zone].min).toBeLessThanOrEqual(WARMUP_BAND[zone].min);
+			expect(COOLDOWN_BAND[zone].max).toBeLessThanOrEqual(WARMUP_BAND[zone].max);
+		}
+	);
 });
 
 describe('workout segments', () => {
@@ -319,13 +361,27 @@ describe('workout segments', () => {
 		expect(rWork.intensity).toBeGreaterThan(eWork.intensity);
 	});
 
-	it('everyWorkout_warmupDuration_equalsCooldownDuration', () => {
+	it('everyWorkout_warmupDuration_isAtLeastCooldownDuration', () => {
 		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
 			for (const workout of buildZoneWorkouts(zone, VDOT_40_ZONES, 80)) {
 				const warmup = workout.segments[0];
 				const cooldown = workout.segments[workout.segments.length - 1];
-				expect(warmup.durationMinutes).toBe(cooldown.durationMinutes);
+				expect(warmup.durationMinutes).toBeGreaterThanOrEqual(cooldown.durationMinutes);
 			}
+		}
+	});
+
+	it('everyZone_atLeastOneWorkout_hasWarmupStrictlyLongerThanCooldown', () => {
+		// Proves genuine asymmetry in practice, not just in the unused band tables — a real
+		// workout's warm-up and cool-down should actually differ, not merely be allowed to.
+		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+			const workouts = buildZoneWorkouts(zone, VDOT_40_ZONES, 80);
+			const hasStrictAsymmetry = workouts.some((workout) => {
+				const warmup = workout.segments[0];
+				const cooldown = workout.segments[workout.segments.length - 1];
+				return warmup.durationMinutes > cooldown.durationMinutes;
+			});
+			expect(hasStrictAsymmetry).toBe(true);
 		}
 	});
 
