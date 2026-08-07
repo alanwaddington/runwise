@@ -216,6 +216,41 @@ Cross-links to the HR Zone Calculator are displayed with results.
 
 ---
 
+### Workout Suggestions — `/workouts`
+
+Turn your training paces into concrete session plans, scaled to your current weekly training mileage. Based on Jack Daniels' weekly-mileage-scaling rules layered on top of the Training Pace Calculator's VDOT method.
+
+**Inputs:**
+
+| Field | Format | Example |
+|-------|--------|---------|
+| Race distance | Dropdown (1 Mile, 5K, 10K, 15K, Half Marathon, Marathon, or Custom) | 5K |
+| Custom distance | Decimal km — appears when "Custom (km)" is selected | 12.5 |
+| Race time | MM:SS or H:MM:SS — auto-detected | 25:00 or 1:56:20 |
+| Weekly training mileage | Decimal km (1–300) | 50 |
+
+Both a valid race result and a valid weekly mileage are required before results appear.
+
+**Output:** Your VDOT score, followed by all five training zones (E, M, T, I, R), each showing its pace range and exactly two example workouts:
+
+| Zone | Two workouts |
+|------|-------------|
+| E | A regular easy run and a long run — each uses its own distinct weekly-mileage share and duration cap |
+| M | One continuous marathon-pace run, and one 2-segment version with an easy jog between segments |
+| T | One continuous ~20 minute tempo run, and one cruise-interval session |
+| I | Two rep-distance variants (e.g. 1000m and 1200m) at the same computed volume |
+| R | Two rep-distance variants (e.g. 200m and 400m) at the same computed volume |
+
+Each workout card shows the session format, target pace, recovery, total quality volume, estimated duration, and a standard warm-up/cool-down line.
+
+**Time-available filter:** A dropdown (Any time / Under 30 min / 30–45 min / 45–60 min / 60+ min) filters which workouts are shown across every zone at once. If no workout in a zone fits the selected window, that zone shows a short message instead of a mismatched or hidden result.
+
+Volume-scaling percentages and rep-distance conventions are corroborated across multiple independent secondary sources on Daniels' methodology, documented in code with their confidence level.
+
+A cross-link to the Training Pace Calculator is shown once a valid race result is entered, carrying your race result across automatically. The Training Pace Calculator links back the same way — your weekly mileage does not carry over between the two, since it is only used here.
+
+---
+
 ## Recommended Gear
 
 Each tool page shows affiliate product recommendations alongside the tool — GPS watches and heart rate monitors relevant to the tool you're using. On desktop the recommendations appear in a sidebar to the right of the tool; on mobile they appear below it. These link to Amazon search results. As an Amazon Associate, Runwise may earn a small commission from qualifying purchases at no extra cost to you.

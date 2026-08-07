@@ -198,5 +198,32 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 				body: 'Power responds instantly to effort and stays consistent on hills and in wind, where pace slows and heart rate lags behind. Many runners use power for real-time pacing on variable terrain, then cross-check against the Training Paces or HR Zones calculators for sessions run on flat, controlled routes.'
 			}
 		]
+	},
+	'/workouts': {
+		heading: 'About workout suggestions',
+		intro:
+			'Knowing your training paces (see the Training Paces calculator) only answers half the question — a runner also needs to know how much quality running at each pace is appropriate for their current training load. This tool applies Jack Daniels\' own weekly-mileage-scaling rules to your training paces, turning each of the five zones into two concrete, ready-to-run session prescriptions.',
+		sections: [
+			{
+				heading: 'How volume is derived from weekly mileage',
+				body: 'Daniels scales each zone\'s quality-session volume as a percentage of your weekly mileage, with an absolute per-session cap layered on top so the numbers stay sensible at very high mileage. Easy running gets the largest share (25-30%), tapering down to Marathon (15-20%), Threshold (10%), Interval (8%), and Repetition (5%) — reflecting how much of each harder effort a body can safely absorb in a week.'
+			},
+			{
+				heading: 'Why Easy has two distinct workouts',
+				body: 'The Easy zone splits into a regular easy day and a long run, because Daniels treats these as genuinely different sessions with different volume rules — a long run gets its own weekly-mileage share and duration cap, not just a longer version of an ordinary easy run.'
+			},
+			{
+				heading: 'Reading a workout card',
+				body: 'Each card shows a session format (reps and distance, or a continuous block), the target pace pulled straight from your Training Paces zone range, the recovery between reps or segments, the total quality volume, and an estimated total duration that includes a fixed 10-minute warm-up and 10-minute cool-down.'
+			},
+			{
+				heading: 'Using the time filter',
+				body: 'If you only have a set window today, the time-band filter narrows every zone down to workouts that fit. A zone with nothing short enough for the selected band shows a note rather than a workout that would run long — better to know before you start than to cut a session short partway through.'
+			},
+			{
+				heading: 'Source and confidence',
+				body: 'The percentage-of-mileage rules and the rep-distance conventions used here are corroborated across multiple independent secondary summaries of Daniels\' "Running Formula" — not a direct quote from the book itself, which is not available to fetch. Treat these as a reliable, well-sourced approximation of Daniels\' methodology, one notch below a primary-source citation.'
+			}
+		]
 	}
 };
