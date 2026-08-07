@@ -162,6 +162,22 @@ describe('buildZoneWorkouts', () => {
 		expect(repsB).toBeGreaterThanOrEqual(3);
 	});
 
+	it('buildZoneWorkouts_IZone_LowMileage_StillReturnsTwoDistinctLabels', () => {
+		// Regression: at low weekly mileage the computed I volume is too small to reach 3 reps
+		// at either 1000m or 1200m, which previously made both workouts fall back to the same
+		// (smaller) distance — an identical label/description pair, which crashed the /workouts
+		// page's keyed {#each} with a duplicate-key runtime error. 10km/week reproduces it.
+		const [a, b] = buildZoneWorkouts('I', VDOT_40_ZONES, 10);
+		expect(a.label).not.toBe(b.label);
+		expect(a.label + a.description).not.toBe(b.label + b.description);
+	});
+
+	it('buildZoneWorkouts_RZone_LowMileage_StillReturnsTwoDistinctLabels', () => {
+		const [a, b] = buildZoneWorkouts('R', VDOT_40_ZONES, 10);
+		expect(a.label).not.toBe(b.label);
+		expect(a.label + a.description).not.toBe(b.label + b.description);
+	});
+
 	it('buildZoneWorkouts_MZone_ReturnsContinuousAndSegmented', () => {
 		const [continuous, segmented] = buildZoneWorkouts('M', VDOT_40_ZONES, 100);
 		expect(continuous.recovery).toBe('None (continuous)');

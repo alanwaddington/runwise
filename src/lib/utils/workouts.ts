@@ -208,31 +208,26 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
 	return [continuous, cruise];
 }
 
-/** Build a single reps-based workout (I or R zone) for one candidate rep distance. */
+/**
+ * Build a single reps-based workout (I or R zone) at a fixed rep distance, flooring the rep
+ * count at MIN_REPS rather than showing an unrealistically low count when the computed volume
+ * is too small. Each of the two standard distances for a zone is always built independently at
+ * its own fixed distance (never falling back to the other) so the two workout variants can never
+ * collapse onto the same distance/label — Svelte's keyed {#each} over the two workouts requires
+ * distinct keys, and low-mileage inputs previously caused both to fall back to the same smaller
+ * distance, crashing the results section entirely.
+ */
 function buildRepsWorkout(
 	label: string,
 	zoneLetter: string,
-	repDistances: number[],
-	preferredIndex: number,
+	repDistanceM: number,
 	volumeKm: number,
 	pace: number,
 	recoveryFraction: (repMinutes: number) => number,
 	recoveryDescription: (repDistanceM: number, recoveryMinutes: number) => string
 ): Workout {
 	const volumeM = volumeKm * 1000;
-	let repDistanceM = repDistances[preferredIndex];
-	let reps = Math.round(volumeM / repDistanceM);
-
-	// Fall back to the smaller standard distance rather than showing an unrealistically low
-	// rep count when the computed volume can't support 3 reps at the preferred distance.
-	if (reps < MIN_REPS) {
-		const smallerDistanceM = Math.min(...repDistances);
-		if (repDistanceM !== smallerDistanceM) {
-			repDistanceM = smallerDistanceM;
-			reps = Math.round(volumeM / repDistanceM);
-		}
-	}
-	reps = Math.max(MIN_REPS, reps);
+	const reps = Math.max(MIN_REPS, Math.round(volumeM / repDistanceM));
 
 	const repKm = repDistanceM / 1000;
 	const repMinutes = repKm * pace;
@@ -257,8 +252,7 @@ function buildIWorkouts(volumeKm: number, iPace: number): [Workout, Workout] {
 	const a = buildRepsWorkout(
 		'Interval',
 		'I',
-		I_REP_DISTANCES_M,
-		0,
+		I_REP_DISTANCES_M[0],
 		volumeKm,
 		iPace,
 		recoveryFraction,
@@ -267,8 +261,7 @@ function buildIWorkouts(volumeKm: number, iPace: number): [Workout, Workout] {
 	const b = buildRepsWorkout(
 		'Interval',
 		'I',
-		I_REP_DISTANCES_M,
-		1,
+		I_REP_DISTANCES_M[1],
 		volumeKm,
 		iPace,
 		recoveryFraction,
@@ -284,8 +277,7 @@ function buildRWorkouts(volumeKm: number, rPace: number): [Workout, Workout] {
 	const a = buildRepsWorkout(
 		'Repetition',
 		'R',
-		R_REP_DISTANCES_M,
-		0,
+		R_REP_DISTANCES_M[0],
 		volumeKm,
 		rPace,
 		recoveryFraction,
@@ -294,8 +286,7 @@ function buildRWorkouts(volumeKm: number, rPace: number): [Workout, Workout] {
 	const b = buildRepsWorkout(
 		'Repetition',
 		'R',
-		R_REP_DISTANCES_M,
-		1,
+		R_REP_DISTANCES_M[1],
 		volumeKm,
 		rPace,
 		recoveryFraction,
