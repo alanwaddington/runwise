@@ -350,7 +350,7 @@
 				{:else}
 					<div class="grid gap-3 sm:grid-cols-2">
 						{#each zone.filtered as workout (workout.label + workout.description)}
-							<div class="rounded-lg border border-ink/10 p-4">
+							<div class="flex h-full flex-col rounded-lg border border-ink/10 p-4">
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -371,19 +371,21 @@
 									Includes a {WARMUP_COOLDOWN_MINUTES / 2} min warm-up and {WARMUP_COOLDOWN_MINUTES /
 										2} min cool-down.
 								</p>
-								<WorkoutProfileChart segments={workout.segments} />
-								<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
-									<span class="inline-flex items-center gap-1"
-										><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
-										></span>Work</span
-									>
-									<span class="inline-flex items-center gap-1"
-										><span
-											class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
-											aria-hidden="true"
-										></span>Warm-up / recovery / cool-down</span
-									>
-								</p>
+								<div class="mt-auto">
+									<WorkoutProfileChart segments={workout.segments} />
+									<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
+										<span class="inline-flex items-center gap-1"
+											><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
+											></span>Work</span
+										>
+										<span class="inline-flex items-center gap-1"
+											><span
+												class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
+												aria-hidden="true"
+											></span>Warm-up / recovery / cool-down</span
+										>
+									</p>
+								</div>
 							</div>
 						{/each}
 					</div>
