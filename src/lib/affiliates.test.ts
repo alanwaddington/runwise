@@ -1,15 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { getAffiliateLinks, AFFILIATE_LINKS, type AffiliateProduct } from './affiliates';
+import { PAGES } from './seo';
 
-const TOOL_ROUTES = [
-	'/pace',
-	'/race-predictor',
-	'/training-paces',
-	'/hr-zones',
-	'/vo2max',
-	'/parkrun',
-	'/power-zones'
-];
+// Derived from PAGES rather than hardcoded so every new tool route automatically requires
+// affiliate links without needing a matching edit here — mirrors seo.test.ts's TOOL_ROUTES
+// derivation and home-page.test.ts's card-count guard (PR #90 review finding M2). A hardcoded
+// list here previously went stale and silently missed /workouts having no affiliate entry at
+// all, unlike every other tool page.
+const TOOL_ROUTES = Object.keys(PAGES).filter((route) => route !== '/' && route !== '/privacy');
 
 describe('AFFILIATE_LINKS config', () => {
 	it('AFFILIATE_LINKS_everyToolRoute_hasAtLeastOneProduct', () => {
