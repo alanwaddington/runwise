@@ -84,10 +84,8 @@ describe('Workouts page', () => {
 		expect(screen.getAllByText(/no workout in this zone fits/i).length).toBeGreaterThan(0);
 	});
 
-	it('shows the training-paces cross-link once a valid race result exists', async () => {
-		render(Workouts);
-		const timeInput = screen.getByLabelText(/race time/i);
-		await fireEvent.input(timeInput, { target: { value: '25:00' } });
+	it('shows the training-paces cross-link once full valid results are visible', async () => {
+		await fillValidForm();
 		const link = screen.getByRole('link', { name: /view training paces/i });
 		expect(link).toHaveAttribute('href', expect.stringContaining('/training-paces?'));
 		expect(link).toHaveAttribute('href', expect.stringContaining('distance=5K'));
@@ -96,6 +94,22 @@ describe('Workouts page', () => {
 
 	it('does not show the cross-link in the empty state', () => {
 		render(Workouts);
+		expect(screen.queryByRole('link', { name: /view training paces/i })).toBeNull();
+	});
+
+	it('does not show the cross-link with only a race result (missing weekly mileage)', async () => {
+		render(Workouts);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '25:00' } });
+		expect(screen.queryByRole('link', { name: /view training paces/i })).toBeNull();
+	});
+
+	it('does not show the cross-link for an out-of-range race result', async () => {
+		render(Workouts);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '1:20:00' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '80' } });
 		expect(screen.queryByRole('link', { name: /view training paces/i })).toBeNull();
 	});
 

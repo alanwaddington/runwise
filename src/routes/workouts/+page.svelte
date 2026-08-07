@@ -390,18 +390,18 @@
 				{/if}
 			</section>
 		{/each}
-	{/if}
 
-	<!-- Footer link -->
-	{#if raceResultQuery !== null}
-		<p class="mt-6 text-center text-xs text-muted">
-			Want to see your full training pace ranges?
-			<a
-				href="/training-paces?{raceResultQuery}"
-				class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-				>View training paces →</a
-			>
-		</p>
+		<!-- Footer link -->
+		{#if raceResultQuery !== null}
+			<p class="mt-6 text-center text-xs text-muted">
+				Want to see your full training pace ranges?
+				<a
+					href="/training-paces?{raceResultQuery}"
+					class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					>View training paces →</a
+				>
+			</p>
+		{/if}
 	{/if}
 
 	{#if result !== null}
