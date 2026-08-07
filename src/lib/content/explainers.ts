@@ -222,7 +222,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Source and confidence',
-				body: 'The percentage-of-mileage rules and the rep-distance conventions used here are corroborated across multiple independent secondary summaries of Daniels\' "Running Formula" — not a direct quote from the book itself, which is not available to fetch. Treat these as a reliable, well-sourced approximation of Daniels\' methodology, one notch below a primary-source citation.'
+				body: 'The percentage-of-mileage rules and the rep-distance conventions used here are corroborated across multiple independent secondary summaries of Daniels\' "Running Formula" rather than a direct quote from the book itself. Treat these as a reliable, well-sourced approximation of Daniels\' methodology, one notch below a primary-source citation.'
 			}
 		]
 	}

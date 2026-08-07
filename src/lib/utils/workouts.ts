@@ -115,11 +115,11 @@ export function computeCooldownMinutes(zone: ZoneKey, qualityMinutes: number): n
  * Per-zone weekly-mileage-share and absolute-cap rules for quality-session volume.
  *
  * Source/confidence: corroborated across three independently-authored secondary summaries of
- * Jack Daniels' "Running Formula" (the book itself isn't fetchable, so this is not a direct
- * page-number quote). The Repetition-zone cap was additionally cross-confirmed via two different
- * unit systems (5% of weekly miles vs. an 8km/5-mile cap converging on the same value). This is a
- * "corroborated secondary-source consensus" confidence tier — stronger than an unverified single
- * source, one tier below verification against a vendor's own primary documentation.
+ * Jack Daniels' "Running Formula" (we don't have a copy of the book itself to check page numbers
+ * against, so this is not a direct quote). The Repetition-zone cap was additionally cross-confirmed
+ * via two different unit systems (5% of weekly miles vs. an 8km/5-mile cap converging on the same
+ * value). This is a "corroborated secondary-source consensus" confidence tier — stronger than an
+ * unverified single source, one tier below verification against a vendor's own primary documentation.
  */
 const E_REGULAR_SHARE = 0.275; // midpoint of 25-30% of weekly mileage
 const E_LONG_SHARE_UNDER_64KM = 0.3;
