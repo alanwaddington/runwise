@@ -241,13 +241,13 @@ Both a valid race result and a valid weekly mileage are required before results 
 | I | Two rep-distance variants (e.g. 1000m and 1200m) at the same computed volume |
 | R | Two rep-distance variants (e.g. 200m and 400m) at the same computed volume |
 
-Each workout card shows the session format, target pace, recovery, total quality volume, estimated duration, and a standard warm-up/cool-down line.
+Each workout card shows the session format, target pace, recovery, total quality volume, estimated duration, and a standard warm-up/cool-down line, plus a small visual profile chart underneath: a bar for each segment of the session (warm-up, work, recovery, cool-down), sized by duration and coloured by intensity, so you can see a session's shape (e.g. steady continuous effort vs. repeated intervals) at a glance alongside the text.
 
 **Time-available filter:** A dropdown (Any time / Under 30 min / 30–45 min / 45–60 min / 60+ min) filters which workouts are shown across every zone at once. If no workout in a zone fits the selected window, that zone shows a short message instead of a mismatched or hidden result.
 
 Volume-scaling percentages and rep-distance conventions are corroborated across multiple independent secondary sources on Daniels' methodology, documented in code with their confidence level.
 
-A cross-link to the Training Pace Calculator is shown once a valid race result is entered, carrying your race result across automatically. The Training Pace Calculator links back the same way — your weekly mileage does not carry over between the two, since it is only used here.
+A cross-link to the Training Pace Calculator is shown once your workout results are visible (a valid race result and weekly mileage), carrying your race result across automatically. The Training Pace Calculator links back the same way once its own results are visible — your weekly mileage does not carry over between the two, since it is only used here.
 
 ---
 
