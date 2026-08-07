@@ -106,7 +106,7 @@
 	<div class="space-y-4">
 		<h2 class="font-sans text-3xl font-bold text-ink">How Runwise Helps</h2>
 		<p class="max-w-2xl text-lg text-muted">
-			Seven free calculators to train smarter and race faster.
+			Eight free calculators to train smarter and race faster.
 		</p>
 	</div>
 

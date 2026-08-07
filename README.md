@@ -13,6 +13,7 @@ Fast, clean running calculators: pace, race time predictor, HR zones, VO2 max, a
 - **[VO2 Max Estimator](https://runwise.app/vo2max)** — `/vo2max`
 - **[Parkrun Predictor](https://runwise.app/parkrun)** — `/parkrun`
 - **[Power Zones Calculator](https://runwise.app/power-zones)** — `/power-zones`
+- **[Workout Suggestions](https://runwise.app/workouts)** — `/workouts`
 
 ## Requirements
 

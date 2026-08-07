@@ -14,7 +14,8 @@ const TARGET_KEYWORDS: Record<string, string> = {
 	'/hr-zones': 'heart rate zone calculator',
 	'/vo2max': 'VO2 max calculator',
 	'/parkrun': 'parkrun predictor',
-	'/power-zones': 'power zone calculator'
+	'/power-zones': 'power zone calculator',
+	'/workouts': 'workout generator'
 };
 
 describe('seo config constants', () => {

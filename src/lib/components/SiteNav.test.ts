@@ -40,6 +40,7 @@ describe('SiteNav', () => {
 		expect(getByRole('link', { name: 'VO2 Max' })).toHaveAttribute('href', '/vo2max');
 		expect(getByRole('link', { name: 'Parkrun' })).toHaveAttribute('href', '/parkrun');
 		expect(getByRole('link', { name: 'Power Zones' })).toHaveAttribute('href', '/power-zones');
+		expect(getByRole('link', { name: 'Workouts' })).toHaveAttribute('href', '/workouts');
 	});
 
 	it('marks the active route with aria-current="page"', async () => {
