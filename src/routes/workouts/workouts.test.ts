@@ -151,6 +151,28 @@ describe('Workouts page', () => {
 		expect(screen.getByLabelText(/weekly training mileage/i)).toHaveValue('');
 	});
 
+	it('shows a per-workout warm-up/cool-down value, not one shared fixed figure', async () => {
+		await fillValidForm();
+		const warmupLines = screen.getAllByText(/includes a \d+ min warm-up and \d+ min cool-down/i);
+		expect(warmupLines).toHaveLength(10);
+		const warmupMinutes = warmupLines.map((el) => {
+			const match = el.textContent!.match(/includes a (\d+) min warm-up/i);
+			return match![1];
+		});
+		// At least two different values across the 10 cards proves this is genuinely per-workout,
+		// not a single shared figure repeated on every card.
+		expect(new Set(warmupMinutes).size).toBeGreaterThan(1);
+	});
+
+	it('shows a symmetric warm-up and cool-down value on each card', async () => {
+		await fillValidForm();
+		const warmupLines = screen.getAllByText(/includes a \d+ min warm-up and \d+ min cool-down/i);
+		for (const el of warmupLines) {
+			const match = el.textContent!.match(/includes a (\d+) min warm-up and (\d+) min cool-down/i);
+			expect(match![1]).toBe(match![2]);
+		}
+	});
+
 	it('shows out-of-range message for an extremely slow time', async () => {
 		render(Workouts);
 		const timeInput = screen.getByLabelText(/race time/i);

@@ -7,7 +7,7 @@
 	import PageExplainer from '$lib/components/PageExplainer.svelte';
 	import { validatePositive, validateRange } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
-	import { buildWorkoutsResult, WARMUP_COOLDOWN_MINUTES } from '$lib/utils/workouts';
+	import { buildWorkoutsResult } from '$lib/utils/workouts';
 	import { parseRaceResultParams, serializeRaceResult } from '$lib/utils/race-result-params';
 	import WorkoutProfileChart from '$lib/components/WorkoutProfileChart.svelte';
 
@@ -368,8 +368,8 @@
 									</div>
 								</dl>
 								<p class="mt-3 text-xs text-muted">
-									Includes a {WARMUP_COOLDOWN_MINUTES / 2} min warm-up and {WARMUP_COOLDOWN_MINUTES /
-										2} min cool-down.
+									Includes a {workout.segments[0].durationMinutes} min warm-up and {workout
+										.segments[workout.segments.length - 1].durationMinutes} min cool-down.
 								</p>
 								<div class="mt-auto">
 									<WorkoutProfileChart segments={workout.segments} />
