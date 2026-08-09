@@ -265,6 +265,14 @@ export const DEVICE_DISPLAY_NAME: Record<PowerMeterDevice, string> = {
 const MIN_POWER = 50;
 const MAX_POWER = 700;
 
+/** Map device zone number to Daniels' E/M/T/I/R training zone */
+export const DEVICE_ZONE_TO_TRAINING_ZONE: Record<PowerMeterDevice, Record<number, string>> = {
+	stryd: { 1: 'E', 2: 'M', 3: 'T', 4: 'I', 5: 'R' },
+	garmin: { 1: 'E', 2: 'M', 3: 'T', 4: 'I', 5: 'R' },
+	coros: { 1: 'E', 2: 'E', 3: 'M', 4: 'T', 5: 'I', 6: 'I', 7: 'R' },
+	polar: { 1: 'E', 2: 'M', 3: 'T', 4: 'I', 5: 'R' }
+};
+
 /**
  * Calculate power training zones for the given device's model.
  * Returns null for physiologically implausible inputs (< 50 or > 700 W).
