@@ -612,7 +612,7 @@
 					{:else}
 						<div class="grid gap-3 sm:grid-cols-2">
 							{#each zone.filtered as workout (workout.label + workout.description)}
-								<div class="flex h-full flex-col rounded-lg border border-ink/10 p-4">
+								<button type="button" onclick={() => { const easyZone = result !== null && result !== 'out-of-range' ? result.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
 									<p class="font-medium text-ink">{workout.label}</p>
 									<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 									<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -648,7 +648,7 @@
 											>
 										</p>
 									</div>
-								</div>
+								</button>
 							{/each}
 						</div>
 					{/if}
@@ -748,7 +748,7 @@
 
 					<div class="grid gap-3 sm:grid-cols-2">
 						{#each zone.workouts as workout (workout.label + workout.description)}
-							<div class="flex h-full flex-col rounded-lg border border-ink/10 p-4">
+							<button type="button" onclick={() => { const easyZone = powerResult !== null && powerResult !== 'out-of-range' ? powerResult.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -780,7 +780,7 @@
 										>
 									</p>
 								</div>
-							</div>
+							</button>
 						{/each}
 					</div>
 				</section>
