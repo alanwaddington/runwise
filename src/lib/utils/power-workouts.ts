@@ -18,7 +18,7 @@ export type PowerWorkoutZone = {
 	name: string;
 	wattsLow: number | null;
 	wattsHigh: number | null;
-	workouts: [Workout, Workout];
+	workouts: Workout[];
 };
 
 export type PowerWorkoutsResult = {
