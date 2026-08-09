@@ -307,22 +307,36 @@
 	route="/workouts"
 >
 	<!-- Mode toggle tabs -->
-	<div class="mb-6 flex gap-2 border-b border-ink/10">
+	<div
+		class="mb-6 flex rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
+		role="tablist"
+		tabindex="-1"
+	>
 		<button
 			type="button"
+			role="tab"
+			aria-selected={mode === 'pace'}
 			onclick={() => switchMode('pace')}
-			class="px-4 py-2 text-sm font-medium transition-colors {mode === 'pace'
-				? 'border-b-2 border-accent text-accent'
-				: 'text-muted hover:text-ink'}"
+			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			class:bg-accent={mode === 'pace'}
+			class:text-white={mode === 'pace'}
+			class:font-semibold={mode === 'pace'}
+			class:text-muted={mode !== 'pace'}
+			class:hover:text-hover={mode !== 'pace'}
 		>
 			Pace
 		</button>
 		<button
 			type="button"
+			role="tab"
+			aria-selected={mode === 'power'}
 			onclick={() => switchMode('power')}
-			class="px-4 py-2 text-sm font-medium transition-colors {mode === 'power'
-				? 'border-b-2 border-accent text-accent'
-				: 'text-muted hover:text-ink'}"
+			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			class:bg-accent={mode === 'power'}
+			class:text-white={mode === 'power'}
+			class:font-semibold={mode === 'power'}
+			class:text-muted={mode !== 'power'}
+			class:hover:text-hover={mode !== 'power'}
 		>
 			Power
 		</button>
