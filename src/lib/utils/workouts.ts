@@ -46,6 +46,11 @@ export interface WorkoutsResult {
 	zones: WorkoutZone[];
 }
 
+/** Round minutes to nearest 5 seconds (1/12 of a minute) */
+export function roundToNearest5Seconds(minutes: number): number {
+	return Math.round(minutes * 12) / 12;
+}
+
 export function formatDurationMinutes(minutes: number): string {
 	return formatTime(minutes * 60);
 }
@@ -157,11 +162,11 @@ const RECOVERY_INTENSITY = 0.2;
 const ZONE_INTENSITY: Record<ZoneKey, number> = { E: 0.35, M: 0.55, T: 0.7, I: 0.85, R: 1 };
 
 function warmupSegment(minutes: number): WorkoutSegment {
-	return { type: 'warmup', durationMinutes: minutes, intensity: WARMUP_INTENSITY };
+	return { type: 'warmup', durationMinutes: roundToNearest5Seconds(minutes), intensity: WARMUP_INTENSITY };
 }
 
 function cooldownSegment(minutes: number): WorkoutSegment {
-	return { type: 'cooldown', durationMinutes: minutes, intensity: COOLDOWN_INTENSITY };
+	return { type: 'cooldown', durationMinutes: roundToNearest5Seconds(minutes), intensity: COOLDOWN_INTENSITY };
 }
 
 /** Parse a zone's low/high formatted paces to the midpoint decimal min/km. */
@@ -334,7 +339,7 @@ function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): Workout
 		segments: [
 			warmupSegment(segmentedWarmupMinutes),
 			{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
-			{ type: 'recovery', durationMinutes: jogMinutes, intensity: RECOVERY_INTENSITY },
+			{ type: 'recovery', durationMinutes: roundToNearest5Seconds(jogMinutes), intensity: RECOVERY_INTENSITY },
 			{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
 			cooldownSegment(segmentedCooldownMinutes)
 		]
@@ -390,11 +395,11 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 	const cruiseCooldownMinutes = computeCooldownMinutes('T', totalDuration);
 	const cruiseSegments: WorkoutSegment[] = [warmupSegment(cruiseWarmupMinutes)];
 	for (let i = 0; i < repCount; i++) {
-		cruiseSegments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY.T });
+		cruiseSegments.push({ type: 'work', durationMinutes: roundToNearest5Seconds(repMinutes), intensity: ZONE_INTENSITY.T });
 		if (i < repCount - 1) {
 			cruiseSegments.push({
 				type: 'recovery',
-				durationMinutes: recoveryPerRep,
+				durationMinutes: roundToNearest5Seconds(recoveryPerRep),
 				intensity: RECOVERY_INTENSITY
 			});
 		}
@@ -498,9 +503,9 @@ function buildRepsWorkout(
 
 	const segments: WorkoutSegment[] = [warmupSegment(warmupMinutes)];
 	for (let i = 0; i < reps; i++) {
-		segments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY[zone] });
+		segments.push({ type: 'work', durationMinutes: roundToNearest5Seconds(repMinutes), intensity: ZONE_INTENSITY[zone] });
 		if (i < reps - 1) {
-			segments.push({ type: 'recovery', durationMinutes: recoveryMinutes, intensity: RECOVERY_INTENSITY });
+			segments.push({ type: 'recovery', durationMinutes: roundToNearest5Seconds(recoveryMinutes), intensity: RECOVERY_INTENSITY });
 		}
 	}
 	segments.push(cooldownSegment(cooldownMinutes));

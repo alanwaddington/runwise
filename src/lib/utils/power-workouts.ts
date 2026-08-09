@@ -6,6 +6,7 @@ import {
 	WARMUP_BAND,
 	COOLDOWN_BAND,
 	formatDurationMinutes,
+	roundToNearest5Seconds,
 	type Workout,
 	type WorkoutSegment
 } from './workouts';
@@ -153,11 +154,11 @@ const RECOVERY_INTENSITY = 0.2;
 const ZONE_INTENSITY: Record<ZoneKey, number> = { E: 0.35, M: 0.55, T: 0.7, I: 0.85, R: 1 };
 
 function warmupSegment(minutes: number): WorkoutSegment {
-	return { type: 'warmup', durationMinutes: minutes, intensity: WARMUP_INTENSITY };
+	return { type: 'warmup', durationMinutes: roundToNearest5Seconds(minutes), intensity: WARMUP_INTENSITY };
 }
 
 function cooldownSegment(minutes: number): WorkoutSegment {
-	return { type: 'cooldown', durationMinutes: minutes, intensity: COOLDOWN_INTENSITY };
+	return { type: 'cooldown', durationMinutes: roundToNearest5Seconds(minutes), intensity: COOLDOWN_INTENSITY };
 }
 
 function formatMinutes(minutes: number): string {
@@ -281,7 +282,7 @@ export function buildPowerRepsWorkout(
 		if (i < repCount - 1) {
 			segments.push({
 				type: 'recovery',
-				durationMinutes: recoveryMinutes,
+				durationMinutes: roundToNearest5Seconds(recoveryMinutes),
 				intensity: RECOVERY_INTENSITY
 			});
 		}
@@ -420,7 +421,7 @@ export function buildPowerZoneWorkouts(
 			segments: [
 				warmupSegment(warmupMinutes),
 				{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
-				{ type: 'recovery', durationMinutes: recoveryMinutes, intensity: RECOVERY_INTENSITY },
+				{ type: 'recovery', durationMinutes: roundToNearest5Seconds(recoveryMinutes), intensity: RECOVERY_INTENSITY },
 				{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
 				cooldownSegment(cooldownMinutes)
 			]
@@ -580,7 +581,7 @@ export function buildPowerZoneWorkouts(
 		for (let i = 0; i < shortRepCount; i++) {
 			shortSegments.push({
 				type: 'work',
-				durationMinutes: shortRepMinutes,
+				durationMinutes: roundToNearest5Seconds(shortRepMinutes),
 				intensity: ZONE_INTENSITY[zone]
 			});
 			if (i < shortRepCount - 1) {
@@ -615,7 +616,7 @@ export function buildPowerZoneWorkouts(
 		for (let i = 0; i < mediumRepCount; i++) {
 			mediumSegments.push({
 				type: 'work',
-				durationMinutes: mediumRepMinutes,
+				durationMinutes: roundToNearest5Seconds(mediumRepMinutes),
 				intensity: ZONE_INTENSITY[zone]
 			});
 			if (i < mediumRepCount - 1) {
@@ -650,7 +651,7 @@ export function buildPowerZoneWorkouts(
 		for (let i = 0; i < longRepCount; i++) {
 			longSegments.push({
 				type: 'work',
-				durationMinutes: longRepMinutes,
+				durationMinutes: roundToNearest5Seconds(longRepMinutes),
 				intensity: ZONE_INTENSITY[zone]
 			});
 			if (i < longRepCount - 1) {
