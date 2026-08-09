@@ -230,7 +230,7 @@ export function buildPowerContinuousWorkout(
 		estimatedDurationMinutes: Math.round(totalMinutes),
 		segments: [
 			warmupSegment(warmupMinutes),
-			{ type: 'work', durationMinutes: qualityMinutes, intensity: ZONE_INTENSITY[zone] },
+			{ type: 'work', durationMinutes: roundToNearest5Seconds(qualityMinutes), intensity: ZONE_INTENSITY[zone] },
 			cooldownSegment(cooldownMinutes)
 		]
 	};
@@ -276,7 +276,7 @@ export function buildPowerRepsWorkout(
 	for (let i = 0; i < repCount; i++) {
 		segments.push({
 			type: 'work',
-			durationMinutes: repDurationMinutes,
+			durationMinutes: roundToNearest5Seconds(repDurationMinutes),
 			intensity: ZONE_INTENSITY[zone]
 		});
 		if (i < repCount - 1) {
@@ -351,7 +351,7 @@ export function buildPowerZoneWorkouts(
 			estimatedDurationMinutes: Math.round(totalMinutes),
 			segments: [
 				warmupSegment(warmupMinutes),
-				{ type: 'work', durationMinutes: longRunMinutes, intensity: ZONE_INTENSITY.E },
+				{ type: 'work', durationMinutes: roundToNearest5Seconds(longRunMinutes), intensity: ZONE_INTENSITY.E },
 				cooldownSegment(cooldownMinutes)
 			]
 		};
@@ -369,13 +369,13 @@ export function buildPowerZoneWorkouts(
 		for (let i = 0; i < fartlekPickupCount; i++) {
 			fartlekSegments.push({
 				type: 'work',
-				durationMinutes: fartlekPickupMinutes,
+				durationMinutes: roundToNearest5Seconds(fartlekPickupMinutes),
 				intensity: 0.75
 			});
 			if (i < fartlekPickupCount - 1) {
 				fartlekSegments.push({
 					type: 'recovery',
-					durationMinutes: fartlekRecoveryMinutes,
+					durationMinutes: roundToNearest5Seconds(fartlekRecoveryMinutes),
 					intensity: ZONE_INTENSITY.E
 				});
 			}
@@ -420,9 +420,9 @@ export function buildPowerZoneWorkouts(
 			estimatedDurationMinutes: Math.round(totalMinutes),
 			segments: [
 				warmupSegment(warmupMinutes),
-				{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
+				{ type: 'work', durationMinutes: roundToNearest5Seconds(segmentMinutes), intensity: ZONE_INTENSITY.M },
 				{ type: 'recovery', durationMinutes: roundToNearest5Seconds(recoveryMinutes), intensity: RECOVERY_INTENSITY },
-				{ type: 'work', durationMinutes: segmentMinutes, intensity: ZONE_INTENSITY.M },
+				{ type: 'work', durationMinutes: roundToNearest5Seconds(segmentMinutes), intensity: ZONE_INTENSITY.M },
 				cooldownSegment(cooldownMinutes)
 			]
 		};
@@ -439,7 +439,7 @@ export function buildPowerZoneWorkouts(
 			const intensity = RECOVERY_INTENSITY + (i / (progSegmentCount - 1)) * (ZONE_INTENSITY.M - RECOVERY_INTENSITY);
 			progSegments.push({
 				type: 'work',
-				durationMinutes: progSegmentMinutes,
+				durationMinutes: roundToNearest5Seconds(progSegmentMinutes),
 				intensity
 			});
 		}
@@ -480,13 +480,13 @@ export function buildPowerZoneWorkouts(
 		for (let i = 0; i < cruiseRepCount; i++) {
 			cruiseSegments.push({
 				type: 'work',
-				durationMinutes: cruiseRepMinutes,
+				durationMinutes: roundToNearest5Seconds(cruiseRepMinutes),
 				intensity: ZONE_INTENSITY.T
 			});
 			if (i < cruiseRepCount - 1) {
 				cruiseSegments.push({
 					type: 'recovery',
-					durationMinutes: cruiseRecoveryMinutes,
+					durationMinutes: roundToNearest5Seconds(cruiseRecoveryMinutes),
 					intensity: RECOVERY_INTENSITY
 				});
 			}
@@ -514,13 +514,13 @@ export function buildPowerZoneWorkouts(
 		for (let i = 0; i < ladderSteps; i++) {
 			ladderSegments.push({
 				type: 'work',
-				durationMinutes: stepMinutes * (i + 1),
+				durationMinutes: roundToNearest5Seconds(stepMinutes * (i + 1)),
 				intensity: ZONE_INTENSITY.T
 			});
 			if (i < ladderSteps - 1) {
 				ladderSegments.push({
 					type: 'recovery',
-					durationMinutes: stepMinutes,
+					durationMinutes: roundToNearest5Seconds(stepMinutes),
 					intensity: RECOVERY_INTENSITY
 				});
 			}
@@ -528,13 +528,13 @@ export function buildPowerZoneWorkouts(
 		for (let i = ladderSteps - 2; i >= 0; i--) {
 			ladderSegments.push({
 				type: 'work',
-				durationMinutes: stepMinutes * (i + 1),
+				durationMinutes: roundToNearest5Seconds(stepMinutes * (i + 1)),
 				intensity: ZONE_INTENSITY.T
 			});
 			if (i > 0) {
 				ladderSegments.push({
 					type: 'recovery',
-					durationMinutes: stepMinutes,
+					durationMinutes: roundToNearest5Seconds(stepMinutes),
 					intensity: RECOVERY_INTENSITY
 				});
 			}
@@ -587,7 +587,7 @@ export function buildPowerZoneWorkouts(
 			if (i < shortRepCount - 1) {
 				shortSegments.push({
 					type: 'recovery',
-					durationMinutes: shortRecoveryMinutes,
+					durationMinutes: roundToNearest5Seconds(shortRecoveryMinutes),
 					intensity: RECOVERY_INTENSITY
 				});
 			}
@@ -687,13 +687,13 @@ export function buildPowerZoneWorkouts(
 			for (let i = 0; i < pyramidSteps; i++) {
 				pyramidSegments.push({
 					type: 'work',
-					durationMinutes: stepMinutes * (i + 1),
+					durationMinutes: roundToNearest5Seconds(stepMinutes * (i + 1)),
 					intensity: ZONE_INTENSITY.I
 				});
 				// Add recovery after every segment, including the peak
 				pyramidSegments.push({
 					type: 'recovery',
-					durationMinutes: stepMinutes,
+					durationMinutes: roundToNearest5Seconds(stepMinutes),
 					intensity: RECOVERY_INTENSITY
 				});
 			}
@@ -701,13 +701,13 @@ export function buildPowerZoneWorkouts(
 			for (let i = pyramidSteps - 2; i >= 0; i--) {
 				pyramidSegments.push({
 					type: 'work',
-					durationMinutes: stepMinutes * (i + 1),
+					durationMinutes: roundToNearest5Seconds(stepMinutes * (i + 1)),
 					intensity: ZONE_INTENSITY.I
 				});
 				if (i > 0) {
 					pyramidSegments.push({
 						type: 'recovery',
-						durationMinutes: stepMinutes,
+						durationMinutes: roundToNearest5Seconds(stepMinutes),
 						intensity: RECOVERY_INTENSITY
 					});
 				}
