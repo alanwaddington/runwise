@@ -112,6 +112,14 @@
 			: null
 	);
 
+	let maxWorkoutsPerZone = $derived(
+		(() => {
+			const zones = mode === 'pace' ? result?.zones : powerResult?.zones;
+			if (!zones || zones.length === 0) return 2;
+			return Math.max(...zones.map((z) => z.workouts.length));
+		})()
+	);
+
 	function fitsBand(minutes: number, band: TimeBand): boolean {
 		switch (band) {
 			case 'Any time':
@@ -592,7 +600,7 @@
 							No workout in this zone fits {timeBand} — try a longer window.
 						</p>
 					{:else}
-						<div class="grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+						<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 							{#each zone.filtered as workout (workout.label + workout.description)}
 								<button type="button" onclick={() => { const easyZone = result !== null && result !== 'out-of-range' ? result.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
 									<p class="font-medium text-ink">{workout.label}</p>
@@ -728,7 +736,7 @@
 						>
 					</div>
 
-					<div class="grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+					<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 						{#each zone.workouts as workout (workout.label + workout.description)}
 							<button type="button" onclick={() => { const easyZone = powerResult !== null && powerResult !== 'out-of-range' ? powerResult.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
 								<p class="font-medium text-ink">{workout.label}</p>
