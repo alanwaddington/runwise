@@ -227,9 +227,8 @@ describe('buildPowerZoneWorkouts', () => {
 
 		zones.forEach((zone) => {
 			const workouts = buildPowerZoneWorkouts('E' as any, zones, 60, 250, 'stryd');
-			expect(workouts).toHaveLength(2);
+			expect(workouts.length).toBeGreaterThanOrEqual(2);
 			expect(workouts[0]).toBeDefined();
-			expect(workouts[1]).toBeDefined();
 		});
 	});
 
@@ -237,18 +236,19 @@ describe('buildPowerZoneWorkouts', () => {
 		const zones = calculatePowerZones(250, 'stryd')!;
 		const workouts = buildPowerZoneWorkouts('E', zones, 60, 250, 'stryd');
 
-		workouts.forEach((w) => {
-			expect(w.description).toContain('continuous');
-		});
+		expect(workouts.length).toBeGreaterThanOrEqual(2);
+		expect(workouts[0].description).toContain('continuous');
 	});
 
 	it('should produce rep-based workouts for I zone', () => {
 		const zones = calculatePowerZones(250, 'stryd')!;
 		const workouts = buildPowerZoneWorkouts('I', zones, 60, 250, 'stryd');
 
-		workouts.forEach((w) => {
-			expect(w.description).toMatch(/\d+\s*[x×]/); // reps format
-		});
+		expect(workouts.length).toBeGreaterThanOrEqual(3);
+		// First 3 should be rep-based (short, medium, long intervals)
+		for (let i = 0; i < 3; i++) {
+			expect(workouts[i].description).toMatch(/\d+\s*[x×]/);
+		}
 	});
 });
 
@@ -295,12 +295,18 @@ describe('buildPowerWorkoutsResult', () => {
 		}
 	});
 
-	it('should include 2 workouts per zone', () => {
+	it('should include multiple workouts per zone', () => {
 		const result = buildPowerWorkoutsResult(250, 'stryd', 60);
 
 		if (result && result !== 'out-of-range' && result !== null) {
 			result.zones.forEach((zone) => {
-				expect(zone.workouts).toHaveLength(2);
+				expect(zone.workouts.length).toBeGreaterThanOrEqual(2);
+				// I and R zones should have 4, others should have 3
+				if (zone.zone === 'I' || zone.zone === 'R') {
+					expect(zone.workouts.length).toBe(4);
+				} else {
+					expect(zone.workouts.length).toBe(3);
+				}
 			});
 		}
 	});
