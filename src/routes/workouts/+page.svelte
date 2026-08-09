@@ -940,11 +940,7 @@
 									></span>
 									<div class="flex flex-col gap-1">
 										<span class="text-ink font-medium capitalize">
-											{#if segment.type === 'work' && segment.intensity >= 0.8}
-												Stride
-											{:else}
-												{segment.type}
-											{/if}
+											{segment.type}
 										</span>
 										<span class="text-xs text-muted/70">
 											{segmentRange}
