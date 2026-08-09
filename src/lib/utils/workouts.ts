@@ -409,39 +409,43 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 		segments: cruiseSegments
 	};
 
-	// Tempo ladder variant
+	// Tempo ladder variant - use consistent recovery between rungs
 	const ladderQualityMinutes = durationMinutes;
 	const ladderWarmupMinutes = computeWarmupMinutes('T', ladderQualityMinutes);
 	const ladderCooldownMinutes = computeCooldownMinutes('T', ladderQualityMinutes);
 	const ladderTotalMinutes = ladderQualityMinutes + ladderWarmupMinutes + ladderCooldownMinutes;
 
 	const ladderSegments: WorkoutSegment[] = [warmupSegment(ladderWarmupMinutes)];
-	const ladderSteps = 5;
-	const stepMinutes = ladderQualityMinutes / (ladderSteps * 2 - 1);
+	const ladderSteps = 4;
+	const ladderRecoveryMinutes = round1(repMinutes / 5); // ~1 min per 5 min of work
+	const ladderStepMinutes = round1((durationMinutes - ladderRecoveryMinutes * (ladderSteps * 2 - 2)) / (ladderSteps * (ladderSteps + 1)));
+
 	for (let i = 0; i < ladderSteps; i++) {
+		const workDuration = ladderStepMinutes * (i + 1);
 		ladderSegments.push({
 			type: 'work',
-			durationMinutes: stepMinutes * (i + 1),
+			durationMinutes: workDuration,
 			intensity: ZONE_INTENSITY.T
 		});
 		if (i < ladderSteps - 1) {
 			ladderSegments.push({
 				type: 'recovery',
-				durationMinutes: stepMinutes,
+				durationMinutes: ladderRecoveryMinutes,
 				intensity: RECOVERY_INTENSITY
 			});
 		}
 	}
 	for (let i = ladderSteps - 2; i >= 0; i--) {
+		const workDuration = ladderStepMinutes * (i + 1);
 		ladderSegments.push({
 			type: 'work',
-			durationMinutes: stepMinutes * (i + 1),
+			durationMinutes: workDuration,
 			intensity: ZONE_INTENSITY.T
 		});
 		if (i > 0) {
 			ladderSegments.push({
 				type: 'recovery',
-				durationMinutes: stepMinutes,
+				durationMinutes: ladderRecoveryMinutes,
 				intensity: RECOVERY_INTENSITY
 			});
 		}
@@ -452,7 +456,7 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 		label: 'Tempo ladder',
 		description: `Ascending and descending tempo ladder (${round1(volumeKm)}km total)`,
 		totalVolumeKm: round1(volumeKm),
-		recovery: `${formatMinutes(stepMinutes)} recovery between steps`,
+		recovery: `${formatMinutes(ladderRecoveryMinutes)} jog between steps`,
 		estimatedDurationMinutes: Math.round(ladderTotalMinutes),
 		segments: ladderSegments
 	};
