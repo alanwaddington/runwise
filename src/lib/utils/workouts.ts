@@ -433,7 +433,7 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 			intensity: ZONE_INTENSITY.T
 		});
 		// Add recovery after every work segment, including the peak
-		const recoveryDuration = round1(workDuration / 5);
+		const recoveryDuration = roundToNearest5Seconds(workDuration / 5);
 		ladderSegments.push({
 			type: 'recovery',
 			durationMinutes: recoveryDuration,
@@ -451,7 +451,7 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 		});
 		if (i > 0) {
 			// Recovery proportional to work duration (~1/5 of work time)
-			const recoveryDuration = round1(workDuration / 5);
+			const recoveryDuration = roundToNearest5Seconds(workDuration / 5);
 			ladderSegments.push({
 				type: 'recovery',
 				durationMinutes: recoveryDuration,

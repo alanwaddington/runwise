@@ -256,7 +256,7 @@ export function buildPowerRepsWorkout(
 	if (zone === 'R') {
 		recoveryFraction = 1.0; // R zone: equal duration recovery
 	}
-	const recoveryMinutes = round1(repDurationMinutes * recoveryFraction);
+	const recoveryMinutes = roundToNearest5Seconds(repDurationMinutes * recoveryFraction);
 
 	const qualityTime = repCount * repDurationMinutes + (repCount - 1) * recoveryMinutes;
 	const warmupMinutes = computeWarmupMinutes(zone, qualityTime);
@@ -569,7 +569,7 @@ export function buildPowerZoneWorkouts(
 		// Short intervals variant
 		const shortRepMinutes = 2;
 		const shortRepCount = Math.max(4, Math.round(volumeMinutes / shortRepMinutes));
-		const shortRecoveryMinutes = round1(shortRepMinutes * recoveryFraction);
+		const shortRecoveryMinutes = roundToNearest5Seconds(shortRepMinutes * recoveryFraction);
 		const shortQualityTime = shortRepCount * shortRepMinutes + (shortRepCount - 1) * shortRecoveryMinutes;
 		const shortWarmupMinutes = computeWarmupMinutes(zone, shortQualityTime);
 		const shortCooldownMinutes = computeCooldownMinutes(zone, shortQualityTime);
@@ -604,7 +604,7 @@ export function buildPowerZoneWorkouts(
 		// Medium intervals variant
 		const mediumRepMinutes = 4;
 		const mediumRepCount = Math.max(3, Math.round(volumeMinutes / mediumRepMinutes));
-		const mediumRecoveryMinutes = round1(mediumRepMinutes * recoveryFraction);
+		const mediumRecoveryMinutes = roundToNearest5Seconds(mediumRepMinutes * recoveryFraction);
 		const mediumQualityTime = mediumRepCount * mediumRepMinutes + (mediumRepCount - 1) * mediumRecoveryMinutes;
 		const mediumWarmupMinutes = computeWarmupMinutes(zone, mediumQualityTime);
 		const mediumCooldownMinutes = computeCooldownMinutes(zone, mediumQualityTime);
@@ -639,7 +639,7 @@ export function buildPowerZoneWorkouts(
 		// Long intervals variant
 		const longRepMinutes = 6;
 		const longRepCount = Math.max(2, Math.round(volumeMinutes / longRepMinutes));
-		const longRecoveryMinutes = round1(longRepMinutes * recoveryFraction);
+		const longRecoveryMinutes = roundToNearest5Seconds(longRepMinutes * recoveryFraction);
 		const longQualityTime = longRepCount * longRepMinutes + (longRepCount - 1) * longRecoveryMinutes;
 		const longWarmupMinutes = computeWarmupMinutes(zone, longQualityTime);
 		const longCooldownMinutes = computeCooldownMinutes(zone, longQualityTime);
