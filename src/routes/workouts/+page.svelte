@@ -58,6 +58,26 @@
 	let powerError = $state<string | null>(null);
 	let powerWeeklyMileageError = $state<string | null>(null);
 
+	// Modal state for expanded workout view
+	let selectedWorkout = $state<{
+		label: string;
+		description: string;
+		descriptionExpanded?: string;
+		totalVolumeKm: number;
+		recovery: string;
+		estimatedDurationMinutes: number;
+		segments: Array<{
+			type: 'warmup' | 'work' | 'recovery' | 'cooldown';
+			durationMinutes: number;
+			intensity: number;
+		}>;
+		zoneName: string;
+		powerRange?: string;
+		paceRange?: string;
+		easyPaceRange?: string;
+		easyPowerRange?: string;
+	} | null>(null);
+
 	// Pace mode derived state
 	let isCustom = $derived(selectedOption === 'Custom');
 
@@ -225,6 +245,67 @@
 
 	function formatMinutesShort(minutes: number): string {
 		return `${Math.round(minutes)} min`;
+	}
+
+	function parsePaceTime(timeStr: string): number {
+		const parts = timeStr.split(':').map(p => parseFloat(p));
+		if (parts.length === 2) return parts[0] * 60 + parts[1];
+		if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+		return 0;
+	}
+
+	function formatPaceTime(seconds: number): string {
+		const mins = Math.floor(seconds / 60);
+		const secs = Math.round(seconds % 60);
+		return `${mins}:${secs.toString().padStart(2, '0')}`;
+	}
+
+	function getSegmentPaceRange(
+		zoneRange: string,
+		intensity: number,
+		segmentType: 'warmup' | 'work' | 'recovery' | 'cooldown'
+	): string {
+		if (!zoneRange || segmentType !== 'work') return zoneRange;
+
+		const parts = zoneRange.split('–');
+		if (parts.length !== 2) return zoneRange;
+
+		const fastStr = parts[0].trim();
+		const slowStr = parts[1].trim();
+		const fast = parsePaceTime(fastStr);
+		const slow = parsePaceTime(slowStr);
+
+		if (fast === 0 || slow === 0) return zoneRange;
+
+		const targetPace = slow - (slow - fast) * intensity;
+		const margin = 4;
+
+		const lowPace = Math.max(fast, targetPace - margin);
+		const highPace = Math.min(slow, targetPace + margin);
+
+		return `${formatPaceTime(highPace)}–${formatPaceTime(lowPace)} /km`;
+	}
+
+	function getSegmentPowerRange(
+		zoneRange: string,
+		intensity: number,
+		segmentType: 'warmup' | 'work' | 'recovery' | 'cooldown'
+	): string {
+		if (!zoneRange || segmentType !== 'work') return zoneRange;
+
+		const match = zoneRange.match(/(\d+)–(\d+)\s*W/);
+		if (!match) return zoneRange;
+
+		const low = parseInt(match[1]);
+		const high = parseInt(match[2]);
+
+		const targetPower = low + (high - low) * intensity;
+		const margin = 6;
+
+		const lowPower = Math.max(low, Math.round(targetPower - margin));
+		const highPower = Math.min(high, Math.round(targetPower + margin));
+
+		return `${lowPower}–${highPower} W`;
 	}
 </script>
 
@@ -726,6 +807,190 @@
 			>
 				Clear
 			</button>
+		</div>
+	{/if}
+
+	<!-- Workout details modal -->
+	{#if selectedWorkout}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="workout-modal-title"
+			tabindex="-1"
+			onclick={(e) => {
+				if (e.target === e.currentTarget) {
+					selectedWorkout = null;
+				}
+			}}
+			onkeydown={(e) => {
+				if (e.key === 'Escape') {
+					selectedWorkout = null;
+				}
+			}}
+		>
+			<div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-bg p-6 shadow-lg">
+				<div class="mb-4 flex items-start justify-between">
+					<div>
+						<p class="text-sm text-muted">Zone {selectedWorkout.zoneName}</p>
+						<h2 id="workout-modal-title" class="text-2xl font-bold text-ink">{selectedWorkout.label}</h2>
+					</div>
+					<button
+						type="button"
+						onclick={() => {
+							selectedWorkout = null;
+						}}
+						class="rounded-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						aria-label="Close modal"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M18 6l-12 12M6 6l12 12" />
+						</svg>
+					</button>
+				</div>
+
+				<div class="mb-6 space-y-4">
+					<p class="text-base font-medium text-ink">Format: {selectedWorkout.description}</p>
+
+					<div class="space-y-2 rounded-lg bg-accent/5 p-4 text-sm leading-relaxed text-ink">
+						<div>
+							<p class="font-semibold text-accent">Purpose</p>
+							<p class="mt-1">
+								{#if selectedWorkout.zoneName.includes('Easy')}
+									Easy runs are the foundation of your training. They build aerobic capacity, aid recovery, and teach your body to rely on fat as fuel at race-ready paces.
+								{:else if selectedWorkout.zoneName.includes('Moderate')}
+									Moderate-pace work teaches your body to clear lactate efficiently and prepares your aerobic system for harder efforts. These workouts build mental toughness and race-specific endurance.
+								{:else if selectedWorkout.zoneName.includes('Threshold')}
+									Threshold runs teach your body to sustain harder efforts while clearing metabolic byproducts. They improve your lactate threshold and build mental toughness for race day.
+								{:else if selectedWorkout.zoneName.includes('Interval')}
+									Interval workouts develop VO₂ max and teach your body to deliver and use oxygen more efficiently. These sessions have the highest return on time invested.
+								{:else if selectedWorkout.zoneName.includes('Rep') || selectedWorkout.zoneName.includes('Sprint')}
+									Repetition workouts at the highest intensity develop neuromuscular power and speed. These brief, all-out efforts train your body to operate at maximum intensity.
+								{:else}
+									This workout builds fitness through structured effort and recovery.
+								{/if}
+							</p>
+						</div>
+
+						<div>
+							<p class="font-semibold text-accent">How to Execute</p>
+							<p class="mt-1">
+								{#if selectedWorkout.zoneName.includes('Easy')}
+									Run at a conversational pace. You should be able to speak in sentences. Focus on relaxation and smooth cadence.
+								{:else if selectedWorkout.zoneName.includes('Moderate')}
+									Hold a steady, controlled effort. You can speak a few words but not full sentences. Maintain consistent pacing throughout.
+								{:else if selectedWorkout.zoneName.includes('Threshold')}
+									Run at a comfortably hard pace. You can only speak a few words. Maintain consistent effort and focus on controlled breathing.
+								{:else if selectedWorkout.zoneName.includes('Interval')}
+									Each repeat should feel challenging but sustainable. Take recovery periods seriously—they're part of the workout. Focus on controlled effort.
+								{:else if selectedWorkout.zoneName.includes('Rep') || selectedWorkout.zoneName.includes('Sprint')}
+									Go all out on each repeat. Use recovery periods to fully recover. These should feel hard and fast, but controlled.
+								{:else}
+									Execute the prescribed format and maintain consistent effort.
+								{/if}
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-ink/5 p-4">
+					<div>
+						<p class="text-xs font-medium uppercase tracking-wide text-muted">Total Volume</p>
+						<p class="text-lg font-bold text-ink">{selectedWorkout.totalVolumeKm} km</p>
+					</div>
+					<div>
+						<p class="text-xs font-medium uppercase tracking-wide text-muted">Estimated Duration</p>
+						<p class="text-lg font-bold text-ink">{formatDurationMinutes(selectedWorkout.estimatedDurationMinutes)}</p>
+					</div>
+					<div>
+						<p class="text-xs font-medium uppercase tracking-wide text-muted">Recovery</p>
+						<p class="text-lg font-bold text-ink">{selectedWorkout.recovery}</p>
+					</div>
+					{#if selectedWorkout.powerRange}
+						<div>
+							<p class="text-xs font-medium uppercase tracking-wide text-muted">Power Range</p>
+							<p class="text-lg font-bold text-accent">{selectedWorkout.powerRange}</p>
+						</div>
+					{/if}
+				</div>
+
+				<div class="mb-6">
+					<h3 class="mb-4 font-medium text-ink">Workout Profile</h3>
+					<WorkoutProfileChart
+						segments={selectedWorkout.segments}
+						zoneName={selectedWorkout.zoneName}
+						paceRange={selectedWorkout.paceRange}
+						powerRange={selectedWorkout.powerRange}
+					/>
+					<p class="mt-3 flex items-center gap-4 text-sm text-muted">
+						<span class="inline-flex items-center gap-2">
+							<span class="inline-block h-3 w-3 rounded-full bg-accent" aria-hidden="true"></span>
+							Work
+						</span>
+						<span class="inline-flex items-center gap-2">
+							<span class="inline-block h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600" aria-hidden="true"></span>
+							Warm-up / Recovery / Cool-down
+						</span>
+					</p>
+
+					<!-- Segment breakdown -->
+					<div class="mt-4 space-y-1 rounded-lg bg-ink/5 p-3 text-sm">
+						{#each selectedWorkout.segments as segment, i (i)}
+							{@const segmentRange = segment.type === 'work' && selectedWorkout.paceRange ? getSegmentPaceRange(selectedWorkout.paceRange, segment.intensity, segment.type) : segment.type === 'work' && selectedWorkout.powerRange ? getSegmentPowerRange(selectedWorkout.powerRange, segment.intensity, segment.type) : segment.type === 'work' ? selectedWorkout.paceRange || selectedWorkout.powerRange : selectedWorkout.easyPaceRange || selectedWorkout.easyPowerRange}
+							<div
+								class="flex items-center justify-between gap-2 rounded px-2 py-1 transition-colors hover:bg-accent/10"
+							>
+								<div class="flex items-center gap-3">
+									<span
+										class="inline-block h-3 w-3 rounded-full"
+										class:bg-accent={segment.type === 'work'}
+										class:bg-gray-300={segment.type !== 'work'}
+										class:dark:bg-gray-600={segment.type !== 'work'}
+										aria-hidden="true"
+									></span>
+									<div class="flex flex-col gap-1">
+										<span class="text-ink font-medium capitalize">
+											{#if segment.type === 'work' && segment.intensity >= 0.8}
+												Stride
+											{:else}
+												{segment.type}
+											{/if}
+										</span>
+										<span class="text-xs text-muted/70">
+											{segmentRange}
+										</span>
+									</div>
+								</div>
+								<span class="font-semibold text-ink tabular-nums">
+									{#if segment.durationMinutes < 1}
+										{Math.round(segment.durationMinutes * 60)}s
+									{:else if segment.durationMinutes < 60}
+										{Math.round(segment.durationMinutes)}m
+									{:else}
+										{Math.floor(segment.durationMinutes / 60)}h {Math.round(segment.durationMinutes % 60)}m
+									{/if}
+								</span>
+							</div>
+						{/each}
+					</div>
+				</div>
+
+				<div class="border-t border-ink/10 pt-4">
+					<p class="text-sm text-muted">
+						Includes a {formatDurationMinutes(selectedWorkout.segments[0].durationMinutes)} warm-up and {formatDurationMinutes(selectedWorkout.segments[selectedWorkout.segments.length - 1].durationMinutes)} cool-down.
+					</p>
+				</div>
+
+				<button
+					type="button"
+					onclick={() => {
+						selectedWorkout = null;
+					}}
+					class="mt-6 w-full rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+				>
+					Close
+				</button>
+			</div>
 		</div>
 	{/if}
 </ToolLayout>
