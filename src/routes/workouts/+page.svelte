@@ -49,14 +49,10 @@
 	// Power mode state
 	let powerRaw = $state(powerValueParam ?? '');
 	let selectedDevice = $state<PowerMeterDevice>(powerDeviceParam);
-	let powerWeeklyMileageRaw = $state(mileageParam || '');
 
 	let powerTouched = $state(false);
-	let deviceTouched = $state(false);
-	let powerWeeklyMileageTouched = $state(false);
 
 	let powerError = $state<string | null>(null);
-	let powerWeeklyMileageError = $state<string | null>(null);
 
 	// Modal state for expanded workout view
 	let selectedWorkout = $state<{
@@ -110,16 +106,9 @@
 	let powerValidation = $derived(validateRange(powerRaw ? parseFloat(powerRaw) : null, 50, 700));
 	let power = $derived(powerValidation.type === 'valid' ? powerValidation.value : null);
 
-	let powerWeeklyMileageValidation = $derived(
-		validateRange(powerWeeklyMileageRaw ? parseFloat(powerWeeklyMileageRaw) : null, 1, 300)
-	);
-	let powerWeeklyMileageKm = $derived(
-		powerWeeklyMileageValidation.type === 'valid' ? powerWeeklyMileageValidation.value : null
-	);
-
 	let powerResult = $derived(
-		mode === 'power' && power !== null && powerWeeklyMileageKm !== null
-			? buildPowerWorkoutsResult(power, selectedDevice, powerWeeklyMileageKm)
+		mode === 'power' && power !== null && weeklyMileageKm > 0
+			? buildPowerWorkoutsResult(power, selectedDevice, weeklyMileageKm)
 			: null
 	);
 
@@ -191,13 +180,6 @@
 
 	function onDeviceChange(e: Event) {
 		selectedDevice = (e.target as HTMLSelectElement).value as PowerMeterDevice;
-	}
-
-	function onPowerWeeklyMileageInput(e: Event) {
-		const raw = (e.target as HTMLInputElement).value;
-		powerWeeklyMileageRaw = raw;
-		const validation = validateRange(raw ? parseFloat(raw) : null, 1, 300);
-		powerWeeklyMileageError = validation.type === 'invalid' ? validation.error : null;
 	}
 
 	function switchMode(newMode: 'pace' | 'power') {
