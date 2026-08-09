@@ -202,15 +202,15 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 	'/workouts': {
 		heading: 'About workout suggestions',
 		intro:
-			'Knowing your training paces (see the Training Paces calculator) only answers half the question — a runner also needs to know how much quality running at each pace is appropriate for their current training load. This tool applies Jack Daniels\' own weekly-mileage-scaling rules to your training paces, turning each of the five zones into two concrete, ready-to-run session prescriptions.',
+			'Knowing your training paces (see the Training Paces calculator) only answers half the question — a runner also needs to know how much quality running at each pace is appropriate for their current training load. This tool applies Jack Daniels\' own weekly-mileage-scaling rules to your training paces, turning each of the five zones into multiple concrete, ready-to-run session prescriptions (3-4 per zone) tailored to different training needs and available time.',
 		sections: [
 			{
 				heading: 'How volume is derived from weekly mileage',
 				body: 'Daniels scales each zone\'s quality-session volume as a percentage of your weekly mileage, with an absolute per-session cap layered on top so the numbers stay sensible at very high mileage. Easy running gets the largest share (25-30%), tapering down to Marathon (15-20%), Threshold (10%), Interval (8%), and Repetition (5%) — reflecting how much of each harder effort a body can safely absorb in a week.'
 			},
 			{
-				heading: 'Why Easy has two distinct workouts',
-				body: 'The Easy zone splits into a regular easy day and a long run, because Daniels treats these as genuinely different sessions with different volume rules — a long run gets its own weekly-mileage share and duration cap, not just a longer version of an ordinary easy run.'
+				heading: 'Why zones offer multiple workouts',
+				body: 'Each zone includes several workout formats to match different training situations. Easy includes steady runs, long runs, and fartlek variations. Harder zones (Threshold, Interval, Repetition) offer continuous efforts, repeats, pyramids, and ladder patterns. This variety lets you adapt the session to your schedule, recovery needs, and training goals without leaving the prescribed intensity zone.'
 			},
 			{
 				heading: 'Reading a workout card',
