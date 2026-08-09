@@ -517,13 +517,11 @@ export function buildPowerZoneWorkouts(
 				durationMinutes: roundToNearest5Seconds(stepMinutes * (i + 1)),
 				intensity: ZONE_INTENSITY.T
 			});
-			if (i < ladderSteps - 1) {
-				ladderSegments.push({
-					type: 'recovery',
-					durationMinutes: roundToNearest5Seconds(stepMinutes),
-					intensity: RECOVERY_INTENSITY
-				});
-			}
+			ladderSegments.push({
+				type: 'recovery',
+				durationMinutes: roundToNearest5Seconds(stepMinutes),
+				intensity: RECOVERY_INTENSITY
+			});
 		}
 		for (let i = ladderSteps - 2; i >= 0; i--) {
 			ladderSegments.push({
