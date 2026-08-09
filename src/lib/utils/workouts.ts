@@ -555,20 +555,21 @@ function buildIWorkouts(volumeKm: number, iPace: number): Workout[] {
 	const pyramidSegments: WorkoutSegment[] = [warmupSegment(pyramidWarmupMinutes)];
 	const pyramidSteps = 4;
 	const stepMinutes = pyramidQualityMinutes / (pyramidSteps * 2 - 1);
+	// Ascending pyramid
 	for (let i = 0; i < pyramidSteps; i++) {
 		pyramidSegments.push({
 			type: 'work',
 			durationMinutes: stepMinutes * (i + 1),
 			intensity: ZONE_INTENSITY.I
 		});
-		if (i < pyramidSteps - 1) {
-			pyramidSegments.push({
-				type: 'recovery',
-				durationMinutes: stepMinutes,
-				intensity: RECOVERY_INTENSITY
-			});
-		}
+		// Add recovery after every segment, including the peak
+		pyramidSegments.push({
+			type: 'recovery',
+			durationMinutes: stepMinutes,
+			intensity: RECOVERY_INTENSITY
+		});
 	}
+	// Descending pyramid (skip the peak)
 	for (let i = pyramidSteps - 2; i >= 0; i--) {
 		pyramidSegments.push({
 			type: 'work',
