@@ -38,7 +38,7 @@ export interface WorkoutZone {
 	paceMinKmHigh: string;
 	paceMinMileLow: string;
 	paceMinMileHigh: string;
-	workouts: [Workout, Workout];
+	workouts: Workout[];
 }
 
 export interface WorkoutsResult {
@@ -254,7 +254,7 @@ function formatMinutes(minutes: number): string {
 	return `${Math.round(minutes)} min`;
 }
 
-function buildEWorkouts(volumeKm: number, longRunVolumeKm: number, pace: number): [Workout, Workout] {
+function buildEWorkouts(volumeKm: number, longRunVolumeKm: number, pace: number): Workout[] {
 	const regular = continuousWorkout(
 		'Regular easy run',
 		`${formatMinutes(volumeKm * pace)} continuous easy run at E pace`,
@@ -269,10 +269,46 @@ function buildEWorkouts(volumeKm: number, longRunVolumeKm: number, pace: number)
 		pace,
 		'E'
 	);
-	return [regular, long];
+
+	// Easy fartlek variant
+	const fartlekKm = volumeKm * 0.8;
+	const pickupKm = 0.8;
+	const recoveryKm = 0.4;
+	const pickupCount = Math.floor(fartlekKm / (pickupKm + recoveryKm));
+	const fartlekWarmupMinutes = computeWarmupMinutes('E', fartlekKm * pace);
+	const fartlekCooldownMinutes = computeCooldownMinutes('E', fartlekKm * pace);
+	const fartlekTotalMinutes = fartlekKm * pace + fartlekWarmupMinutes + fartlekCooldownMinutes;
+
+	const fartlekSegments: WorkoutSegment[] = [warmupSegment(fartlekWarmupMinutes)];
+	for (let i = 0; i < pickupCount; i++) {
+		fartlekSegments.push({
+			type: 'work',
+			durationMinutes: pickupKm * pace * 0.9,
+			intensity: 0.75
+		});
+		if (i < pickupCount - 1) {
+			fartlekSegments.push({
+				type: 'recovery',
+				durationMinutes: recoveryKm * pace,
+				intensity: ZONE_INTENSITY.E
+			});
+		}
+	}
+	fartlekSegments.push(cooldownSegment(fartlekCooldownMinutes));
+
+	const fartlek: Workout = {
+		label: 'Easy fartlek',
+		description: `Easy fartlek with ${pickupCount} × ${round1(pickupKm)}km pickups and ${round1(recoveryKm)}km recovery jogs`,
+		totalVolumeKm: round1(fartlekKm),
+		recovery: `${round1(recoveryKm)}km easy jog between pickups`,
+		estimatedDurationMinutes: Math.round(fartlekTotalMinutes),
+		segments: fartlekSegments
+	};
+
+	return [regular, long, fartlek];
 }
 
-function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): [Workout, Workout] {
+function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): Workout[] {
 	const continuous = continuousWorkout(
 		'Continuous marathon-pace run',
 		`${round1(volumeKm)}km (${formatMinutes(volumeKm * mPace)}) continuous at M pace`,
@@ -303,10 +339,39 @@ function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): [Workou
 			cooldownSegment(segmentedCooldownMinutes)
 		]
 	};
-	return [continuous, segmented];
+
+	// Progression variant
+	const progQualityMinutes = volumeKm * mPace;
+	const progWarmupMinutes = computeWarmupMinutes('M', progQualityMinutes);
+	const progCooldownMinutes = computeCooldownMinutes('M', progQualityMinutes);
+	const progTotalMinutes = progQualityMinutes + progWarmupMinutes + progCooldownMinutes;
+	const progSegmentCount = 3;
+	const progSegmentMinutes = progQualityMinutes / progSegmentCount;
+
+	const progSegments: WorkoutSegment[] = [warmupSegment(progWarmupMinutes)];
+	for (let i = 0; i < progSegmentCount; i++) {
+		const intensity = RECOVERY_INTENSITY + (i / (progSegmentCount - 1)) * (ZONE_INTENSITY.M - RECOVERY_INTENSITY);
+		progSegments.push({
+			type: 'work',
+			durationMinutes: progSegmentMinutes,
+			intensity
+		});
+	}
+	progSegments.push(cooldownSegment(progCooldownMinutes));
+
+	const progression: Workout = {
+		label: 'Progression run',
+		description: `${progSegmentCount} progressive segments building to M pace (${round1(volumeKm)}km total)`,
+		totalVolumeKm: round1(volumeKm),
+		recovery: 'None (continuous progression)',
+		estimatedDurationMinutes: Math.round(progTotalMinutes),
+		segments: progSegments
+	};
+
+	return [continuous, segmented, progression];
 }
 
-function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
+function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 	const durationMinutes = volumeKm * tPace;
 	const continuous = continuousWorkout(
 		'Continuous tempo run',
@@ -343,7 +408,56 @@ function buildTWorkouts(volumeKm: number, tPace: number): [Workout, Workout] {
 		estimatedDurationMinutes: Math.round(totalDuration + cruiseWarmupMinutes + cruiseCooldownMinutes),
 		segments: cruiseSegments
 	};
-	return [continuous, cruise];
+
+	// Tempo ladder variant
+	const ladderQualityMinutes = durationMinutes;
+	const ladderWarmupMinutes = computeWarmupMinutes('T', ladderQualityMinutes);
+	const ladderCooldownMinutes = computeCooldownMinutes('T', ladderQualityMinutes);
+	const ladderTotalMinutes = ladderQualityMinutes + ladderWarmupMinutes + ladderCooldownMinutes;
+
+	const ladderSegments: WorkoutSegment[] = [warmupSegment(ladderWarmupMinutes)];
+	const ladderSteps = 5;
+	const stepMinutes = ladderQualityMinutes / (ladderSteps * 2 - 1);
+	for (let i = 0; i < ladderSteps; i++) {
+		ladderSegments.push({
+			type: 'work',
+			durationMinutes: stepMinutes * (i + 1),
+			intensity: ZONE_INTENSITY.T
+		});
+		if (i < ladderSteps - 1) {
+			ladderSegments.push({
+				type: 'recovery',
+				durationMinutes: stepMinutes,
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	}
+	for (let i = ladderSteps - 2; i >= 0; i--) {
+		ladderSegments.push({
+			type: 'work',
+			durationMinutes: stepMinutes * (i + 1),
+			intensity: ZONE_INTENSITY.T
+		});
+		if (i > 0) {
+			ladderSegments.push({
+				type: 'recovery',
+				durationMinutes: stepMinutes,
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	}
+	ladderSegments.push(cooldownSegment(ladderCooldownMinutes));
+
+	const ladder: Workout = {
+		label: 'Tempo ladder',
+		description: `Ascending and descending tempo ladder (${round1(volumeKm)}km total)`,
+		totalVolumeKm: round1(volumeKm),
+		recovery: `${formatMinutes(stepMinutes)} recovery between steps`,
+		estimatedDurationMinutes: Math.round(ladderTotalMinutes),
+		segments: ladderSegments
+	};
+
+	return [continuous, cruise, ladder];
 }
 
 /**
@@ -393,58 +507,160 @@ function buildRepsWorkout(
 	};
 }
 
-function buildIWorkouts(volumeKm: number, iPace: number): [Workout, Workout] {
+function buildIWorkouts(volumeKm: number, iPace: number): Workout[] {
 	// Recovery: jogged, ~50-100% of the rep's work duration; midpoint (75%) used.
 	const recoveryFraction = () => 0.75;
 	const recoveryDescription = (repDistanceM: number, recoveryMinutes: number) =>
 		`jog ${formatMinutes(recoveryMinutes)} recovery`;
-	const a = buildRepsWorkout(
+
+	const short = buildRepsWorkout(
 		'I',
-		I_REP_DISTANCES_M[0],
+		400,
 		volumeKm,
 		iPace,
 		recoveryFraction,
 		recoveryDescription
 	);
-	const b = buildRepsWorkout(
+	const medium = buildRepsWorkout(
 		'I',
-		I_REP_DISTANCES_M[1],
+		800,
 		volumeKm,
 		iPace,
 		recoveryFraction,
 		recoveryDescription
 	);
-	return [a, b];
+	const long = buildRepsWorkout(
+		'I',
+		1200,
+		volumeKm,
+		iPace,
+		recoveryFraction,
+		recoveryDescription
+	);
+
+	// Pyramid variant
+	const pyramidQualityMinutes = volumeKm * iPace;
+	const pyramidWarmupMinutes = computeWarmupMinutes('I', pyramidQualityMinutes);
+	const pyramidCooldownMinutes = computeCooldownMinutes('I', pyramidQualityMinutes);
+	const pyramidTotalMinutes = pyramidQualityMinutes + pyramidWarmupMinutes + pyramidCooldownMinutes;
+
+	const pyramidSegments: WorkoutSegment[] = [warmupSegment(pyramidWarmupMinutes)];
+	const pyramidSteps = 4;
+	const stepMinutes = pyramidQualityMinutes / (pyramidSteps * 2 - 1);
+	for (let i = 0; i < pyramidSteps; i++) {
+		pyramidSegments.push({
+			type: 'work',
+			durationMinutes: stepMinutes * (i + 1),
+			intensity: ZONE_INTENSITY.I
+		});
+		if (i < pyramidSteps - 1) {
+			pyramidSegments.push({
+				type: 'recovery',
+				durationMinutes: stepMinutes,
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	}
+	for (let i = pyramidSteps - 2; i >= 0; i--) {
+		pyramidSegments.push({
+			type: 'work',
+			durationMinutes: stepMinutes * (i + 1),
+			intensity: ZONE_INTENSITY.I
+		});
+		if (i > 0) {
+			pyramidSegments.push({
+				type: 'recovery',
+				durationMinutes: stepMinutes,
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	}
+	pyramidSegments.push(cooldownSegment(pyramidCooldownMinutes));
+
+	const pyramid: Workout = {
+		label: 'Pyramid',
+		description: `Ascending and descending intensity pyramid (${round1(volumeKm)}km total)`,
+		totalVolumeKm: round1(volumeKm),
+		recovery: `${formatMinutes(stepMinutes)} recovery between steps`,
+		estimatedDurationMinutes: Math.round(pyramidTotalMinutes),
+		segments: pyramidSegments
+	};
+
+	return [short, medium, long, pyramid];
 }
 
-function buildRWorkouts(volumeKm: number, rPace: number): [Workout, Workout] {
+function buildRWorkouts(volumeKm: number, rPace: number): Workout[] {
 	// Recovery: equal distance jogged (the more commonly cited practical rule).
 	const recoveryFraction = () => 1;
 	const recoveryDescription = (repDistanceM: number) => `${repDistanceM}m jog recovery`;
-	const a = buildRepsWorkout(
+
+	const short = buildRepsWorkout(
 		'R',
-		R_REP_DISTANCES_M[0],
+		200,
 		volumeKm,
 		rPace,
 		recoveryFraction,
 		recoveryDescription
 	);
-	const b = buildRepsWorkout(
+	const medium = buildRepsWorkout(
 		'R',
-		R_REP_DISTANCES_M[1],
+		400,
 		volumeKm,
 		rPace,
 		recoveryFraction,
 		recoveryDescription
 	);
-	return [a, b];
+	const long = buildRepsWorkout(
+		'R',
+		800,
+		volumeKm,
+		rPace,
+		recoveryFraction,
+		recoveryDescription
+	);
+
+	// Descending reps variant
+	const descendingQualityMinutes = volumeKm * rPace;
+	const descendingWarmupMinutes = computeWarmupMinutes('R', descendingQualityMinutes);
+	const descendingCooldownMinutes = computeCooldownMinutes('R', descendingQualityMinutes);
+	const descendingTotalMinutes = descendingQualityMinutes + descendingWarmupMinutes + descendingCooldownMinutes;
+
+	const descendingSegments: WorkoutSegment[] = [warmupSegment(descendingWarmupMinutes)];
+	const descendingSteps = 5;
+	const descendingStepMinutes = descendingQualityMinutes / (descendingSteps * 2 - 1);
+	for (let i = descendingSteps - 1; i >= 0; i--) {
+		descendingSegments.push({
+			type: 'work',
+			durationMinutes: descendingStepMinutes * (i + 1),
+			intensity: ZONE_INTENSITY.R
+		});
+		if (i > 0) {
+			descendingSegments.push({
+				type: 'recovery',
+				durationMinutes: descendingStepMinutes,
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	}
+	descendingSegments.push(cooldownSegment(descendingCooldownMinutes));
+
+	const descending: Workout = {
+		label: 'Descending reps',
+		description: `Descending repetition lengths (${round1(volumeKm)}km total)`,
+		totalVolumeKm: round1(volumeKm),
+		recovery: `${formatMinutes(descendingStepMinutes)} recovery between reps`,
+		estimatedDurationMinutes: Math.round(descendingTotalMinutes),
+		segments: descendingSegments
+	};
+
+	return [short, medium, long, descending];
 }
 
 export function buildZoneWorkouts(
 	zone: ZoneKey,
 	trainingZones: TrainingZone[],
 	weeklyMileageKm: number
-): [Workout, Workout] {
+): Workout[] {
 	const paceByZone = new Map(trainingZones.map((z) => [z.zone, midpointPaceMinKm(z)]));
 	const pace = paceByZone.get(zone)!;
 

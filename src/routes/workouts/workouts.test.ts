@@ -63,16 +63,16 @@ describe('Workouts page', () => {
 		expect(screen.getByText(/must be between 1 and 300/i)).toBeInTheDocument();
 	});
 
-	it('renders 5 zones with 2 workout cards each by default', async () => {
+	it('renders 5 zones with 3-4 workout cards each by default', async () => {
 		await fillValidForm();
 		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
 			expect(screen.getByLabelText(`Zone ${zoneLabel}`)).toBeInTheDocument();
 		}
-		// 10 workout cards total (5 zones x 2), identified by "Estimated duration" text
-		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(10);
+		// 17 workout cards total (E:3, M:3, T:3, I:4, R:4), identified by "Estimated duration" text
+		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(17);
 	});
 
-	it('renders all 10 workout cards without error at low weekly mileage (regression)', async () => {
+	it('renders all 17 workout cards without error at low weekly mileage (regression)', async () => {
 		// Regression: 5K/30:22 + 10km/week previously crashed the whole results section with a
 		// Svelte each_key_duplicate runtime error — the computed I/R-zone volume was too small
 		// for 3 reps at either standard distance, and both workout variants fell back to the
@@ -87,7 +87,7 @@ describe('Workouts page', () => {
 		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
 			expect(screen.getByLabelText(`Zone ${zoneLabel}`)).toBeInTheDocument();
 		}
-		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(10);
+		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(17);
 	});
 
 	it('renders the time-band filter select', async () => {
@@ -154,12 +154,12 @@ describe('Workouts page', () => {
 	it('shows a per-workout warm-up/cool-down value, not one shared fixed figure', async () => {
 		await fillValidForm();
 		const warmupLines = screen.getAllByText(/includes a \d+ min warm-up and \d+ min cool-down/i);
-		expect(warmupLines).toHaveLength(10);
+		expect(warmupLines).toHaveLength(17);
 		const warmupMinutes = warmupLines.map((el) => {
 			const match = el.textContent!.match(/includes a (\d+) min warm-up/i);
 			return match![1];
 		});
-		// At least two different values across the 10 cards proves this is genuinely per-workout,
+		// At least two different values across the 17 cards proves this is genuinely per-workout,
 		// not a single shared figure repeated on every card.
 		expect(new Set(warmupMinutes).size).toBeGreaterThan(1);
 	});
