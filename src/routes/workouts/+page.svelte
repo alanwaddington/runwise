@@ -592,7 +592,7 @@
 							No workout in this zone fits {timeBand} — try a longer window.
 						</p>
 					{:else}
-						<div class="grid gap-3 sm:grid-cols-2">
+						<div class="grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
 							{#each zone.filtered as workout (workout.label + workout.description)}
 								<button type="button" onclick={() => { const easyZone = result !== null && result !== 'out-of-range' ? result.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
 									<p class="font-medium text-ink">{workout.label}</p>
