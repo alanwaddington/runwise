@@ -202,7 +202,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 	'/workouts': {
 		heading: 'About workout suggestions',
 		intro:
-			'Knowing your training paces (see the Training Paces calculator) only answers half the question — a runner also needs to know how much quality running at each pace is appropriate for their current training load. This tool applies Jack Daniels\' own weekly-mileage-scaling rules to your training paces, turning each of the five zones into multiple concrete, ready-to-run session prescriptions (3-4 per zone) tailored to different training needs and available time.',
+			'Knowing your training paces (see the Training Paces calculator) only answers half the question — a runner also needs to know how much quality running at each pace is appropriate for their current training load. This tool applies Jack Daniels\' own weekly-mileage-scaling rules to your training paces, turning each of the five zones into multiple concrete, ready-to-run session prescriptions tailored to different training needs and available time.',
 		sections: [
 			{
 				heading: 'How volume is derived from weekly mileage',
