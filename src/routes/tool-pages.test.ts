@@ -39,7 +39,7 @@ const pages = [
 		component: Workouts,
 		title: 'Workout Suggestions',
 		description:
-			'Turn your training paces into concrete session plans, scaled to your weekly mileage.'
+			'Turn your training paces and power into concrete session plans, scaled to your weekly mileage.'
 	}
 ];
 
