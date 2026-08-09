@@ -419,6 +419,7 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 	const ladderSteps = 5;
 	const ladderStepMinutes = ladderQualityMinutes / (ladderSteps * 2 - 1);
 
+	// Ascending ladder
 	for (let i = 0; i < ladderSteps; i++) {
 		const workDuration = ladderStepMinutes * (i + 1);
 		ladderSegments.push({
@@ -426,16 +427,16 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 			durationMinutes: workDuration,
 			intensity: ZONE_INTENSITY.T
 		});
-		if (i < ladderSteps - 1) {
-			// Recovery proportional to work duration (~1/5 of work time)
-			const recoveryDuration = round1(workDuration / 5);
-			ladderSegments.push({
-				type: 'recovery',
-				durationMinutes: recoveryDuration,
-				intensity: RECOVERY_INTENSITY
-			});
-		}
+		// Add recovery after every work segment, including the peak
+		const recoveryDuration = round1(workDuration / 5);
+		ladderSegments.push({
+			type: 'recovery',
+			durationMinutes: recoveryDuration,
+			intensity: RECOVERY_INTENSITY
+		});
 	}
+
+	// Descending ladder (skip the peak since we just did it)
 	for (let i = ladderSteps - 2; i >= 0; i--) {
 		const workDuration = ladderStepMinutes * (i + 1);
 		ladderSegments.push({
