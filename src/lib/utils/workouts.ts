@@ -409,16 +409,15 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 		segments: cruiseSegments
 	};
 
-	// Tempo ladder variant - use consistent recovery between rungs
+	// Tempo ladder variant - variable recovery proportional to work duration
 	const ladderQualityMinutes = durationMinutes;
 	const ladderWarmupMinutes = computeWarmupMinutes('T', ladderQualityMinutes);
 	const ladderCooldownMinutes = computeCooldownMinutes('T', ladderQualityMinutes);
 	const ladderTotalMinutes = ladderQualityMinutes + ladderWarmupMinutes + ladderCooldownMinutes;
 
 	const ladderSegments: WorkoutSegment[] = [warmupSegment(ladderWarmupMinutes)];
-	const ladderSteps = 4;
-	const ladderRecoveryMinutes = round1(repMinutes / 5); // ~1 min per 5 min of work
-	const ladderStepMinutes = round1((durationMinutes - ladderRecoveryMinutes * (ladderSteps * 2 - 2)) / (ladderSteps * (ladderSteps + 1)));
+	const ladderSteps = 5;
+	const ladderStepMinutes = ladderQualityMinutes / (ladderSteps * 2 - 1);
 
 	for (let i = 0; i < ladderSteps; i++) {
 		const workDuration = ladderStepMinutes * (i + 1);
@@ -428,9 +427,11 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 			intensity: ZONE_INTENSITY.T
 		});
 		if (i < ladderSteps - 1) {
+			// Recovery proportional to work duration (~1/5 of work time)
+			const recoveryDuration = round1(workDuration / 5);
 			ladderSegments.push({
 				type: 'recovery',
-				durationMinutes: ladderRecoveryMinutes,
+				durationMinutes: recoveryDuration,
 				intensity: RECOVERY_INTENSITY
 			});
 		}
@@ -443,9 +444,11 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 			intensity: ZONE_INTENSITY.T
 		});
 		if (i > 0) {
+			// Recovery proportional to work duration (~1/5 of work time)
+			const recoveryDuration = round1(workDuration / 5);
 			ladderSegments.push({
 				type: 'recovery',
-				durationMinutes: ladderRecoveryMinutes,
+				durationMinutes: recoveryDuration,
 				intensity: RECOVERY_INTENSITY
 			});
 		}
@@ -456,7 +459,7 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 		label: 'Tempo ladder',
 		description: `Ascending and descending tempo ladder (${round1(volumeKm)}km total)`,
 		totalVolumeKm: round1(volumeKm),
-		recovery: `${formatMinutes(ladderRecoveryMinutes)} jog between steps`,
+		recovery: 'Recovery increases with each rung',
 		estimatedDurationMinutes: Math.round(ladderTotalMinutes),
 		segments: ladderSegments
 	};
