@@ -49,6 +49,7 @@
 		"node": ">=22"
 	},
 	"dependencies": {
+		"@garmin/fitsdk": "^21.212.0",
 		"@vercel/analytics": "^2.0.1"
 	}
 }
