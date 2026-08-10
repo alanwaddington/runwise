@@ -34,13 +34,13 @@
 		{
 			title: 'Running Power Zones',
 			description:
-				'Power, measured in watts, reflects effort directly rather than the outcome of that effort — unlike pace, it doesn\'t slow on hills or into a headwind at constant effort. Stryd, Garmin, and Polar each calculate running power with their own proprietary model, so zone tables have to be device-specific rather than universal.',
+				'Power, measured in watts, reflects effort directly rather than the outcome of that effort. Unlike pace, it doesn\'t slow on hills or into a headwind at constant effort. Stryd, Garmin, and Polar each calculate running power with their own proprietary model, so zone tables have to be device-specific rather than universal.',
 			icon: '⚡'
 		},
 		{
 			title: 'Scaling Training Load',
 			description:
-				'Knowing your training paces only answers half the question — how much quality running at each pace suits your current mileage matters just as much. Jack Daniels\' methodology scales each zone\'s session volume as a percentage of weekly mileage, so hard efforts stay proportional as your training load changes.',
+				'Knowing your training paces only answers half the question: how much quality running at each pace suits your current mileage matters just as much. Jack Daniels\' methodology scales each zone\'s session volume as a percentage of weekly mileage, so hard efforts stay proportional as your training load changes.',
 			icon: '📈'
 		}
 	];

@@ -282,7 +282,7 @@
 			showToast(`Downloaded ${filename}`, 'success');
 		} catch (error) {
 			console.error('Failed to build FIT workout file:', error);
-			showToast("Couldn't create the file — try again.", 'error');
+			showToast("Couldn't create the file. Try again.", 'error');
 		} finally {
 			downloadingFit = false;
 		}
@@ -601,7 +601,7 @@
 
 					{#if zone.filtered.length === 0}
 						<p class="text-sm text-muted">
-							No workout in this zone fits {timeBand} — try a longer window.
+							No workout in this zone fits {timeBand}. Try a longer window.
 						</p>
 					{:else}
 						<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
@@ -736,7 +736,7 @@
 						</span>
 						<h3 class="font-medium text-ink">{zone.name}</h3>
 						<span class="text-sm tabular-nums text-muted"
-							>{zone.wattsLow ?? '—'}–{zone.wattsHigh ?? '—'} W</span
+							>{zone.wattsLow ?? '-'}–{zone.wattsHigh ?? '-'} W</span
 						>
 					</div>
 
@@ -876,7 +876,7 @@
 								{:else if selectedWorkout.zoneName.includes('Threshold')}
 									Run at a comfortably hard pace. You can only speak a few words. Maintain consistent effort and focus on controlled breathing.
 								{:else if selectedWorkout.zoneName.includes('Interval')}
-									Each repeat should feel challenging but sustainable. Take recovery periods seriously—they're part of the workout. Focus on controlled effort.
+									Each repeat should feel challenging but sustainable. Take recovery periods seriously; they're part of the workout. Focus on controlled effort.
 								{:else if selectedWorkout.zoneName.includes('Rep') || selectedWorkout.zoneName.includes('Sprint')}
 									Go all out on each repeat. Use recovery periods to fully recover. These should feel hard and fast, but controlled.
 								{:else}

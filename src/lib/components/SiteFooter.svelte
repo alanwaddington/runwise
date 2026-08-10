@@ -27,7 +27,7 @@
 			>
 			<p class="mt-2 text-sm text-muted">
 				Free running calculators for pace, heart rate zones, VO2 max, training paces, and race
-				predictions. No login, no tracking your workouts — just fast, accurate tools.
+				predictions. No login, no tracking your workouts, just fast, accurate tools.
 			</p>
 		</div>
 

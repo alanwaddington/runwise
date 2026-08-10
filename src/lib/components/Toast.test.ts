@@ -32,10 +32,10 @@ describe('Toast component', () => {
 
 	it('Toast_ShowToastError_RendersMessageWithAlertRole', async () => {
 		render(Toast);
-		showToast("Couldn't create the file — try again.", 'error');
+		showToast("Couldn't create the file. Try again.", 'error');
 		await tick();
 		const el = screen.getByRole('alert');
-		expect(el).toHaveTextContent("Couldn't create the file — try again.");
+		expect(el).toHaveTextContent("Couldn't create the file. Try again.");
 		expect(el).toHaveAttribute('aria-live', 'assertive');
 	});
 
