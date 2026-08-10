@@ -1,10 +1,15 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, cleanup, screen, fireEvent } from '@testing-library/svelte';
 
 const mockPage = { url: new URL('http://localhost/workouts') };
 
 vi.mock('$app/state', () => ({
 	page: mockPage
+}));
+
+const mockBuildFitWorkout = vi.fn();
+vi.mock('$lib/utils/fit-export', () => ({
+	buildFitWorkout: mockBuildFitWorkout
 }));
 
 const { default: Workouts } = await import('./+page.svelte');
@@ -186,5 +191,113 @@ describe('Workouts page', () => {
 		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
 		await fireEvent.input(mileageInput, { target: { value: '80' } });
 		expect(screen.getByText(/outside the supported range/i)).toBeInTheDocument();
+	});
+});
+
+describe('Download as .FIT workflow', () => {
+	beforeEach(() => {
+		mockBuildFitWorkout.mockReset();
+		window.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+		// jsdom attempts (and logs "Not implemented: navigation to another Document" for) a real
+		// navigation when a detached <a href> is clicked -- stub click() so the download trigger
+		// runs without that console noise; the real click/download behavior is exercised in the
+		// browser during manual verification, not by this component test.
+		HTMLAnchorElement.prototype.click = vi.fn();
+		window.URL.revokeObjectURL = vi.fn();
+	});
+
+	async function openFirstWorkoutModal() {
+		const { container, ...utils } = render(Workouts);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '25:00' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '80' } });
+
+		const card = container.querySelector('section button[type="button"]') as HTMLButtonElement;
+		await fireEvent.click(card);
+		return { container, ...utils };
+	}
+
+	async function openFirstPowerWorkoutModal() {
+		const { container, ...utils } = render(Workouts);
+		const powerTab = screen.getByRole('tab', { name: 'Power' });
+		await fireEvent.click(powerTab);
+
+		const powerInput = document.getElementById('power') as HTMLInputElement;
+		await fireEvent.input(powerInput, { target: { value: '250' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '80' } });
+
+		const card = container.querySelector('section button[type="button"]') as HTMLButtonElement;
+		await fireEvent.click(card);
+		return { container, ...utils };
+	}
+
+	it('Workouts_ClickDownloadWithSuccessfulEncode_ShowsSuccessToast', async () => {
+		mockBuildFitWorkout.mockResolvedValueOnce({
+			bytes: new Uint8Array([1, 2, 3]),
+			filename: 'runwise-regular-easy-run-E-pace.fit'
+		});
+		await openFirstWorkoutModal();
+
+		const downloadBtn = screen.getByRole('button', { name: /download as \.fit/i });
+		await fireEvent.click(downloadBtn);
+
+		const toast = await screen.findByRole('status');
+		expect(toast).toHaveTextContent('Downloaded runwise-regular-easy-run-E-pace.fit');
+	});
+
+	it('Workouts_ClickDownloadPaceWorkout_CallsBuildFitWorkoutWithPaceKindAndZone', async () => {
+		mockBuildFitWorkout.mockResolvedValueOnce({
+			bytes: new Uint8Array([1, 2, 3]),
+			filename: 'runwise-regular-easy-run-E-pace.fit'
+		});
+		await openFirstWorkoutModal();
+
+		const downloadBtn = screen.getByRole('button', { name: /download as \.fit/i });
+		await fireEvent.click(downloadBtn);
+		await screen.findByRole('status');
+
+		expect(mockBuildFitWorkout).toHaveBeenCalledWith(
+			expect.objectContaining({ label: 'Regular easy run', kind: 'pace', zone: 'E' })
+		);
+	});
+
+	it('Workouts_ClickDownloadWithFailedEncode_ShowsFailureToastAndReenablesButton', async () => {
+		mockBuildFitWorkout.mockRejectedValueOnce(new Error('boom'));
+		await openFirstWorkoutModal();
+
+		const downloadBtn = screen.getByRole('button', { name: /download as \.fit/i });
+		await fireEvent.click(downloadBtn);
+
+		const toast = await screen.findByRole('alert');
+		expect(toast).toHaveTextContent("Couldn't create the file. Try again.");
+		expect(downloadBtn).not.toBeDisabled();
+	});
+
+	it('Workouts_ClickDownloadPowerWorkout_CallsBuildFitWorkoutWithPowerKind', async () => {
+		mockBuildFitWorkout.mockResolvedValueOnce({
+			bytes: new Uint8Array([1, 2, 3]),
+			filename: 'runwise-continuous-power.fit'
+		});
+		await openFirstPowerWorkoutModal();
+
+		const downloadBtn = screen.getByRole('button', { name: /download as \.fit/i });
+		await fireEvent.click(downloadBtn);
+
+		const toast = await screen.findByRole('status');
+		expect(toast).toHaveTextContent('Downloaded runwise-continuous-power.fit');
+		expect(mockBuildFitWorkout).toHaveBeenCalledWith(expect.objectContaining({ kind: 'power' }));
+	});
+
+	it('Workouts_ClickDownloadPowerWorkoutWithFailedEncode_ShowsFailureToast', async () => {
+		mockBuildFitWorkout.mockRejectedValueOnce(new Error('boom'));
+		await openFirstPowerWorkoutModal();
+
+		const downloadBtn = screen.getByRole('button', { name: /download as \.fit/i });
+		await fireEvent.click(downloadBtn);
+
+		const toast = await screen.findByRole('alert');
+		expect(toast).toHaveTextContent("Couldn't create the file. Try again.");
 	});
 });
