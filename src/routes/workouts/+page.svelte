@@ -122,7 +122,14 @@
 
 	let maxWorkoutsPerZone = $derived(
 		(() => {
-			const zones = mode === 'pace' ? result?.zones : powerResult?.zones;
+			const zones =
+				mode === 'pace'
+					? result !== null && result !== 'out-of-range'
+						? result.zones
+						: null
+					: powerResult !== null && powerResult !== 'out-of-range'
+						? powerResult.zones
+						: null;
 			if (!zones || zones.length === 0) return 2;
 			return Math.max(...zones.map((z) => z.workouts.length));
 		})()
@@ -201,20 +208,17 @@
 	function switchMode(newMode: 'pace' | 'power') {
 		mode = newMode;
 		if (newMode === 'pace') {
-			// Clear power mode errors when switching away
+			// Clear power mode errors when switching away. Weekly mileage is a single
+			// field shared by both modes, so it's intentionally left untouched here.
 			powerError = null;
-			powerWeeklyMileageError = null;
 			powerTouched = false;
-			deviceTouched = false;
-			powerWeeklyMileageTouched = false;
 		} else {
-			// Clear pace mode errors when switching away
+			// Clear pace mode errors when switching away. Weekly mileage is a single
+			// field shared by both modes, so it's intentionally left untouched here.
 			customKmError = null;
 			timeError = null;
-			weeklyMileageError = null;
 			customKmTouched = false;
 			timeTouched = false;
-			weeklyMileageTouched = false;
 		}
 	}
 
@@ -234,10 +238,9 @@
 			powerRaw = '';
 			selectedDevice = 'stryd';
 			powerTouched = false;
-			deviceTouched = false;
-			powerWeeklyMileageTouched = false;
+			weeklyMileageTouched = false;
 			powerError = null;
-			powerWeeklyMileageError = null;
+			weeklyMileageError = null;
 		}
 	}
 
@@ -603,7 +606,7 @@
 					{:else}
 						<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 							{#each zone.filtered as workout (workout.label + workout.description)}
-								<button type="button" onclick={() => { const easyZone = result !== null && result !== 'out-of-range' ? result.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+								<button type="button" onclick={() => { const easyZone = result.zones.find(z => z.name.includes('Easy')); selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
 									<p class="font-medium text-ink">{workout.label}</p>
 									<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 									<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -739,7 +742,7 @@
 
 					<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 						{#each zone.workouts as workout (workout.label + workout.description)}
-							<button type="button" onclick={() => { const easyZone = powerResult !== null && powerResult !== 'out-of-range' ? powerResult.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
+							<button type="button" onclick={() => { const easyZone = powerResult.zones.find(z => z.name.includes('Easy')); selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -907,12 +910,7 @@
 
 				<div class="mb-6">
 					<h3 class="mb-4 font-medium text-ink">Workout Profile</h3>
-					<WorkoutProfileChart
-						segments={selectedWorkout.segments}
-						zoneName={selectedWorkout.zoneName}
-						paceRange={selectedWorkout.paceRange}
-						powerRange={selectedWorkout.powerRange}
-					/>
+					<WorkoutProfileChart segments={selectedWorkout.segments} />
 					<p class="mt-3 flex items-center gap-4 text-sm text-muted">
 						<span class="inline-flex items-center gap-2">
 							<span class="inline-block h-3 w-3 rounded-full bg-accent" aria-hidden="true"></span>
@@ -949,13 +947,7 @@
 									</div>
 								</div>
 								<span class="font-semibold text-ink tabular-nums">
-									{#if segment.durationMinutes < 1}
-										{Math.round(segment.durationMinutes * 60)}s
-									{:else if segment.durationMinutes < 60}
-										{Math.round(segment.durationMinutes)}m
-									{:else}
-										{Math.floor(segment.durationMinutes / 60)}h {Math.round(segment.durationMinutes % 60)}m
-									{/if}
+									{formatDurationMinutes(segment.durationMinutes)}
 								</span>
 							</div>
 						{/each}
