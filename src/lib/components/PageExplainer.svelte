@@ -22,6 +22,22 @@
 				<div>
 					<h3 class="font-semibold text-ink">{section.heading}</h3>
 					<p class="mt-1.5 text-sm leading-relaxed text-muted">{section.body}</p>
+					{#if section.links}
+						<ul class="mt-2 space-y-1">
+							{#each section.links as link (link.url)}
+								<li>
+									<a
+										href={link.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="rounded-sm text-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+									>
+										{link.label} <span aria-hidden="true">→</span>
+									</a>
+								</li>
+							{/each}
+						</ul>
+					{/if}
 				</div>
 			{/each}
 		</div>
