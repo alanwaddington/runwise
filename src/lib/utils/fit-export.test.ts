@@ -1,5 +1,73 @@
 import { describe, it, expect } from 'vitest';
-import { buildFitFilename } from './fit-export';
+import { Decoder, Stream } from '@garmin/fitsdk';
+import { buildFitFilename, buildFitWorkout, type FitExportInput, type FitExportSegment } from './fit-export';
+
+/** Shape of a decoded workout_step message, as returned by @garmin/fitsdk's Decoder. */
+interface DecodedWorkoutStep {
+	messageIndex: number;
+	durationType: string;
+	durationTime?: number;
+	durationStep?: number;
+	targetType?: string;
+	repeatSteps?: number;
+	customTargetSpeedLow?: number;
+	customTargetSpeedHigh?: number;
+	customTargetPowerLow?: number;
+	customTargetPowerHigh?: number;
+	intensity?: string;
+}
+
+/**
+ * Re-expands a decoded workout_step message list back into a flat logical sequence,
+ * replaying any repeatUntilStepsCmplt step's referenced block `repeatSteps` times.
+ * Used to assert the encoded structure is equivalent to the source segments, regardless
+ * of how compactly repeats were encoded.
+ */
+function unrollSteps(steps: DecodedWorkoutStep[]): DecodedWorkoutStep[] {
+	const bySimpleIndex = new Map(steps.map((s) => [s.messageIndex, s]));
+	// Steps referenced inside a repeat block's range are only emitted via the repeat
+	// expansion below, never as their own standalone entry during the main iteration.
+	const consumedByRepeat = new Set<number>();
+	for (const step of steps) {
+		if (step.durationType === 'repeatUntilStepsCmplt') {
+			for (let idx = step.durationStep!; idx < step.messageIndex; idx++) consumedByRepeat.add(idx);
+		}
+	}
+
+	const unrolled: DecodedWorkoutStep[] = [];
+	for (const step of steps) {
+		if (step.durationType === 'repeatUntilStepsCmplt') {
+			const block: DecodedWorkoutStep[] = [];
+			for (let idx = step.durationStep!; idx < step.messageIndex; idx++) {
+				block.push(bySimpleIndex.get(idx)!);
+			}
+			for (let n = 0; n < step.repeatSteps!; n++) unrolled.push(...block);
+		} else if (!consumedByRepeat.has(step.messageIndex)) {
+			unrolled.push(step);
+		}
+	}
+	return unrolled;
+}
+
+interface DecodedWorkoutFile {
+	fileIdMesgs: Array<{ type: string }>;
+	workoutMesgs: Array<{ wktName: string }>;
+	workoutStepMesgs: DecodedWorkoutStep[];
+}
+
+async function decodeWorkout(bytes: Uint8Array): Promise<DecodedWorkoutFile> {
+	const stream = Stream.fromByteArray(Array.from(bytes));
+	expect(Decoder.isFIT(stream)).toBe(true);
+	const decoder = new Decoder(stream);
+	expect(decoder.checkIntegrity()).toBe(true);
+	const { messages, errors } = decoder.read();
+	expect(errors).toEqual([]);
+	return messages as DecodedWorkoutFile;
+}
+
+function seg(type: FitExportSegment['type'], durationMinutes: number, intensity: number): FitExportSegment {
+	return { type, durationMinutes, intensity };
+}
 
 describe('buildFitFilename', () => {
 	it('buildFitFilename_PaceWorkout_MatchesAnalysisExample', () => {
@@ -20,5 +88,151 @@ describe('buildFitFilename', () => {
 
 	it('buildFitFilename_LabelWithLeadingTrailingPunctuation_TrimsHyphens', () => {
 		expect(buildFitFilename('  -Easy Run- ', 'E', 'pace')).toBe('runwise-easy-run-E-pace.fit');
+	});
+});
+
+describe('buildFitWorkout', () => {
+	const PACE_REP_WORKOUT: FitExportInput = {
+		label: '4 x 3min',
+		zone: 'I',
+		kind: 'pace',
+		zoneRange: '3:30–4:00',
+		easyRange: '4:30–5:00',
+		segments: [
+			seg('warmup', 10, 0),
+			seg('work', 3, 1),
+			seg('recovery', 1, 0),
+			seg('work', 3, 1),
+			seg('recovery', 1, 0),
+			seg('work', 3, 1),
+			seg('recovery', 1, 0),
+			seg('work', 3, 1),
+			seg('cooldown', 10, 0)
+		]
+	};
+
+	const POWER_REP_WORKOUT: FitExportInput = {
+		label: '5 x 2min power',
+		zone: 'T',
+		kind: 'power',
+		zoneRange: '250–280 W',
+		easyRange: '180–220 W',
+		segments: [
+			seg('warmup', 10, 0),
+			seg('work', 2, 1),
+			seg('recovery', 1, 0),
+			seg('work', 2, 1),
+			seg('recovery', 1, 0),
+			seg('work', 2, 1),
+			seg('cooldown', 10, 0)
+		]
+	};
+
+	const CONTINUOUS_WORKOUT: FitExportInput = {
+		label: 'Continuous tempo',
+		zone: 'T',
+		kind: 'power',
+		zoneRange: '250–280 W',
+		easyRange: '180–220 W',
+		segments: [seg('warmup', 10, 0), seg('work', 20, 0.5), seg('cooldown', 10, 0)]
+	};
+
+	it('buildFitWorkout_PaceRepWorkout_ProducesValidFitBinaryWithSpeedTargets', async () => {
+		const { bytes, filename } = await buildFitWorkout(PACE_REP_WORKOUT);
+		expect(filename).toBe('runwise-4-x-3min-I-pace.fit');
+
+		const messages = await decodeWorkout(bytes);
+		expect(messages.fileIdMesgs[0].type).toBe('workout');
+		expect(messages.workoutMesgs[0].wktName).toBe('4 x 3min');
+
+		const unrolled = unrollSteps(messages.workoutStepMesgs);
+		expect(unrolled.map((s) => s.intensity)).toEqual([
+			'warmup',
+			'active',
+			'rest',
+			'active',
+			'rest',
+			'active',
+			'rest',
+			'active',
+			'cooldown'
+		]);
+		expect(unrolled.every((s) => s.targetType === 'speed')).toBe(true);
+
+		const workStep = unrolled.find((s) => s.intensity === 'active');
+		expect(workStep).toBeDefined();
+		// 3:30-4:00 zone, intensity 1 -> narrowed to the fast boundary +/-4s (210-214s/km) -> speed 4.386-4.405 m/s
+		expect(workStep!.customTargetSpeedLow).toBeCloseTo(1000 / 214, 2);
+		expect(workStep!.customTargetSpeedHigh).toBeCloseTo(1000 / 210, 2);
+	});
+
+	it('buildFitWorkout_PowerRepWorkout_ProducesValidFitBinaryWithPowerTargets', async () => {
+		const { bytes, filename } = await buildFitWorkout(POWER_REP_WORKOUT);
+		expect(filename).toBe('runwise-5-x-2min-power-T-power.fit');
+
+		const messages = await decodeWorkout(bytes);
+		const unrolled = unrollSteps(messages.workoutStepMesgs);
+		expect(unrolled.map((s) => s.intensity)).toEqual([
+			'warmup',
+			'active',
+			'rest',
+			'active',
+			'rest',
+			'active',
+			'cooldown'
+		]);
+		expect(unrolled.every((s) => s.targetType === 'power')).toBe(true);
+
+		const workStep = unrolled.find((s) => s.intensity === 'active');
+		expect(workStep).toBeDefined();
+		// 250-280W zone, intensity 1 -> narrowed to the high boundary -6W (274-280W)
+		expect(workStep!.customTargetPowerLow).toBe(274);
+		expect(workStep!.customTargetPowerHigh).toBe(280);
+	});
+
+	it('buildFitWorkout_RepWorkout_EncodesRepeatedIntervalUsingNativeRepeatStep', async () => {
+		const { bytes } = await buildFitWorkout(PACE_REP_WORKOUT);
+		const messages = await decodeWorkout(bytes);
+
+		const repeatStep = messages.workoutStepMesgs.find(
+			(s) => s.durationType === 'repeatUntilStepsCmplt'
+		);
+		expect(repeatStep).toBeDefined();
+		expect(repeatStep!.repeatSteps).toBe(3); // reps 2-4 share one encoded (recovery, work) block
+		// Fewer physical step messages than a flat 4-work/3-recovery/warmup/cooldown encoding (9 segments).
+		expect(messages.workoutStepMesgs.length).toBeLessThan(PACE_REP_WORKOUT.segments.length);
+	});
+
+	it('buildFitWorkout_RepWorkout_NoRecoveryStepAfterFinalWorkStep', async () => {
+		const { bytes } = await buildFitWorkout(PACE_REP_WORKOUT);
+		const messages = await decodeWorkout(bytes);
+		const unrolled = unrollSteps(messages.workoutStepMesgs);
+
+		const lastWorkIndex = unrolled.map((s) => s.intensity).lastIndexOf('active');
+		expect(unrolled[lastWorkIndex + 1].intensity).not.toBe('rest');
+		expect(unrolled[lastWorkIndex + 1].intensity).toBe('cooldown');
+	});
+
+	it('buildFitWorkout_ContinuousWorkout_EncodesFlatStepListWithNoRepeatStep', async () => {
+		const { bytes, filename } = await buildFitWorkout(CONTINUOUS_WORKOUT);
+		expect(filename).toBe('runwise-continuous-tempo-T-power.fit');
+
+		const messages = await decodeWorkout(bytes);
+		expect(messages.workoutStepMesgs.length).toBe(3);
+		expect(messages.workoutStepMesgs.map((s) => s.intensity)).toEqual([
+			'warmup',
+			'active',
+			'cooldown'
+		]);
+		expect(
+			messages.workoutStepMesgs.some((s) => s.durationType === 'repeatUntilStepsCmplt')
+		).toBe(false);
+	});
+
+	it('buildFitWorkout_AnyWorkout_StepDurationsMatchSourceSegments', async () => {
+		const { bytes } = await buildFitWorkout(CONTINUOUS_WORKOUT);
+		const messages = await decodeWorkout(bytes);
+		const durations = messages.workoutStepMesgs.map((s) => s.durationTime);
+		expect(durations).toEqual([600, 1200, 600]); // 10min, 20min, 10min in seconds
 	});
 });
