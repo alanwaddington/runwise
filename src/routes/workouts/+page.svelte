@@ -12,6 +12,7 @@
 	import WorkoutProfileChart from '$lib/components/WorkoutProfileChart.svelte';
 	import { buildPowerWorkoutsResult } from '$lib/utils/power-workouts';
 	import { DEVICE_DISPLAY_NAME, DEVICE_METRIC_LABEL, type PowerMeterDevice } from '$lib/utils/power-zones';
+	import { getSegmentPaceRange, getSegmentPowerRange } from '$lib/utils/segment-targets';
 
 	const TIME_BANDS = ['Any time', 'Under 30 min', '30–45 min', '45–60 min', '60+ min'] as const;
 	type TimeBand = (typeof TIME_BANDS)[number];
@@ -235,67 +236,6 @@
 
 	function formatMinutesShort(minutes: number): string {
 		return `${Math.round(minutes)} min`;
-	}
-
-	function parsePaceTime(timeStr: string): number {
-		const parts = timeStr.split(':').map(p => parseFloat(p));
-		if (parts.length === 2) return parts[0] * 60 + parts[1];
-		if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-		return 0;
-	}
-
-	function formatPaceTime(seconds: number): string {
-		const mins = Math.floor(seconds / 60);
-		const secs = Math.round(seconds % 60);
-		return `${mins}:${secs.toString().padStart(2, '0')}`;
-	}
-
-	function getSegmentPaceRange(
-		zoneRange: string,
-		intensity: number,
-		segmentType: 'warmup' | 'work' | 'recovery' | 'cooldown'
-	): string {
-		if (!zoneRange || segmentType !== 'work') return zoneRange;
-
-		const parts = zoneRange.split('–');
-		if (parts.length !== 2) return zoneRange;
-
-		const fastStr = parts[0].trim();
-		const slowStr = parts[1].trim();
-		const fast = parsePaceTime(fastStr);
-		const slow = parsePaceTime(slowStr);
-
-		if (fast === 0 || slow === 0) return zoneRange;
-
-		const targetPace = slow - (slow - fast) * intensity;
-		const margin = 4;
-
-		const lowPace = Math.max(fast, targetPace - margin);
-		const highPace = Math.min(slow, targetPace + margin);
-
-		return `${formatPaceTime(highPace)}–${formatPaceTime(lowPace)} /km`;
-	}
-
-	function getSegmentPowerRange(
-		zoneRange: string,
-		intensity: number,
-		segmentType: 'warmup' | 'work' | 'recovery' | 'cooldown'
-	): string {
-		if (!zoneRange || segmentType !== 'work') return zoneRange;
-
-		const match = zoneRange.match(/(\d+)–(\d+)\s*W/);
-		if (!match) return zoneRange;
-
-		const low = parseInt(match[1]);
-		const high = parseInt(match[2]);
-
-		const targetPower = low + (high - low) * intensity;
-		const margin = 6;
-
-		const lowPower = Math.max(low, Math.round(targetPower - margin));
-		const highPower = Math.min(high, Math.round(targetPower + margin));
-
-		return `${lowPower}–${highPower} W`;
 	}
 </script>
 
