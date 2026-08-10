@@ -37,13 +37,13 @@
 
 	// Read-only derived outputs
 	let mphDisplay = $derived(
-		minPerKm !== null ? kmhToMph(minPerKmToKmh(minPerKm)).toFixed(1) : '—'
+		minPerKm !== null ? kmhToMph(minPerKmToKmh(minPerKm)).toFixed(1) : '-'
 	);
 	let per400mDisplay = $derived(
-		minPerKm !== null ? formatPace(minPerKmToPer400m(minPerKm)) : '—'
+		minPerKm !== null ? formatPace(minPerKmToPer400m(minPerKm)) : '-'
 	);
 	let per800mDisplay = $derived(
-		minPerKm !== null ? formatPace(minPerKmToPer800m(minPerKm)) : '—'
+		minPerKm !== null ? formatPace(minPerKmToPer800m(minPerKm)) : '-'
 	);
 
 	// Update canonical value and all non-source fields atomically

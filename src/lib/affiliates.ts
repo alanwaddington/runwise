@@ -125,7 +125,7 @@ export const AFFILIATE_LINKS: Record<string, AffiliateProduct[]> = {
 			// else. It's also the literal URL used in Stryd's own homepage "Buy"
 			// nav link, not an internal implementation detail. See issue #88.
 			name: 'Stryd Running Power Meter',
-			description: 'Dedicated footpod power meter — the device behind the Stryd Critical Power model.',
+			description: 'Dedicated footpod power meter: the device behind the Stryd Critical Power model.',
 			url: 'https://www.stryd.com/store',
 			program: 'direct',
 			brand: 'Stryd'

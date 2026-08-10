@@ -1,6 +1,13 @@
+export interface ExplainerLink {
+	label: string;
+	url: string;
+}
+
 export interface ExplainerSection {
 	heading: string;
 	body: string;
+	/** Optional outbound reference links (e.g. a manufacturer's own how-to guide), rendered below the body text. */
+	links?: ExplainerLink[];
 }
 
 export interface PageExplainerContent {
@@ -25,7 +32,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Worked example',
-				body: 'Say your last parkrun was 25:00 for 5K, a pace of 5:00 min/km. Enter 5:00 into the min/km field and the calculator instantly shows 8:03 min/mile, 12.0 km/h, 7.5 mph, 2:00 per 400m, and 4:00 per 800m — everything you need to plan an interval session or check a treadmill display against your race pace.'
+				body: 'Say your last parkrun was 25:00 for 5K, a pace of 5:00 min/km. Enter 5:00 into the min/km field and the calculator instantly shows 8:03 min/mile, 12.0 km/h, 7.5 mph, 2:00 per 400m, and 4:00 per 800m: everything you need to plan an interval session or check a treadmill display against your race pace.'
 			},
 			{
 				heading: 'Common pace equivalents',
@@ -48,7 +55,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Worked example',
-				body: 'A 10K finish of 45:00 (2700 seconds) predicts a half marathon time via T₂ = 2700 × (21.0975/10)^1.06 ≈ 5957 seconds, or about 1:39:17. The same formula scaled down predicts a 5K of roughly 21:35 — always check the prediction against how the training leading into your target race has actually gone.'
+				body: 'A 10K finish of 45:00 (2700 seconds) predicts a half marathon time via T₂ = 2700 × (21.0975/10)^1.06 ≈ 5957 seconds, or about 1:39:17. The same formula scaled down predicts a 5K of roughly 21:35. Always check the prediction against how the training leading into your target race has actually gone.'
 			},
 			{
 				heading: 'Limitations',
@@ -56,7 +63,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Riegel vs other models',
-				body: 'Riegel is not the only prediction method — VDOT-based tables (see the Training Paces calculator) and Cameron\'s formula are common alternatives. Riegel tends to be more optimistic than VDOT for marathon predictions from short-distance results, because it does not separately model the endurance demands of very long races. When the two disagree by more than a few minutes, lean towards the more conservative estimate.'
+				body: 'Riegel is not the only prediction method: VDOT-based tables (see the Training Paces calculator) and Cameron\'s formula are common alternatives. Riegel tends to be more optimistic than VDOT for marathon predictions from short-distance results, because it does not separately model the endurance demands of very long races. When the two disagree by more than a few minutes, lean towards the more conservative estimate.'
 			},
 			{
 				heading: 'When to re-test',
@@ -83,11 +90,11 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Choosing which race result to enter',
-				body: 'VDOT is most accurate from a recent, honestly-paced race or time trial of 3K–half marathon, run in reasonable conditions. Avoid using times from races run in extreme heat, on hilly courses, or well below your current fitness (for example, a marathon PB from two years ago) — recompute from something recent instead.'
+				body: 'VDOT is most accurate from a recent, honestly-paced race or time trial of 3K–half marathon, run in reasonable conditions. Avoid using times from races run in extreme heat, on hilly courses, or well below your current fitness (for example, a marathon PB from two years ago); recompute from something recent instead.'
 			},
 			{
 				heading: 'Applying the paces in training',
-				body: 'These are ranges, not fixed targets: run at the slower end on tired legs or in poor conditions, and the faster end when you are fresh. As your fitness improves, re-enter a new race result every few months to keep the paces current — training at outdated, too-easy paces is one of the most common ways progress stalls.'
+				body: 'These are ranges, not fixed targets: run at the slower end on tired legs or in poor conditions, and the faster end when you are fresh. As your fitness improves, re-enter a new race result every few months to keep the paces current; training at outdated, too-easy paces is one of the most common ways progress stalls.'
 			}
 		]
 	},
@@ -133,15 +140,15 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Worked example',
-				body: 'A 45-year-old male running a 45:00 10K has a VDOT of roughly 45.3, which falls in the "Excellent" ACSM category for his 40-49 age bracket (threshold 42.4). The same time from a 25-year-old male sits one band lower, in "Good" territory, since the 20-29 age bracket has higher thresholds across the board (42.5 for Good, 46.8 for Excellent) — a reminder that VO2 max category is always relative to age and gender, not an absolute fitness score.'
+				body: 'A 45-year-old male running a 45:00 10K has a VDOT of roughly 45.3, which falls in the "Excellent" ACSM category for his 40-49 age bracket (threshold 42.4). The same time from a 25-year-old male sits one band lower, in "Good" territory, since the 20-29 age bracket has higher thresholds across the board (42.5 for Good, 46.8 for Excellent), a reminder that VO2 max category is always relative to age and gender, not an absolute fitness score.'
 			},
 			{
 				heading: 'What the fitness categories mean',
-				body: 'The six categories, from Very Poor to Superior, come from the ACSM\'s published normative data across six age brackets (20-29 through 70-79) for both genders. They are population percentile bands, not fixed performance targets — "Good" for a 60-year-old and "Good" for a 25-year-old correspond to very different absolute VO2 max values, since aerobic capacity naturally declines with age.'
+				body: 'The six categories, from Very Poor to Superior, come from the ACSM\'s published normative data across six age brackets (20-29 through 70-79) for both genders. They are population percentile bands, not fixed performance targets: "Good" for a 60-year-old and "Good" for a 25-year-old correspond to very different absolute VO2 max values, since aerobic capacity naturally declines with age.'
 			},
 			{
 				heading: 'Improving VO2 max',
-				body: 'VO2 max responds most to sustained aerobic training combined with periodic high-intensity work near or above threshold — the Interval and Repetition paces on the Training Paces calculator. Gains are fastest for newer runners and level off with training age, so an experienced runner should expect smaller year-on-year improvements than someone in their first year of structured training.'
+				body: 'VO2 max responds most to sustained aerobic training combined with periodic high-intensity work near or above threshold, the Interval and Repetition paces on the Training Paces calculator. Gains are fastest for newer runners and level off with training age, so an experienced runner should expect smaller year-on-year improvements than someone in their first year of structured training.'
 			}
 		]
 	},
@@ -164,7 +171,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Worked example',
-				body: 'A 21:00 5K from a 30-year-old male compares against the male open-class standard of 12:49 (769 seconds), adjusted by an age factor of essentially 1.0 at that age, giving a rating of roughly 61 out of 100. The same 21:00 from a 70-year-old male, whose age factor is 0.735, gives an age-adjusted standard closer to 17:26 — pushing the rating up to around 83 out of 100, in "Regional class" territory.'
+				body: 'A 21:00 5K from a 30-year-old male compares against the male open-class standard of 12:49 (769 seconds), adjusted by an age factor of essentially 1.0 at that age, giving a rating of roughly 61 out of 100. The same 21:00 from a 70-year-old male, whose age factor is 0.735, gives an age-adjusted standard closer to 17:26, pushing the rating up to around 83 out of 100, in "Regional class" territory.'
 			},
 			{
 				heading: 'What the rating bands mean',
@@ -172,7 +179,7 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Choosing a reference run',
-				body: 'A recent 10K or longer run tends to give a more optimistic (faster) 5K prediction than a shorter, harder effort, because Riegel assumes similar relative fitness across distances — pick a training run or race result reasonably close to 5K in duration if you want the most realistic estimate.'
+				body: 'A recent 10K or longer run tends to give a more optimistic (faster) 5K prediction than a shorter, harder effort, because Riegel assumes similar relative fitness across distances. Pick a training run or race result reasonably close to 5K in duration if you want the most realistic estimate.'
 			}
 		]
 	},
@@ -202,11 +209,11 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 	'/workouts': {
 		heading: 'About workout suggestions',
 		intro:
-			'Knowing your training paces (see the Training Paces calculator) only answers half the question — a runner also needs to know how much quality running at each pace is appropriate for their current training load. This tool applies Jack Daniels\' own weekly-mileage-scaling rules to your training paces, turning each of the five zones into multiple concrete, ready-to-run session prescriptions tailored to different training needs and available time.',
+			'Knowing your training paces (see the Training Paces calculator) only answers half the question: a runner also needs to know how much quality running at each pace is appropriate for their current training load. This tool applies Jack Daniels\' own weekly-mileage-scaling rules to your training paces, turning each of the five zones into multiple concrete, ready-to-run session prescriptions tailored to different training needs and available time.',
 		sections: [
 			{
 				heading: 'How volume is derived from weekly mileage',
-				body: 'Daniels scales each zone\'s quality-session volume as a percentage of your weekly mileage, with an absolute per-session cap layered on top so the numbers stay sensible at very high mileage. Easy running gets the largest share (25-30%), tapering down to Marathon (15-20%), Threshold (10%), Interval (8%), and Repetition (5%) — reflecting how much of each harder effort a body can safely absorb in a week.'
+				body: 'Daniels scales each zone\'s quality-session volume as a percentage of your weekly mileage, with an absolute per-session cap layered on top so the numbers stay sensible at very high mileage. Easy running gets the largest share (25-30%), tapering down to Marathon (15-20%), Threshold (10%), Interval (8%), and Repetition (5%), reflecting how much of each harder effort a body can safely absorb in a week.'
 			},
 			{
 				heading: 'Why zones offer multiple workouts',
@@ -214,11 +221,25 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 			},
 			{
 				heading: 'Reading a workout card',
-				body: 'Each card shows a session format (reps and distance, or a continuous block), the target pace pulled straight from your Training Paces zone range, the recovery between reps or segments, the total quality volume, and an estimated total duration that includes a warm-up and cool-down. Each is scaled independently to the session\'s intensity and length — longer for harder efforts like Interval and Repetition, shorter for Easy running — with cool-down typically the shorter of the two.'
+				body: 'Each card shows a session format (reps and distance, or a continuous block), the target pace pulled straight from your Training Paces zone range, the recovery between reps or segments, the total quality volume, and an estimated total duration that includes a warm-up and cool-down. Each is scaled independently to the session\'s intensity and length (longer for harder efforts like Interval and Repetition, shorter for Easy running), with cool-down typically the shorter of the two.'
 			},
 			{
 				heading: 'Using the time filter',
-				body: 'If you only have a set window today, the time-band filter narrows every zone down to workouts that fit. A zone with nothing short enough for the selected band shows a note rather than a workout that would run long — better to know before you start than to cut a session short partway through.'
+				body: 'If you only have a set window today, the time-band filter narrows every zone down to workouts that fit. A zone with nothing short enough for the selected band shows a note rather than a workout that would run long. Better to know before you start than to cut a session short partway through.'
+			},
+			{
+				heading: 'Getting a workout onto your watch',
+				body: 'Every workout card has a "Download as .FIT" button that saves a structured workout file: the target pace or power for each segment, plus the exact warm-up, work, recovery, and cool-down timing, ready to follow step-by-step on the device itself rather than watched manually against a stopwatch. On Garmin, copy the downloaded file onto the watch\'s NEWFILES folder over USB, then select it from Training > Workouts on the device. On COROS, import it in COROS Training Hub and sync it to the watch from there. Suunto and Polar watches don\'t support importing a structured workout file at all today. That includes Runwise\'s export and every other source, including TrainingPeaks, which only accepts its own in-app workout builder or Zwift (.zwo) files for planned workouts. If you\'re on one of those brands, this feature won\'t currently help.',
+				links: [
+					{
+						label: 'Garmin file-transfer steps (TrainingPeaks help center)',
+						url: 'https://help.trainingpeaks.com/hc/en-us/articles/115001076908-Manual-Structured-Workout-Export-for-Garmin-Devices'
+					},
+					{
+						label: "COROS's official guide: How to Follow Structured Workouts",
+						url: 'https://support.coros.com/hc/en-us/articles/360044426251-How-to-Follow-Structured-Workouts-on-COROS-Watches'
+					}
+				]
 			},
 			{
 				heading: 'Source and confidence',

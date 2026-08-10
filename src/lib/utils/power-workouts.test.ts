@@ -7,10 +7,11 @@ import {
 	buildPowerContinuousWorkout,
 	buildPowerZoneWorkouts,
 	buildPowerWorkoutsResult,
-	mapPowerZoneToTrainingZone
+	mapPowerZoneToTrainingZone,
+	formatPowerRangeStr
 } from './power-workouts';
-import { calculatePowerZones, type PowerMeterDevice } from './power-zones';
-import { computeZoneVolumeKm, computeWarmupMinutes, computeCooldownMinutes } from './workouts';
+import { calculatePowerZones, type PowerMeterDevice, type PowerZone } from './power-zones';
+import { computeZoneVolumeKm, roundToNearest5Seconds } from './workouts';
 import { parsePace } from './pace';
 
 describe('estimatePaceFromPower', () => {
@@ -98,31 +99,23 @@ describe('computePowerZoneVolumeDurationMinutes', () => {
 
 describe('computePowerRepDurationMinutes', () => {
 	it('should return valid rep duration for I zone', () => {
-		const duration = computePowerRepDurationMinutes('I', 250, 60);
+		const duration = computePowerRepDurationMinutes('I', 250);
 		expect(duration).toBeGreaterThan(0);
 		expect(duration).toBeLessThan(10); // I reps typically 3-8 min
 	});
 
 	it('should return valid rep duration for R zone', () => {
-		const duration = computePowerRepDurationMinutes('R', 250, 60);
+		const duration = computePowerRepDurationMinutes('R', 250);
 		expect(duration).toBeGreaterThan(0);
 		expect(duration).toBeLessThan(2); // R reps typically 30-90 sec
 	});
 
 	it('should scale with power', () => {
-		const dur200 = computePowerRepDurationMinutes('I', 200, 60);
-		const dur250 = computePowerRepDurationMinutes('I', 250, 60);
+		const dur200 = computePowerRepDurationMinutes('I', 200);
+		const dur250 = computePowerRepDurationMinutes('I', 250);
 
 		// Higher power = shorter duration for same distance
 		expect(dur250).toBeLessThan(dur200);
-	});
-
-	it('should scale with mileage', () => {
-		const dur60 = computePowerRepDurationMinutes('I', 250, 60);
-		const dur80 = computePowerRepDurationMinutes('I', 250, 80);
-
-		// Higher mileage = more volume = longer (or more) reps
-		expect(dur80).toBeGreaterThanOrEqual(dur60);
 	});
 });
 
@@ -225,11 +218,11 @@ describe('buildPowerZoneWorkouts', () => {
 	it('should create two workout variants per zone', () => {
 		const zones = calculatePowerZones(250, 'stryd')!;
 
-		zones.forEach((zone) => {
-			const workouts = buildPowerZoneWorkouts('E' as any, zones, 60, 250, 'stryd');
+		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+			const workouts = buildPowerZoneWorkouts(zone, zones, 60, 250, 'stryd');
 			expect(workouts.length).toBeGreaterThanOrEqual(2);
 			expect(workouts[0]).toBeDefined();
-		});
+		}
 	});
 
 	it('should produce continuous workout for E zone', () => {
@@ -248,6 +241,26 @@ describe('buildPowerZoneWorkouts', () => {
 		// First 3 should be rep-based (short, medium, long intervals)
 		for (let i = 0; i < 3; i++) {
 			expect(workouts[i].description).toMatch(/\d+\s*[x×]/);
+		}
+	});
+
+	it('everyWorkout_everySegment_durationRoundedToNearest5Seconds', () => {
+		const devices: PowerMeterDevice[] = ['stryd', 'garmin', 'coros', 'polar'];
+		for (const device of devices) {
+			const zones = calculatePowerZones(250, device)!;
+			for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+				for (const mileage of [10, 40, 80, 150]) {
+					const workouts = buildPowerZoneWorkouts(zone, zones, mileage, 250, device);
+					for (const workout of workouts) {
+						for (const segment of workout.segments) {
+							expect(segment.durationMinutes).toBeCloseTo(
+								roundToNearest5Seconds(segment.durationMinutes),
+								6
+							);
+						}
+					}
+				}
+			}
 		}
 	});
 });
@@ -355,5 +368,23 @@ describe('mapPowerZoneToTrainingZone', () => {
 		expect(mapPowerZoneToTrainingZone(3, 'polar')).toBe('T');
 		expect(mapPowerZoneToTrainingZone(4, 'polar')).toBe('I');
 		expect(mapPowerZoneToTrainingZone(5, 'polar')).toBe('R');
+	});
+});
+
+describe('formatPowerRangeStr', () => {
+	function powerZone(wattsLow: number | null, wattsHigh: number | null): PowerZone {
+		return { zone: 1, name: 'Test', wattsLow, wattsHigh, pctLow: null, pctHigh: null, purpose: '' };
+	}
+
+	it('formatPowerRangeStr_BothBoundsPresent_ReturnsLowDashHighW', () => {
+		expect(formatPowerRangeStr(powerZone(164, 202))).toBe('164–202 W');
+	});
+
+	it('formatPowerRangeStr_OpenEndedLowerBound_ReturnsHighOnly', () => {
+		expect(formatPowerRangeStr(powerZone(null, 202))).toBe('202 W');
+	});
+
+	it('formatPowerRangeStr_OpenEndedUpperBound_ReturnsLowOnly', () => {
+		expect(formatPowerRangeStr(powerZone(164, null))).toBe('164 W');
 	});
 });

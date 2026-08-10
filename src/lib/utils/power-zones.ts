@@ -251,7 +251,7 @@ export const DEVICE_METRIC_LABEL: Record<PowerMeterDevice, string> = {
  * with a verified table (Stryd, Polar).
  */
 export const DEVICE_DISCLAIMER: Partial<Record<PowerMeterDevice, string>> = {
-	coros: "These zone percentages are adapted from COROS's own published cycling power zone model — COROS has not published a running-specific power zone table, and this approximation is not confirmed against COROS's app or Training Hub for running.",
+	coros: "These zone percentages are adapted from COROS's own published cycling power zone model. COROS has not published a running-specific power zone table, and this approximation is not confirmed against COROS's app or Training Hub for running.",
 	garmin: "These zone percentages match Garmin Connect's running power screen; Garmin does not publish this table in its own official documentation."
 };
 

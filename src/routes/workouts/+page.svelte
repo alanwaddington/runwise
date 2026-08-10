@@ -12,6 +12,11 @@
 	import WorkoutProfileChart from '$lib/components/WorkoutProfileChart.svelte';
 	import { buildPowerWorkoutsResult } from '$lib/utils/power-workouts';
 	import { DEVICE_DISPLAY_NAME, DEVICE_METRIC_LABEL, type PowerMeterDevice } from '$lib/utils/power-zones';
+	import { getSegmentPaceRange, getSegmentPowerRange } from '$lib/utils/segment-targets';
+	import { buildFitWorkout } from '$lib/utils/fit-export';
+	import type { ZoneKey } from '$lib/utils/training-paces';
+	import Toast from '$lib/components/Toast.svelte';
+	import { showToast } from '$lib/stores/toast';
 
 	const TIME_BANDS = ['Any time', 'Under 30 min', '30–45 min', '45–60 min', '60+ min'] as const;
 	type TimeBand = (typeof TIME_BANDS)[number];
@@ -68,11 +73,14 @@
 			intensity: number;
 		}>;
 		zoneName: string;
+		zone: ZoneKey;
 		powerRange?: string;
 		paceRange?: string;
 		easyPaceRange?: string;
 		easyPowerRange?: string;
 	} | null>(null);
+
+	let downloadingFit = $state(false);
 
 	// Pace mode derived state
 	let isCustom = $derived(selectedOption === 'Custom');
@@ -114,7 +122,14 @@
 
 	let maxWorkoutsPerZone = $derived(
 		(() => {
-			const zones = mode === 'pace' ? result?.zones : powerResult?.zones;
+			const zones =
+				mode === 'pace'
+					? result !== null && result !== 'out-of-range'
+						? result.zones
+						: null
+					: powerResult !== null && powerResult !== 'out-of-range'
+						? powerResult.zones
+						: null;
 			if (!zones || zones.length === 0) return 2;
 			return Math.max(...zones.map((z) => z.workouts.length));
 		})()
@@ -193,20 +208,17 @@
 	function switchMode(newMode: 'pace' | 'power') {
 		mode = newMode;
 		if (newMode === 'pace') {
-			// Clear power mode errors when switching away
+			// Clear power mode errors when switching away. Weekly mileage is a single
+			// field shared by both modes, so it's intentionally left untouched here.
 			powerError = null;
-			powerWeeklyMileageError = null;
 			powerTouched = false;
-			deviceTouched = false;
-			powerWeeklyMileageTouched = false;
 		} else {
-			// Clear pace mode errors when switching away
+			// Clear pace mode errors when switching away. Weekly mileage is a single
+			// field shared by both modes, so it's intentionally left untouched here.
 			customKmError = null;
 			timeError = null;
-			weeklyMileageError = null;
 			customKmTouched = false;
 			timeTouched = false;
-			weeklyMileageTouched = false;
 		}
 	}
 
@@ -226,10 +238,9 @@
 			powerRaw = '';
 			selectedDevice = 'stryd';
 			powerTouched = false;
-			deviceTouched = false;
-			powerWeeklyMileageTouched = false;
+			weeklyMileageTouched = false;
 			powerError = null;
-			powerWeeklyMileageError = null;
+			weeklyMileageError = null;
 		}
 	}
 
@@ -237,65 +248,44 @@
 		return `${Math.round(minutes)} min`;
 	}
 
-	function parsePaceTime(timeStr: string): number {
-		const parts = timeStr.split(':').map(p => parseFloat(p));
-		if (parts.length === 2) return parts[0] * 60 + parts[1];
-		if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-		return 0;
-	}
+	async function downloadFitWorkout() {
+		if (!selectedWorkout || downloadingFit) return;
+		const workout = selectedWorkout;
 
-	function formatPaceTime(seconds: number): string {
-		const mins = Math.floor(seconds / 60);
-		const secs = Math.round(seconds % 60);
-		return `${mins}:${secs.toString().padStart(2, '0')}`;
-	}
+		downloadingFit = true;
+		try {
+			const kind: 'pace' | 'power' = workout.paceRange ? 'pace' : 'power';
+			const zoneRange = kind === 'pace' ? workout.paceRange! : workout.powerRange!;
+			const easyRange = kind === 'pace' ? workout.easyPaceRange! : workout.easyPowerRange!;
 
-	function getSegmentPaceRange(
-		zoneRange: string,
-		intensity: number,
-		segmentType: 'warmup' | 'work' | 'recovery' | 'cooldown'
-	): string {
-		if (!zoneRange || segmentType !== 'work') return zoneRange;
+			const { bytes, filename } = await buildFitWorkout({
+				label: workout.label,
+				zone: workout.zone,
+				kind,
+				segments: workout.segments,
+				zoneRange,
+				easyRange
+			});
 
-		const parts = zoneRange.split('–');
-		if (parts.length !== 2) return zoneRange;
+			// TS's lib.dom BlobPart type requires an ArrayBuffer-backed view, but Uint8Array's
+			// generic backing-buffer type widens to ArrayBufferLike (which also covers
+			// SharedArrayBuffer) -- a known strictness mismatch, not an actual runtime concern
+			// since encoder.close() always returns a plain ArrayBuffer-backed Uint8Array.
+			const blob = new Blob([bytes as unknown as ArrayBuffer], { type: 'application/vnd.ant.fit' });
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = filename;
+			link.click();
+			URL.revokeObjectURL(url);
 
-		const fastStr = parts[0].trim();
-		const slowStr = parts[1].trim();
-		const fast = parsePaceTime(fastStr);
-		const slow = parsePaceTime(slowStr);
-
-		if (fast === 0 || slow === 0) return zoneRange;
-
-		const targetPace = slow - (slow - fast) * intensity;
-		const margin = 4;
-
-		const lowPace = Math.max(fast, targetPace - margin);
-		const highPace = Math.min(slow, targetPace + margin);
-
-		return `${formatPaceTime(highPace)}–${formatPaceTime(lowPace)} /km`;
-	}
-
-	function getSegmentPowerRange(
-		zoneRange: string,
-		intensity: number,
-		segmentType: 'warmup' | 'work' | 'recovery' | 'cooldown'
-	): string {
-		if (!zoneRange || segmentType !== 'work') return zoneRange;
-
-		const match = zoneRange.match(/(\d+)–(\d+)\s*W/);
-		if (!match) return zoneRange;
-
-		const low = parseInt(match[1]);
-		const high = parseInt(match[2]);
-
-		const targetPower = low + (high - low) * intensity;
-		const margin = 6;
-
-		const lowPower = Math.max(low, Math.round(targetPower - margin));
-		const highPower = Math.min(high, Math.round(targetPower + margin));
-
-		return `${lowPower}–${highPower} W`;
+			showToast(`Downloaded ${filename}`, 'success');
+		} catch (error) {
+			console.error('Failed to build FIT workout file:', error);
+			showToast("Couldn't create the file. Try again.", 'error');
+		} finally {
+			downloadingFit = false;
+		}
 	}
 </script>
 
@@ -611,12 +601,12 @@
 
 					{#if zone.filtered.length === 0}
 						<p class="text-sm text-muted">
-							No workout in this zone fits {timeBand} — try a longer window.
+							No workout in this zone fits {timeBand}. Try a longer window.
 						</p>
 					{:else}
 						<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 							{#each zone.filtered as workout (workout.label + workout.description)}
-								<button type="button" onclick={() => { const easyZone = result !== null && result !== 'out-of-range' ? result.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+								<button type="button" onclick={() => { const easyZone = result.zones.find(z => z.name.includes('Easy')); selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
 									<p class="font-medium text-ink">{workout.label}</p>
 									<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 									<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -746,13 +736,13 @@
 						</span>
 						<h3 class="font-medium text-ink">{zone.name}</h3>
 						<span class="text-sm tabular-nums text-muted"
-							>{zone.wattsLow ?? '—'}–{zone.wattsHigh ?? '—'} W</span
+							>{zone.wattsLow ?? '-'}–{zone.wattsHigh ?? '-'} W</span
 						>
 					</div>
 
 					<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 						{#each zone.workouts as workout (workout.label + workout.description)}
-							<button type="button" onclick={() => { const easyZone = powerResult !== null && powerResult !== 'out-of-range' ? powerResult.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
+							<button type="button" onclick={() => { const easyZone = powerResult.zones.find(z => z.name.includes('Easy')); selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -886,7 +876,7 @@
 								{:else if selectedWorkout.zoneName.includes('Threshold')}
 									Run at a comfortably hard pace. You can only speak a few words. Maintain consistent effort and focus on controlled breathing.
 								{:else if selectedWorkout.zoneName.includes('Interval')}
-									Each repeat should feel challenging but sustainable. Take recovery periods seriously—they're part of the workout. Focus on controlled effort.
+									Each repeat should feel challenging but sustainable. Take recovery periods seriously; they're part of the workout. Focus on controlled effort.
 								{:else if selectedWorkout.zoneName.includes('Rep') || selectedWorkout.zoneName.includes('Sprint')}
 									Go all out on each repeat. Use recovery periods to fully recover. These should feel hard and fast, but controlled.
 								{:else}
@@ -920,12 +910,7 @@
 
 				<div class="mb-6">
 					<h3 class="mb-4 font-medium text-ink">Workout Profile</h3>
-					<WorkoutProfileChart
-						segments={selectedWorkout.segments}
-						zoneName={selectedWorkout.zoneName}
-						paceRange={selectedWorkout.paceRange}
-						powerRange={selectedWorkout.powerRange}
-					/>
+					<WorkoutProfileChart segments={selectedWorkout.segments} />
 					<p class="mt-3 flex items-center gap-4 text-sm text-muted">
 						<span class="inline-flex items-center gap-2">
 							<span class="inline-block h-3 w-3 rounded-full bg-accent" aria-hidden="true"></span>
@@ -962,13 +947,7 @@
 									</div>
 								</div>
 								<span class="font-semibold text-ink tabular-nums">
-									{#if segment.durationMinutes < 1}
-										{Math.round(segment.durationMinutes * 60)}s
-									{:else if segment.durationMinutes < 60}
-										{Math.round(segment.durationMinutes)}m
-									{:else}
-										{Math.floor(segment.durationMinutes / 60)}h {Math.round(segment.durationMinutes % 60)}m
-									{/if}
+									{formatDurationMinutes(segment.durationMinutes)}
 								</span>
 							</div>
 						{/each}
@@ -981,18 +960,65 @@
 					</p>
 				</div>
 
-				<button
-					type="button"
-					onclick={() => {
-						selectedWorkout = null;
-					}}
-					class="mt-6 w-full rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-				>
-					Close
-				</button>
+				<div class="mt-6 flex flex-col gap-3 sm:flex-row">
+					<button
+						type="button"
+						onclick={downloadFitWorkout}
+						disabled={downloadingFit}
+						aria-busy={downloadingFit}
+						class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-ink/10 px-4 py-2 font-medium text-ink transition-colors hover:border-accent hover:text-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+					>
+						{#if downloadingFit}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								class="animate-spin"
+								aria-hidden="true"
+							>
+								<path d="M21 12a9 9 0 1 1-9-9" />
+							</svg>
+							Preparing…
+						{:else}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<path d="M12 3v12" />
+								<path d="m7 10 5 5 5-5" />
+								<path d="M5 21h14" />
+							</svg>
+							Download as .FIT
+						{/if}
+					</button>
+					<button
+						type="button"
+						onclick={() => {
+							selectedWorkout = null;
+						}}
+						class="flex-1 rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					>
+						Close
+					</button>
+				</div>
 			</div>
 		</div>
 	{/if}
 </ToolLayout>
+
+<Toast />
 
 <PageExplainer route="/workouts" />

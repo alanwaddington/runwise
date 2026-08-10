@@ -66,9 +66,9 @@ describe('Pace Calculator page', () => {
 			expect(screen.getByText('per 800 m')).toBeInTheDocument();
 		});
 
-		it('shows em-dash for all outputs when no input entered', () => {
+		it('shows a hyphen for all outputs when no input entered', () => {
 			render(PacePage);
-			const dashes = screen.getAllByText('—');
+			const dashes = screen.getAllByText('-');
 			expect(dashes.length).toBe(3);
 		});
 	});
@@ -155,34 +155,34 @@ describe('Pace Calculator page', () => {
 			expect(getKmhInput()).toHaveValue(null);
 		});
 
-		it('clearing min/km resets outputs to em-dash', async () => {
+		it('clearing min/km resets outputs to a hyphen', async () => {
 			render(PacePage);
 			await typeInto(getMinkmInput(), '5:30');
 			await typeInto(getMinkmInput(), '');
-			const dashes = screen.getAllByText('—');
+			const dashes = screen.getAllByText('-');
 			expect(dashes.length).toBe(3);
 		});
 	});
 
 	describe('edge cases', () => {
-		it('invalid text input does not crash — outputs show em-dash', async () => {
+		it('invalid text input does not crash and outputs show a hyphen', async () => {
 			render(PacePage);
 			await typeInto(getMinkmInput(), 'abc');
-			const dashes = screen.getAllByText('—');
+			const dashes = screen.getAllByText('-');
 			expect(dashes.length).toBe(3);
 		});
 
 		it('seconds >= 60 is treated as invalid', async () => {
 			render(PacePage);
 			await typeInto(getMinkmInput(), '5:60');
-			const dashes = screen.getAllByText('—');
+			const dashes = screen.getAllByText('-');
 			expect(dashes.length).toBe(3);
 		});
 
 		it('zero km/h does not crash', async () => {
 			render(PacePage);
 			await typeInto(getKmhInput(), '0');
-			const dashes = screen.getAllByText('—');
+			const dashes = screen.getAllByText('-');
 			expect(dashes.length).toBe(3);
 		});
 	});

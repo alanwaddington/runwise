@@ -51,6 +51,24 @@ export function roundToNearest5Seconds(minutes: number): number {
 	return Math.round(minutes * 12) / 12;
 }
 
+/**
+ * Rounds every segment's duration to the nearest 5 seconds. Individual segment builders
+ * (warmupSegment, cooldownSegment, and most work/recovery segments) already round at
+ * creation time, but not all of them do -- applying this once, centrally, to every
+ * workout guarantees every segment a runner sees on screen (and every segment exported
+ * to a device, e.g. as a FIT file) always lands on a 5-second boundary, regardless of
+ * which builder produced it.
+ */
+export function roundWorkoutSegments(workout: Workout): Workout {
+	return {
+		...workout,
+		segments: workout.segments.map((segment) => ({
+			...segment,
+			durationMinutes: roundToNearest5Seconds(segment.durationMinutes)
+		}))
+	};
+}
+
 export function formatDurationMinutes(minutes: number): string {
 	return formatTime(minutes * 60);
 }
@@ -146,9 +164,6 @@ const I_DISTANCE_CAP_KM = 10;
 const R_SHARE = 0.05;
 const R_DISTANCE_CAP_KM = 8;
 
-/** Rep-distance conventions (session-shape source table, same confidence tier as above). */
-const I_REP_DISTANCES_M = [1000, 1200];
-const R_REP_DISTANCES_M = [200, 400];
 const MIN_REPS = 3;
 
 /**
@@ -671,6 +686,14 @@ function buildRWorkouts(volumeKm: number, rPace: number): Workout[] {
 }
 
 export function buildZoneWorkouts(
+	zone: ZoneKey,
+	trainingZones: TrainingZone[],
+	weeklyMileageKm: number
+): Workout[] {
+	return buildZoneWorkoutsUnrounded(zone, trainingZones, weeklyMileageKm).map(roundWorkoutSegments);
+}
+
+function buildZoneWorkoutsUnrounded(
 	zone: ZoneKey,
 	trainingZones: TrainingZone[],
 	weeklyMileageKm: number

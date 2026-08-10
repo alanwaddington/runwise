@@ -6,6 +6,7 @@ import {
 	buildWorkoutsResult,
 	computeWarmupMinutes,
 	computeCooldownMinutes,
+	roundToNearest5Seconds,
 	WARMUP_BAND,
 	COOLDOWN_BAND
 } from './workouts';
@@ -338,6 +339,21 @@ describe('workout segments', () => {
 					workout.label === 'Continuous marathon-pace run' ||
 					workout.label === 'Marathon-pace segments') {
 					expect(total).toBeCloseTo(workout.estimatedDurationMinutes, 0);
+				}
+			}
+		}
+	});
+
+	it('everyWorkout_everySegment_durationRoundedToNearest5Seconds', () => {
+		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+			for (const mileage of [10, 40, 80, 150]) {
+				for (const workout of buildZoneWorkouts(zone, VDOT_40_ZONES, mileage)) {
+					for (const segment of workout.segments) {
+						expect(segment.durationMinutes).toBeCloseTo(
+							roundToNearest5Seconds(segment.durationMinutes),
+							6
+						);
+					}
 				}
 			}
 		}
