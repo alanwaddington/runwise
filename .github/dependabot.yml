@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # Scoped to @garmin/fitsdk only, via `allow` -- surfaces new releases to the developer
+  # for manual review (opens a PR, never auto-merged), without generating update noise
+  # for every other dependency in package.json.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-name: "@garmin/fitsdk"
