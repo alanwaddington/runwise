@@ -13,6 +13,10 @@
 	import { buildPowerWorkoutsResult } from '$lib/utils/power-workouts';
 	import { DEVICE_DISPLAY_NAME, DEVICE_METRIC_LABEL, type PowerMeterDevice } from '$lib/utils/power-zones';
 	import { getSegmentPaceRange, getSegmentPowerRange } from '$lib/utils/segment-targets';
+	import { buildFitWorkout } from '$lib/utils/fit-export';
+	import type { ZoneKey } from '$lib/utils/training-paces';
+	import Toast from '$lib/components/Toast.svelte';
+	import { showToast } from '$lib/stores/toast';
 
 	const TIME_BANDS = ['Any time', 'Under 30 min', '30–45 min', '45–60 min', '60+ min'] as const;
 	type TimeBand = (typeof TIME_BANDS)[number];
@@ -69,11 +73,14 @@
 			intensity: number;
 		}>;
 		zoneName: string;
+		zone: ZoneKey;
 		powerRange?: string;
 		paceRange?: string;
 		easyPaceRange?: string;
 		easyPowerRange?: string;
 	} | null>(null);
+
+	let downloadingFit = $state(false);
 
 	// Pace mode derived state
 	let isCustom = $derived(selectedOption === 'Custom');
@@ -236,6 +243,46 @@
 
 	function formatMinutesShort(minutes: number): string {
 		return `${Math.round(minutes)} min`;
+	}
+
+	async function downloadFitWorkout() {
+		if (!selectedWorkout || downloadingFit) return;
+		const workout = selectedWorkout;
+
+		downloadingFit = true;
+		try {
+			const kind: 'pace' | 'power' = workout.paceRange ? 'pace' : 'power';
+			const zoneRange = kind === 'pace' ? workout.paceRange! : workout.powerRange!;
+			const easyRange = kind === 'pace' ? workout.easyPaceRange! : workout.easyPowerRange!;
+
+			const { bytes, filename } = await buildFitWorkout({
+				label: workout.label,
+				zone: workout.zone,
+				kind,
+				segments: workout.segments,
+				zoneRange,
+				easyRange
+			});
+
+			// TS's lib.dom BlobPart type requires an ArrayBuffer-backed view, but Uint8Array's
+			// generic backing-buffer type widens to ArrayBufferLike (which also covers
+			// SharedArrayBuffer) -- a known strictness mismatch, not an actual runtime concern
+			// since encoder.close() always returns a plain ArrayBuffer-backed Uint8Array.
+			const blob = new Blob([bytes as unknown as ArrayBuffer], { type: 'application/vnd.ant.fit' });
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = filename;
+			link.click();
+			URL.revokeObjectURL(url);
+
+			showToast(`Downloaded ${filename}`, 'success');
+		} catch (error) {
+			console.error('Failed to build FIT workout file:', error);
+			showToast("Couldn't create the file — try again.", 'error');
+		} finally {
+			downloadingFit = false;
+		}
 	}
 </script>
 
@@ -556,7 +603,7 @@
 					{:else}
 						<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 							{#each zone.filtered as workout (workout.label + workout.description)}
-								<button type="button" onclick={() => { const easyZone = result !== null && result !== 'out-of-range' ? result.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+								<button type="button" onclick={() => { const easyZone = result !== null && result !== 'out-of-range' ? result.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
 									<p class="font-medium text-ink">{workout.label}</p>
 									<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 									<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -692,7 +739,7 @@
 
 					<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
 						{#each zone.workouts as workout (workout.label + workout.description)}
-							<button type="button" onclick={() => { const easyZone = powerResult !== null && powerResult !== 'out-of-range' ? powerResult.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
+							<button type="button" onclick={() => { const easyZone = powerResult !== null && powerResult !== 'out-of-range' ? powerResult.zones.find(z => z.name.includes('Easy')) : null; selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
@@ -921,18 +968,65 @@
 					</p>
 				</div>
 
-				<button
-					type="button"
-					onclick={() => {
-						selectedWorkout = null;
-					}}
-					class="mt-6 w-full rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-				>
-					Close
-				</button>
+				<div class="mt-6 flex flex-col gap-3 sm:flex-row">
+					<button
+						type="button"
+						onclick={downloadFitWorkout}
+						disabled={downloadingFit}
+						aria-busy={downloadingFit}
+						class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-ink/10 px-4 py-2 font-medium text-ink transition-colors hover:border-accent hover:text-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+					>
+						{#if downloadingFit}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								class="animate-spin"
+								aria-hidden="true"
+							>
+								<path d="M21 12a9 9 0 1 1-9-9" />
+							</svg>
+							Preparing…
+						{:else}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<path d="M12 3v12" />
+								<path d="m7 10 5 5 5-5" />
+								<path d="M5 21h14" />
+							</svg>
+							Download as .FIT
+						{/if}
+					</button>
+					<button
+						type="button"
+						onclick={() => {
+							selectedWorkout = null;
+						}}
+						class="flex-1 rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					>
+						Close
+					</button>
+				</div>
 			</div>
 		</div>
 	{/if}
 </ToolLayout>
+
+<Toast />
 
 <PageExplainer route="/workouts" />
