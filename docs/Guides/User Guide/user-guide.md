@@ -218,9 +218,11 @@ Cross-links to the HR Zone Calculator are displayed with results.
 
 ### Workout Suggestions — `/workouts`
 
-Turn your training paces into concrete session plans, scaled to your current weekly training mileage. Based on Jack Daniels' weekly-mileage-scaling rules layered on top of the Training Pace Calculator's VDOT method.
+Turn your training paces or your device's running power into concrete session plans, scaled to your current weekly training mileage. Based on Jack Daniels' weekly-mileage-scaling rules layered on top of the Training Pace Calculator's VDOT method — Power mode reuses the exact same session shapes and scaling rules, substituting an estimated pace derived from your power value.
 
-**Inputs:**
+**Mode toggle:** A Pace / Power segmented control at the top switches between the two input sets below. Your weekly mileage carries over between modes (it's a single shared field), but pace-specific and power-specific inputs and their validation states do not.
+
+**Pace mode inputs:**
 
 | Field | Format | Example |
 |-------|--------|---------|
@@ -231,23 +233,44 @@ Turn your training paces into concrete session plans, scaled to your current wee
 
 Both a valid race result and a valid weekly mileage are required before results appear.
 
-**Output:** Your VDOT score, followed by all five training zones (E, M, T, I, R), each showing its pace range and exactly two example workouts:
+**Power mode inputs:**
 
-| Zone | Two workouts |
+| Field | Format | Example |
+|-------|--------|---------|
+| Power meter device | Dropdown (Stryd, Garmin, COROS, or Polar) | Stryd |
+| Power value | Watts (50–700), label changes to that device's own metric name (e.g. "Critical Power (CP)") | 250 |
+| Weekly training mileage | Decimal km (1–300), shared with Pace mode | 50 |
+
+**Output (both modes):** Pace mode shows your VDOT score; Power mode shows your entered power value. Both then show all five training zones (E, M, T, I, R) with the zone's pace or watt range, and multiple example workouts per zone — 3 for E/M/T, 4 for I/R:
+
+| Zone | Workout variants |
 |------|-------------|
-| E | A regular easy run and a long run — each uses its own distinct weekly-mileage share and duration cap |
-| M | One continuous marathon-pace run, and one 2-segment version with an easy jog between segments |
-| T | One continuous ~20 minute tempo run, and one cruise-interval session |
-| I | Two rep-distance variants (e.g. 1000m and 1200m) at the same computed volume |
-| R | Two rep-distance variants (e.g. 200m and 400m) at the same computed volume |
+| E | A regular easy run, a long run, and an easy fartlek — the run and long run each use their own distinct weekly-mileage share and duration cap |
+| M | A continuous marathon-pace run, a 2-segment version with an easy jog between segments, and a progression run building from easy to marathon pace |
+| T | A continuous tempo run, a cruise-interval session, and an ascending/descending tempo ladder |
+| I | Three rep-distance variants (e.g. 400m/800m/1200m in Pace mode) plus a pyramid session |
+| R | Three rep-distance variants (e.g. 200m/400m/800m in Pace mode) plus a descending-reps session |
 
-Each workout card shows the session format, target pace, recovery, total quality volume, estimated duration, and a warm-up/cool-down line — each scaled independently to the session's intensity and length (longer for harder efforts like Interval and Repetition, shorter for Easy running), with cool-down typically the shorter of the two — plus a small visual profile chart underneath: a bar for each segment of the session (warm-up, work, recovery, cool-down), sized by duration and coloured by intensity, so you can see a session's shape (e.g. steady continuous effort vs. repeated intervals) at a glance alongside the text.
+Each workout card shows the session format, target pace or power, recovery, total quality volume (Pace mode) or estimated duration, and a warm-up/cool-down line — each scaled independently to the session's intensity and length (longer for harder efforts like Interval and Repetition, shorter for Easy running), with cool-down typically the shorter of the two — plus a small visual profile chart underneath: a bar for each segment of the session (warm-up, work, recovery, cool-down), sized by duration and coloured by intensity, so you can see a session's shape (e.g. steady continuous effort vs. repeated intervals) at a glance alongside the text. Every segment's duration is rounded to the nearest 5 seconds, and shown as an exact time (not rounded further for display) so it always matches what's in an exported file (see Download as .FIT, below).
 
-**Time-available filter:** A dropdown (Any time / Under 30 min / 30–45 min / 45–60 min / 60+ min) filters which workouts are shown across every zone at once. If no workout in a zone fits the selected window, that zone shows a short message instead of a mismatched or hidden result.
+**Time-available filter (Pace mode only):** A dropdown (Any time / Under 30 min / 30–45 min / 45–60 min / 60+ min) filters which workouts are shown across every zone at once. If no workout in a zone fits the selected window, that zone shows a short message instead of a mismatched or hidden result.
+
+**Workout detail view:** Click any workout card to open a full-screen detail view: a plain-language explanation of the zone's purpose and how to execute it, total volume/duration/recovery stats, the same profile chart at a larger size, and a segment-by-segment breakdown showing each segment's exact target range (pace or power, narrowed to that specific segment's intensity within the zone) and exact duration.
+
+**Download as .FIT:** The detail view's "Download as .FIT" button saves the workout as a structured `.fit` file — the same target pace/power and warm-up/work/recovery/cool-down timing shown on screen, ready to follow step-by-step directly on a compatible device instead of watched manually against a stopwatch. A success or failure notification confirms the result. Device support today:
+
+| Brand | Supported | How |
+|-------|-----------|-----|
+| Garmin | Yes | Copy the downloaded file onto the watch's `NEWFILES` folder over USB, then select it from Training > Workouts on the device |
+| COROS | Yes | Import it in COROS Training Hub and sync it to the watch from there |
+| Suunto | No | Suunto doesn't support importing a structured workout file from any source today, including via TrainingPeaks |
+| Polar | No | Same limitation as Suunto — no structured `.fit` workout import path exists |
+
+The file is generated entirely in your browser — no workout data is sent to a server. See the "Getting a workout onto your watch" note on the page itself for links to each supported brand's own instructions.
 
 Volume-scaling percentages and rep-distance conventions are corroborated across multiple independent secondary sources on Daniels' methodology, documented in code with their confidence level.
 
-A cross-link to the Training Pace Calculator is shown once your workout results are visible (a valid race result and weekly mileage), carrying your race result across automatically. The Training Pace Calculator links back the same way once its own results are visible — your weekly mileage does not carry over between the two, since it is only used here.
+A cross-link to the Training Pace Calculator (Pace mode) or the Power Zones Calculator (Power mode) is shown once your workout results are visible. The Training Pace Calculator link carries your race result across automatically and links back the same way once its own results are visible — your weekly mileage does not carry over between the two, since it is only used here.
 
 ---
 

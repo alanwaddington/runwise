@@ -10,6 +10,7 @@
 | Styling | Tailwind CSS v4 |
 | Testing | Vitest + @testing-library/svelte |
 | Deployment | Vercel (`@sveltejs/adapter-vercel`) |
+| Device file export | `@garmin/fitsdk` (dynamically imported in `fit-export.ts`, only on click — never part of the base `/workouts` bundle) |
 
 ---
 
@@ -55,47 +56,78 @@ src/
 │   ├── affiliates.ts    # Affiliate product definitions per route (Amazon Associates, Garmin, and direct/non-affiliate links)
 │   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images
 │   ├── components/      # Shared UI components
-│   │   ├── AdUnit.svelte            # Consent-gated Google AdSense ad unit
+│   │   ├── AdUnit.svelte              # Consent-gated Google AdSense ad unit
 │   │   ├── AdUnit.test.ts
-│   │   ├── AffiliateLinks.svelte    # Per-route affiliate product cards (Amazon, Garmin, or direct links)
+│   │   ├── AffiliateLinks.svelte      # Per-route affiliate product cards (Amazon, Garmin, or direct links)
 │   │   ├── AffiliateLinks.test.ts
-│   │   ├── CollapsibleField.svelte  # Generic animated show/hide wrapper (max-height/opacity, aria-hidden, inert)
+│   │   ├── CollapsibleField.svelte    # Generic animated show/hide wrapper (max-height/opacity, aria-hidden, inert)
 │   │   ├── CollapsibleField.test.ts
-│   │   ├── CookieBanner.svelte      # GDPR cookie consent banner (fixed bottom)
+│   │   ├── CookieBanner.svelte        # GDPR cookie consent banner (fixed bottom)
 │   │   ├── CookieBanner.test.ts
+│   │   ├── EducationalSection.svelte  # Homepage "training fundamentals" / "common mistakes" / "how Runwise helps" sections
 │   │   ├── HeroSection.svelte
 │   │   ├── HeroSection.test.ts
+│   │   ├── IconWarning.svelte         # Shared inline warning-triangle SVG icon
+│   │   ├── IconWarning.test.ts
 │   │   ├── InputField.svelte
 │   │   ├── InputField.test.ts
+│   │   ├── PageExplainer.svelte       # Per-route "About this tool" footer content, driven by lib/content/explainers.ts; sections may include outbound reference links
+│   │   ├── PageExplainer.test.ts
 │   │   ├── ResultDisplay.svelte
 │   │   ├── ResultDisplay.test.ts
-│   │   ├── SeoHead.svelte           # Per-page meta tags, OG, JSON-LD, AdSense account verification
+│   │   ├── SeoHead.svelte             # Per-page meta tags, OG, JSON-LD, AdSense account verification
 │   │   ├── SeoHead.test.ts
-│   │   ├── SiteFooter.svelte        # Footer with Privacy Policy link and Manage Cookies button
+│   │   ├── SiteFooter.svelte          # Footer with Privacy Policy link and Manage Cookies button
 │   │   ├── SiteFooter.test.ts
 │   │   ├── SiteNav.svelte
 │   │   ├── SiteNav.test.ts
+│   │   ├── Toast.svelte               # App-wide success/failure notification, driven by stores/toast.ts (bottom-of-viewport, auto-dismissing)
+│   │   ├── Toast.test.ts
 │   │   ├── ToolCard.svelte
 │   │   ├── ToolCard.test.ts
+│   │   ├── ToolIcon.svelte
 │   │   ├── ToolLayout.svelte
-│   │   └── ToolLayout.test.ts
-│   ├── stores/          # Svelte stores for cross-component state
+│   │   ├── ToolLayout.test.ts
+│   │   ├── WorkoutProfileChart.svelte # Segment-by-segment bar chart (warm-up/work/recovery/cool-down) for a single workout
+│   │   └── WorkoutProfileChart.test.ts
+│   ├── config/
+│   │   └── toolValidation.ts    # Per-field validation rule config shared across tool pages
+│   ├── content/
+│   │   └── explainers.ts        # Per-route PageExplainer content (heading/intro/sections, optional outbound links)
+│   ├── stores/           # Svelte stores for cross-component state
 │   │   ├── consent.ts               # GDPR consent read/write (localStorage)
 │   │   ├── consent.test.ts
-│   │   └── consentBannerVisible.ts  # Writable store: true = show banner
-│   └── utils/           # Pure utility modules (no Svelte dependency)
-│       ├── pace.ts               # Pace/speed conversion functions
-│       ├── pace.test.ts
-│       ├── race-predictor.ts     # Riegel formula, time parsing/formatting, prediction table
-│       ├── race-predictor.test.ts
-│       ├── training-paces.ts     # VDOT calculation (Daniels' formula), training zone pace derivation
-│       ├── training-paces.test.ts
-│       ├── hr-zones.ts           # Max HR zones, Friel LTHR zones, LTHR sub-zones, Tanaka age estimate
-│       ├── hr-zones.test.ts
-│       ├── vo2max.ts             # ACSM normative data, getFitnessCategory, getAcsmTable, CATEGORY_COLOURS
-│       ├── vo2max.test.ts
-│       ├── parkrun.ts            # Reference distance list, Riegel prediction, split generation, PB comparison, WMA age grading
-│       └── parkrun.test.ts
+│   │   ├── consentBannerVisible.ts  # Writable store: true = show banner
+│   │   └── toast.ts                 # Writable store + showToast()/dismissToast() driving Toast.svelte
+│   ├── utils/            # Pure utility modules (no Svelte dependency)
+│   │   ├── pace.ts                  # Pace/speed conversion functions
+│   │   ├── pace.test.ts
+│   │   ├── race-predictor.ts        # Riegel formula, time parsing/formatting, prediction table
+│   │   ├── race-predictor.test.ts
+│   │   ├── race-result-params.ts    # Serializes/parses a race result to/from URL query params, shared between /training-paces and /workouts
+│   │   ├── race-result-params.test.ts
+│   │   ├── training-paces.ts        # VDOT calculation (Daniels' formula), training zone pace derivation
+│   │   ├── training-paces.test.ts
+│   │   ├── hr-zones.ts              # Max HR zones, Friel LTHR zones, LTHR sub-zones, Tanaka age estimate
+│   │   ├── hr-zones.test.ts
+│   │   ├── vo2max.ts                # ACSM normative data, getFitnessCategory, getAcsmTable, CATEGORY_COLOURS
+│   │   ├── vo2max.test.ts
+│   │   ├── parkrun.ts               # Reference distance list, Riegel prediction, split generation, PB comparison, WMA age grading
+│   │   ├── parkrun.test.ts
+│   │   ├── validation.ts            # Shared input validation helpers (validatePositive, validateRange)
+│   │   ├── power-zones.ts           # Per-device (Stryd/Garmin/COROS/Polar) running-power zone tables and calculatePowerZones()
+│   │   ├── power-zones.test.ts
+│   │   ├── workouts.ts              # Pace-mode workout generation (Daniels weekly-mileage scaling), buildWorkoutsResult, roundWorkoutSegments
+│   │   ├── workouts.test.ts
+│   │   ├── power-workouts.ts        # Power-mode equivalent of workouts.ts (device power → estimated pace → same session shapes)
+│   │   ├── power-workouts.test.ts
+│   │   ├── segment-targets.ts       # Per-segment pace/power target-range math, shared by the /workouts UI and fit-export.ts
+│   │   ├── segment-targets.test.ts
+│   │   ├── fit-export.ts            # Encodes a generated workout as a downloadable FIT file (via @garmin/fitsdk), for watch upload
+│   │   └── fit-export.test.ts
+│   └── vite-plugins/
+│       ├── git-dates.ts        # Vite plugin exposing virtual:git-dates — a per-route lastmod date map derived from git history
+│       └── git-dates.test.ts
 └── routes/
     ├── +layout.svelte   # Root layout — CookieBanner + header + main + SiteFooter
     ├── +page.svelte     # Home page — HeroSection + ToolCard grid
@@ -106,6 +138,8 @@ src/
     ├── hr-zones/
     ├── vo2max/
     ├── parkrun/
+    ├── power-zones/     # Power Zones Calculator (Stryd/Garmin/COROS*/Polar) — *COROS currently hidden pending further research
+    ├── workouts/        # Workout Suggestions (pace and power mode) — includes the workout detail modal and "Download as .FIT" export
     └── privacy/         # Privacy Policy page
 ```
 
@@ -225,6 +259,10 @@ This makes every `hover:` utility sitewide apply on tap as well as mouse hover �
 | `CollapsibleField` | `expanded`, `children` (Snippet) | Generic animated show/hide wrapper — see [Collapsible Content](#collapsible-content) below |
 | `InputField` | `label`, `id`, `value`, `type?`, `unit?`, `step?`, `placeholder?`, `inputmode?` | Labelled input with optional unit suffix. `inputmode` triggers the correct mobile keyboard (e.g. `"decimal"`). |
 | `ResultDisplay` | `value`, `label` | Prominent result block with copy-to-clipboard |
+| `PageExplainer` | `route` | Per-route "About this tool" footer content, driven by the `EXPLAINERS` map in `lib/content/explainers.ts`. A section may include `links` (label + URL), rendered as real `target="_blank" rel="noopener noreferrer"` anchors. |
+| `Toast` | none (reads the `toast` store) | App-wide success/failure notification — call `showToast(message, 'success' \| 'error')` from anywhere to trigger it; auto-dismisses (5s success / 7s error) or can be dismissed manually. Rendered once, near the root of `+page.svelte` for the pages that use it. Uses a plain CSS `@keyframes` animation rather than `svelte/transition`, since jsdom (this repo's Vitest environment) doesn't implement the Web Animations API those rely on. |
+| `WorkoutProfileChart` | `segments` | Segment-by-segment bar chart (warm-up/work/recovery/cool-down), sized by duration and coloured by intensity, used on `/workouts` |
+| `IconWarning` | `size?`, `class?`, `ariaHidden?` | Shared inline warning-triangle SVG, used for validation error states |
 
 ---
 
