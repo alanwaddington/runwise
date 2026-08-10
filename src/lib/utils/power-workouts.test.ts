@@ -7,9 +7,10 @@ import {
 	buildPowerContinuousWorkout,
 	buildPowerZoneWorkouts,
 	buildPowerWorkoutsResult,
-	mapPowerZoneToTrainingZone
+	mapPowerZoneToTrainingZone,
+	formatPowerRangeStr
 } from './power-workouts';
-import { calculatePowerZones, type PowerMeterDevice } from './power-zones';
+import { calculatePowerZones, type PowerMeterDevice, type PowerZone } from './power-zones';
 import { computeZoneVolumeKm, roundToNearest5Seconds } from './workouts';
 import { parsePace } from './pace';
 
@@ -367,5 +368,23 @@ describe('mapPowerZoneToTrainingZone', () => {
 		expect(mapPowerZoneToTrainingZone(3, 'polar')).toBe('T');
 		expect(mapPowerZoneToTrainingZone(4, 'polar')).toBe('I');
 		expect(mapPowerZoneToTrainingZone(5, 'polar')).toBe('R');
+	});
+});
+
+describe('formatPowerRangeStr', () => {
+	function powerZone(wattsLow: number | null, wattsHigh: number | null): PowerZone {
+		return { zone: 1, name: 'Test', wattsLow, wattsHigh, pctLow: null, pctHigh: null, purpose: '' };
+	}
+
+	it('formatPowerRangeStr_BothBoundsPresent_ReturnsLowDashHighW', () => {
+		expect(formatPowerRangeStr(powerZone(164, 202))).toBe('164–202 W');
+	});
+
+	it('formatPowerRangeStr_OpenEndedLowerBound_ReturnsHighOnly', () => {
+		expect(formatPowerRangeStr(powerZone(null, 202))).toBe('202 W');
+	});
+
+	it('formatPowerRangeStr_OpenEndedUpperBound_ReturnsLowOnly', () => {
+		expect(formatPowerRangeStr(powerZone(164, null))).toBe('164 W');
 	});
 });

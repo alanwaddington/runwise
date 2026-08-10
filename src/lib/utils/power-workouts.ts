@@ -194,6 +194,13 @@ export function computePowerRepDurationMinutes(zone: 'I' | 'R', powerWatts: numb
 	}
 }
 
+/** Formats a power zone's watt range for use in a workout description, e.g. "164–202 W". */
+export function formatPowerRangeStr(powerZone: PowerZone): string {
+	return powerZone.wattsLow && powerZone.wattsHigh
+		? `${powerZone.wattsLow}–${powerZone.wattsHigh} W`
+		: `${powerZone.wattsHigh || powerZone.wattsLow} W`;
+}
+
 /**
  * Build a continuous power-mode workout for E/M/T zones.
  */
@@ -211,10 +218,7 @@ export function buildPowerContinuousWorkout(
 	const totalMinutes = qualityMinutes + warmupMinutes + cooldownMinutes;
 
 	const zoneName = ZONE_META[zone].name;
-	const powerRangeStr =
-		powerZone.wattsLow && powerZone.wattsHigh
-			? `${powerZone.wattsLow}–${powerZone.wattsHigh} W`
-			: `${powerZone.wattsHigh || powerZone.wattsLow} W`;
+	const powerRangeStr = formatPowerRangeStr(powerZone);
 
 	return {
 		label: `Continuous ${zoneName} run`,
@@ -258,10 +262,7 @@ export function buildPowerRepsWorkout(
 	const totalMinutes = qualityTime + warmupMinutes + cooldownMinutes;
 
 	const zoneName = ZONE_META[zone].name;
-	const powerRangeStr =
-		powerZone.wattsLow && powerZone.wattsHigh
-			? `${powerZone.wattsLow}–${powerZone.wattsHigh} W`
-			: `${powerZone.wattsHigh || powerZone.wattsLow} W`;
+	const powerRangeStr = formatPowerRangeStr(powerZone);
 
 	const recoveryStr = formatDurationMinutes(recoveryMinutes);
 
@@ -344,10 +345,7 @@ function buildPowerZoneWorkoutsUnrounded(
 		const cooldownMinutes = computeCooldownMinutes('E', longRunMinutes);
 		const totalMinutes = longRunMinutes + warmupMinutes + cooldownMinutes;
 
-		const powerRangeStr =
-			powerZone.wattsLow && powerZone.wattsHigh
-				? `${powerZone.wattsLow}–${powerZone.wattsHigh} W`
-				: `${powerZone.wattsHigh || powerZone.wattsLow} W`;
+		const powerRangeStr = formatPowerRangeStr(powerZone);
 
 		const longRun: Workout = {
 			label: 'Long run',
@@ -413,10 +411,7 @@ function buildPowerZoneWorkoutsUnrounded(
 		const cooldownMinutes = computeCooldownMinutes(zone, qualityTime);
 		const totalMinutes = qualityTime + warmupMinutes + cooldownMinutes;
 
-		const powerRangeStr =
-			powerZone.wattsLow && powerZone.wattsHigh
-				? `${powerZone.wattsLow}–${powerZone.wattsHigh} W`
-				: `${powerZone.wattsHigh || powerZone.wattsLow} W`;
+		const powerRangeStr = formatPowerRangeStr(powerZone);
 
 		const segmented: Workout = {
 			label: 'Segments',
@@ -477,10 +472,7 @@ function buildPowerZoneWorkoutsUnrounded(
 		const cruiseCooldownMinutes = computeCooldownMinutes(zone, cruiseQualityTime);
 		const cruiseTotalMinutes = cruiseQualityTime + cruiseWarmupMinutes + cruiseCooldownMinutes;
 
-		const powerRangeStr =
-			powerZone.wattsLow && powerZone.wattsHigh
-				? `${powerZone.wattsLow}–${powerZone.wattsHigh} W`
-				: `${powerZone.wattsHigh || powerZone.wattsLow} W`;
+		const powerRangeStr = formatPowerRangeStr(powerZone);
 
 		const cruiseSegments: WorkoutSegment[] = [warmupSegment(cruiseWarmupMinutes)];
 		for (let i = 0; i < cruiseRepCount; i++) {
@@ -560,10 +552,7 @@ function buildPowerZoneWorkoutsUnrounded(
 		const estimatedPace = estimatePaceFromPower(powerWatts, device);
 		const volumeMinutes = computePowerZoneVolumeDurationMinutes(zone, weeklyMileageKm, estimatedPace);
 		const zoneName = ZONE_META[zone].name;
-		const powerRangeStr =
-			powerZone.wattsLow && powerZone.wattsHigh
-				? `${powerZone.wattsLow}–${powerZone.wattsHigh} W`
-				: `${powerZone.wattsHigh || powerZone.wattsLow} W`;
+		const powerRangeStr = formatPowerRangeStr(powerZone);
 
 		let recoveryFraction = 0.75;
 		if (zone === 'R') {
