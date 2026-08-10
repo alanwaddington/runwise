@@ -1,10 +1,7 @@
 import {
-	type ZoneKey,
 	computeZoneVolumeKm,
 	computeWarmupMinutes,
 	computeCooldownMinutes,
-	WARMUP_BAND,
-	COOLDOWN_BAND,
 	formatDurationMinutes,
 	roundToNearest5Seconds,
 	roundWorkoutSegments,
@@ -12,7 +9,7 @@ import {
 	type WorkoutSegment
 } from './workouts';
 import { calculatePowerZones, type PowerMeterDevice, type PowerZone } from './power-zones';
-import { ZONE_META } from './training-paces';
+import { ZONE_META, type ZoneKey } from './training-paces';
 
 export type PowerWorkoutZone = {
 	zone: ZoneKey;
@@ -178,11 +175,7 @@ function round1(n: number): number {
  * For power mode, reps are expressed as duration, not distance.
  * Rep duration is derived from power intensity: higher power = shorter sustainable duration.
  */
-export function computePowerRepDurationMinutes(
-	zone: 'I' | 'R',
-	powerWatts: number,
-	_weeklyMileageKm: number // Included for API consistency, not used
-): number {
+export function computePowerRepDurationMinutes(zone: 'I' | 'R', powerWatts: number): number {
 	// Rep duration inversely scaled by power: higher power → shorter rep duration
 	// Normalize power to 0-1 range (50-700W), then map to duration
 	const powerFraction = (powerWatts - 50) / (700 - 50);
@@ -249,7 +242,7 @@ export function buildPowerRepsWorkout(
 ): Workout {
 	const estimatedPace = estimatePaceFromPower(powerWatts, device);
 	const volumeMinutes = computePowerZoneVolumeDurationMinutes(zone, weeklyMileageKm, estimatedPace);
-	const repDurationMinutes = computePowerRepDurationMinutes(zone, powerWatts, weeklyMileageKm);
+	const repDurationMinutes = computePowerRepDurationMinutes(zone, powerWatts);
 
 	// Determine rep count and recovery
 	const repCount = Math.max(3, Math.round(volumeMinutes / repDurationMinutes));

@@ -164,9 +164,6 @@ const I_DISTANCE_CAP_KM = 10;
 const R_SHARE = 0.05;
 const R_DISTANCE_CAP_KM = 8;
 
-/** Rep-distance conventions (session-shape source table, same confidence tier as above). */
-const I_REP_DISTANCES_M = [1000, 1200];
-const R_REP_DISTANCES_M = [200, 400];
 const MIN_REPS = 3;
 
 /**
