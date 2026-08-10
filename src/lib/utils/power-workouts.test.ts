@@ -10,7 +10,12 @@ import {
 	mapPowerZoneToTrainingZone
 } from './power-workouts';
 import { calculatePowerZones, type PowerMeterDevice } from './power-zones';
-import { computeZoneVolumeKm, computeWarmupMinutes, computeCooldownMinutes } from './workouts';
+import {
+	computeZoneVolumeKm,
+	computeWarmupMinutes,
+	computeCooldownMinutes,
+	roundToNearest5Seconds
+} from './workouts';
 import { parsePace } from './pace';
 
 describe('estimatePaceFromPower', () => {
@@ -248,6 +253,26 @@ describe('buildPowerZoneWorkouts', () => {
 		// First 3 should be rep-based (short, medium, long intervals)
 		for (let i = 0; i < 3; i++) {
 			expect(workouts[i].description).toMatch(/\d+\s*[x×]/);
+		}
+	});
+
+	it('everyWorkout_everySegment_durationRoundedToNearest5Seconds', () => {
+		const devices: PowerMeterDevice[] = ['stryd', 'garmin', 'coros', 'polar'];
+		for (const device of devices) {
+			const zones = calculatePowerZones(250, device)!;
+			for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
+				for (const mileage of [10, 40, 80, 150]) {
+					const workouts = buildPowerZoneWorkouts(zone, zones, mileage, 250, device);
+					for (const workout of workouts) {
+						for (const segment of workout.segments) {
+							expect(segment.durationMinutes).toBeCloseTo(
+								roundToNearest5Seconds(segment.durationMinutes),
+								6
+							);
+						}
+					}
+				}
+			}
 		}
 	});
 });

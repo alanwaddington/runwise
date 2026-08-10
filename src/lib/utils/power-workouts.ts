@@ -7,6 +7,7 @@ import {
 	COOLDOWN_BAND,
 	formatDurationMinutes,
 	roundToNearest5Seconds,
+	roundWorkoutSegments,
 	type Workout,
 	type WorkoutSegment
 } from './workouts';
@@ -303,6 +304,18 @@ export function buildPowerRepsWorkout(
  * Build two workout variants for a single training zone.
  */
 export function buildPowerZoneWorkouts(
+	zone: ZoneKey,
+	powerZones: PowerZone[],
+	weeklyMileageKm: number,
+	powerWatts: number,
+	device: PowerMeterDevice
+): Workout[] {
+	return buildPowerZoneWorkoutsUnrounded(zone, powerZones, weeklyMileageKm, powerWatts, device).map(
+		roundWorkoutSegments
+	);
+}
+
+function buildPowerZoneWorkoutsUnrounded(
 	zone: ZoneKey,
 	powerZones: PowerZone[],
 	weeklyMileageKm: number,
