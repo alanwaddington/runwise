@@ -5,6 +5,7 @@ import {
 	formatDurationMinutes,
 	roundToNearest5Seconds,
 	roundWorkoutSegments,
+	sumSegmentMinutes,
 	type Workout,
 	type WorkoutSegment
 } from './workouts';
@@ -215,22 +216,23 @@ export function buildPowerContinuousWorkout(
 	const qualityMinutes = computePowerZoneVolumeDurationMinutes(zone, weeklyMileageKm, estimatedPace);
 	const warmupMinutes = computeWarmupMinutes(zone, qualityMinutes);
 	const cooldownMinutes = computeCooldownMinutes(zone, qualityMinutes);
-	const totalMinutes = qualityMinutes + warmupMinutes + cooldownMinutes;
 
 	const zoneName = ZONE_META[zone].name;
 	const powerRangeStr = formatPowerRangeStr(powerZone);
+
+	const segments: WorkoutSegment[] = [
+		warmupSegment(warmupMinutes),
+		{ type: 'work', durationMinutes: roundToNearest5Seconds(qualityMinutes), intensity: ZONE_INTENSITY[zone] },
+		cooldownSegment(cooldownMinutes)
+	];
 
 	return {
 		label: `Continuous ${zoneName} run`,
 		description: `${formatMinutes(qualityMinutes)} continuous ${zoneName} run at ${zoneName} Power (${powerRangeStr})`,
 		totalVolumeKm: round1(qualityMinutes / estimatedPace), // Convert back to km for display
 		recovery: 'None (continuous)',
-		estimatedDurationMinutes: Math.round(totalMinutes),
-		segments: [
-			warmupSegment(warmupMinutes),
-			{ type: 'work', durationMinutes: roundToNearest5Seconds(qualityMinutes), intensity: ZONE_INTENSITY[zone] },
-			cooldownSegment(cooldownMinutes)
-		]
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
+		segments
 	};
 }
 
@@ -259,7 +261,6 @@ export function buildPowerRepsWorkout(
 	const qualityTime = repCount * repDurationMinutes + (repCount - 1) * recoveryMinutes;
 	const warmupMinutes = computeWarmupMinutes(zone, qualityTime);
 	const cooldownMinutes = computeCooldownMinutes(zone, qualityTime);
-	const totalMinutes = qualityTime + warmupMinutes + cooldownMinutes;
 
 	const zoneName = ZONE_META[zone].name;
 	const powerRangeStr = formatPowerRangeStr(powerZone);
@@ -289,7 +290,7 @@ export function buildPowerRepsWorkout(
 		description: `${repCount} × ${formatMinutes(repDurationMinutes)} min at ${zoneName} Power (${powerRangeStr}), ${recoveryStr} recovery`,
 		totalVolumeKm: round1(qualityTime / estimatedPace),
 		recovery: `${recoveryStr} ${zone === 'I' ? 'jog' : 'jog'} recovery`,
-		estimatedDurationMinutes: Math.round(totalMinutes),
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
 		segments
 	};
 }
@@ -343,21 +344,22 @@ function buildPowerZoneWorkoutsUnrounded(
 		// Build long run variant
 		const warmupMinutes = computeWarmupMinutes('E', longRunMinutes);
 		const cooldownMinutes = computeCooldownMinutes('E', longRunMinutes);
-		const totalMinutes = longRunMinutes + warmupMinutes + cooldownMinutes;
 
 		const powerRangeStr = formatPowerRangeStr(powerZone);
+
+		const longRunSegments: WorkoutSegment[] = [
+			warmupSegment(warmupMinutes),
+			{ type: 'work', durationMinutes: roundToNearest5Seconds(longRunMinutes), intensity: ZONE_INTENSITY.E },
+			cooldownSegment(cooldownMinutes)
+		];
 
 		const longRun: Workout = {
 			label: 'Long run',
 			description: `${formatMinutes(longRunMinutes)} continuous long run at Easy Power (${powerRangeStr})`,
 			totalVolumeKm: round1(longRunMinutes / estimatePaceFromPower(powerWatts, device)),
 			recovery: 'None (continuous)',
-			estimatedDurationMinutes: Math.round(totalMinutes),
-			segments: [
-				warmupSegment(warmupMinutes),
-				{ type: 'work', durationMinutes: roundToNearest5Seconds(longRunMinutes), intensity: ZONE_INTENSITY.E },
-				cooldownSegment(cooldownMinutes)
-			]
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(longRunSegments)),
+			segments: longRunSegments
 		};
 
 		// Build easy fartlek variant
@@ -367,7 +369,6 @@ function buildPowerZoneWorkoutsUnrounded(
 		const fartlekPickupCount = Math.floor(fartlekMinutes / (fartlekPickupMinutes + fartlekRecoveryMinutes));
 		const fartlekWarmupMinutes = computeWarmupMinutes('E', fartlekMinutes);
 		const fartlekCooldownMinutes = computeCooldownMinutes('E', fartlekMinutes);
-		const fartlekTotalMinutes = fartlekMinutes + fartlekWarmupMinutes + fartlekCooldownMinutes;
 
 		const fartlekSegments: WorkoutSegment[] = [warmupSegment(fartlekWarmupMinutes)];
 		for (let i = 0; i < fartlekPickupCount; i++) {
@@ -391,7 +392,7 @@ function buildPowerZoneWorkoutsUnrounded(
 			description: `${fartlekPickupCount} × ${formatMinutes(fartlekPickupMinutes)} min pickups with ${formatMinutes(fartlekRecoveryMinutes)} min easy jog recovery`,
 			totalVolumeKm: round1(fartlekMinutes / estimatedPace),
 			recovery: `${formatMinutes(fartlekRecoveryMinutes)} min easy jog between pickups`,
-			estimatedDurationMinutes: Math.round(fartlekTotalMinutes),
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(fartlekSegments)),
 			segments: fartlekSegments
 		};
 
@@ -409,29 +410,29 @@ function buildPowerZoneWorkoutsUnrounded(
 		const qualityTime = volumeMinutes + recoveryMinutes;
 		const warmupMinutes = computeWarmupMinutes(zone, qualityTime);
 		const cooldownMinutes = computeCooldownMinutes(zone, qualityTime);
-		const totalMinutes = qualityTime + warmupMinutes + cooldownMinutes;
 
 		const powerRangeStr = formatPowerRangeStr(powerZone);
+
+		const segmentedSegments: WorkoutSegment[] = [
+			warmupSegment(warmupMinutes),
+			{ type: 'work', durationMinutes: roundToNearest5Seconds(segmentMinutes), intensity: ZONE_INTENSITY.M },
+			{ type: 'recovery', durationMinutes: roundToNearest5Seconds(recoveryMinutes), intensity: RECOVERY_INTENSITY },
+			{ type: 'work', durationMinutes: roundToNearest5Seconds(segmentMinutes), intensity: ZONE_INTENSITY.M },
+			cooldownSegment(cooldownMinutes)
+		];
 
 		const segmented: Workout = {
 			label: 'Segments',
 			description: `2 × ${formatMinutes(segmentMinutes)} min at Moderate Power (${powerRangeStr}), ${formatDurationMinutes(recoveryMinutes)} easy jog recovery`,
 			totalVolumeKm: round1(volumeMinutes / estimatedPace),
 			recovery: `${formatDurationMinutes(recoveryMinutes)} easy jog between segments`,
-			estimatedDurationMinutes: Math.round(totalMinutes),
-			segments: [
-				warmupSegment(warmupMinutes),
-				{ type: 'work', durationMinutes: roundToNearest5Seconds(segmentMinutes), intensity: ZONE_INTENSITY.M },
-				{ type: 'recovery', durationMinutes: roundToNearest5Seconds(recoveryMinutes), intensity: RECOVERY_INTENSITY },
-				{ type: 'work', durationMinutes: roundToNearest5Seconds(segmentMinutes), intensity: ZONE_INTENSITY.M },
-				cooldownSegment(cooldownMinutes)
-			]
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(segmentedSegments)),
+			segments: segmentedSegments
 		};
 
 		// Build progression variant (start easy, finish at M intensity)
 		const progWarmupMinutes = computeWarmupMinutes(zone, volumeMinutes);
 		const progCooldownMinutes = computeCooldownMinutes(zone, volumeMinutes);
-		const progTotalMinutes = volumeMinutes + progWarmupMinutes + progCooldownMinutes;
 		const progSegmentCount = 3;
 		const progSegmentMinutes = volumeMinutes / progSegmentCount;
 
@@ -451,7 +452,7 @@ function buildPowerZoneWorkoutsUnrounded(
 			description: `${progSegmentCount} progressive segments building to Moderate Power (${powerRangeStr})`,
 			totalVolumeKm: round1(volumeMinutes / estimatedPace),
 			recovery: 'None (continuous progression)',
-			estimatedDurationMinutes: Math.round(progTotalMinutes),
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(progSegments)),
 			segments: progSegments
 		};
 
@@ -470,7 +471,6 @@ function buildPowerZoneWorkoutsUnrounded(
 		const cruiseQualityTime = cruiseRepCount * cruiseRepMinutes + (cruiseRepCount - 1) * cruiseRecoveryMinutes;
 		const cruiseWarmupMinutes = computeWarmupMinutes(zone, cruiseQualityTime);
 		const cruiseCooldownMinutes = computeCooldownMinutes(zone, cruiseQualityTime);
-		const cruiseTotalMinutes = cruiseQualityTime + cruiseWarmupMinutes + cruiseCooldownMinutes;
 
 		const powerRangeStr = formatPowerRangeStr(powerZone);
 
@@ -496,7 +496,7 @@ function buildPowerZoneWorkoutsUnrounded(
 			description: `${cruiseRepCount} × ${formatMinutes(cruiseRepMinutes)} min at Threshold Power (${powerRangeStr}), ${formatDurationMinutes(cruiseRecoveryMinutes)} jog recovery`,
 			totalVolumeKm: round1(volumeMinutes / estimatedPace),
 			recovery: `${formatDurationMinutes(cruiseRecoveryMinutes)} jog between reps`,
-			estimatedDurationMinutes: Math.round(cruiseTotalMinutes),
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(cruiseSegments)),
 			segments: cruiseSegments
 		};
 
@@ -504,7 +504,6 @@ function buildPowerZoneWorkoutsUnrounded(
 		const ladderQualityTime = volumeMinutes;
 		const ladderWarmupMinutes = computeWarmupMinutes(zone, ladderQualityTime);
 		const ladderCooldownMinutes = computeCooldownMinutes(zone, ladderQualityTime);
-		const ladderTotalMinutes = ladderQualityTime + ladderWarmupMinutes + ladderCooldownMinutes;
 
 		const ladderSegments: WorkoutSegment[] = [warmupSegment(ladderWarmupMinutes)];
 		const ladderSteps = 5;
@@ -542,7 +541,7 @@ function buildPowerZoneWorkoutsUnrounded(
 			description: `Ascending and descending tempo ladder at Threshold Power (${powerRangeStr})`,
 			totalVolumeKm: round1(ladderQualityTime / estimatedPace),
 			recovery: `${formatMinutes(stepMinutes)} jog between steps`,
-			estimatedDurationMinutes: Math.round(ladderTotalMinutes),
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(ladderSegments)),
 			segments: ladderSegments
 		};
 
@@ -568,7 +567,6 @@ function buildPowerZoneWorkoutsUnrounded(
 		const shortQualityTime = shortRepCount * shortRepMinutes + (shortRepCount - 1) * shortRecoveryMinutes;
 		const shortWarmupMinutes = computeWarmupMinutes(zone, shortQualityTime);
 		const shortCooldownMinutes = computeCooldownMinutes(zone, shortQualityTime);
-		const shortTotalMinutes = shortQualityTime + shortWarmupMinutes + shortCooldownMinutes;
 
 		const shortSegments: WorkoutSegment[] = [warmupSegment(shortWarmupMinutes)];
 		for (let i = 0; i < shortRepCount; i++) {
@@ -592,7 +590,7 @@ function buildPowerZoneWorkoutsUnrounded(
 			description: `${shortRepCount} × ${formatMinutes(shortRepMinutes)} min at ${zoneName} Power (${powerRangeStr}), ${formatDurationMinutes(shortRecoveryMinutes)} recovery`,
 			totalVolumeKm: round1(shortQualityTime / estimatedPace),
 			recovery: `${formatDurationMinutes(shortRecoveryMinutes)} recovery between reps`,
-			estimatedDurationMinutes: Math.round(shortTotalMinutes),
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(shortSegments)),
 			segments: shortSegments
 		});
 
@@ -603,7 +601,6 @@ function buildPowerZoneWorkoutsUnrounded(
 		const mediumQualityTime = mediumRepCount * mediumRepMinutes + (mediumRepCount - 1) * mediumRecoveryMinutes;
 		const mediumWarmupMinutes = computeWarmupMinutes(zone, mediumQualityTime);
 		const mediumCooldownMinutes = computeCooldownMinutes(zone, mediumQualityTime);
-		const mediumTotalMinutes = mediumQualityTime + mediumWarmupMinutes + mediumCooldownMinutes;
 
 		const mediumSegments: WorkoutSegment[] = [warmupSegment(mediumWarmupMinutes)];
 		for (let i = 0; i < mediumRepCount; i++) {
@@ -627,7 +624,7 @@ function buildPowerZoneWorkoutsUnrounded(
 			description: `${mediumRepCount} × ${formatMinutes(mediumRepMinutes)} min at ${zoneName} Power (${powerRangeStr}), ${formatDurationMinutes(mediumRecoveryMinutes)} recovery`,
 			totalVolumeKm: round1(mediumQualityTime / estimatedPace),
 			recovery: `${formatDurationMinutes(mediumRecoveryMinutes)} recovery between reps`,
-			estimatedDurationMinutes: Math.round(mediumTotalMinutes),
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(mediumSegments)),
 			segments: mediumSegments
 		});
 
@@ -638,7 +635,6 @@ function buildPowerZoneWorkoutsUnrounded(
 		const longQualityTime = longRepCount * longRepMinutes + (longRepCount - 1) * longRecoveryMinutes;
 		const longWarmupMinutes = computeWarmupMinutes(zone, longQualityTime);
 		const longCooldownMinutes = computeCooldownMinutes(zone, longQualityTime);
-		const longTotalMinutes = longQualityTime + longWarmupMinutes + longCooldownMinutes;
 
 		const longSegments: WorkoutSegment[] = [warmupSegment(longWarmupMinutes)];
 		for (let i = 0; i < longRepCount; i++) {
@@ -662,7 +658,7 @@ function buildPowerZoneWorkoutsUnrounded(
 			description: `${longRepCount} × ${formatMinutes(longRepMinutes)} min at ${zoneName} Power (${powerRangeStr}), ${formatDurationMinutes(longRecoveryMinutes)} recovery`,
 			totalVolumeKm: round1(longQualityTime / estimatedPace),
 			recovery: `${formatDurationMinutes(longRecoveryMinutes)} recovery between reps`,
-			estimatedDurationMinutes: Math.round(longTotalMinutes),
+			estimatedDurationMinutes: Math.round(sumSegmentMinutes(longSegments)),
 			segments: longSegments
 		});
 
@@ -671,7 +667,6 @@ function buildPowerZoneWorkoutsUnrounded(
 			const pyramidQualityTime = volumeMinutes;
 			const pyramidWarmupMinutes = computeWarmupMinutes(zone, pyramidQualityTime);
 			const pyramidCooldownMinutes = computeCooldownMinutes(zone, pyramidQualityTime);
-			const pyramidTotalMinutes = pyramidQualityTime + pyramidWarmupMinutes + pyramidCooldownMinutes;
 
 			const pyramidSegments: WorkoutSegment[] = [warmupSegment(pyramidWarmupMinutes)];
 			const pyramidSteps = 4;
@@ -712,7 +707,7 @@ function buildPowerZoneWorkoutsUnrounded(
 				description: `Ascending and descending intensity pyramid at ${zoneName} Power (${powerRangeStr})`,
 				totalVolumeKm: round1(pyramidQualityTime / estimatedPace),
 				recovery: `${formatMinutes(stepMinutes)} recovery between steps`,
-				estimatedDurationMinutes: Math.round(pyramidTotalMinutes),
+				estimatedDurationMinutes: Math.round(sumSegmentMinutes(pyramidSegments)),
 				segments: pyramidSegments
 			});
 		} else if (zone === 'R') {
@@ -720,7 +715,6 @@ function buildPowerZoneWorkoutsUnrounded(
 			const descendingQualityTime = volumeMinutes;
 			const descendingWarmupMinutes = computeWarmupMinutes(zone, descendingQualityTime);
 			const descendingCooldownMinutes = computeCooldownMinutes(zone, descendingQualityTime);
-			const descendingTotalMinutes = descendingQualityTime + descendingWarmupMinutes + descendingCooldownMinutes;
 
 			const descendingSegments: WorkoutSegment[] = [warmupSegment(descendingWarmupMinutes)];
 			const descendingSteps = 5;
@@ -746,7 +740,7 @@ function buildPowerZoneWorkoutsUnrounded(
 				description: `Descending repetition lengths at Recovery Power (${powerRangeStr})`,
 				totalVolumeKm: round1(descendingQualityTime / estimatedPace),
 				recovery: `${formatMinutes(descendingStepMinutes)} recovery between reps`,
-				estimatedDurationMinutes: Math.round(descendingTotalMinutes),
+				estimatedDurationMinutes: Math.round(sumSegmentMinutes(descendingSegments)),
 				segments: descendingSegments
 			});
 		}
