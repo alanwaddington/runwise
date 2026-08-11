@@ -194,7 +194,7 @@ function cooldownSegment(minutes: number): WorkoutSegment {
 }
 
 /** Parse a zone's low/high formatted paces to the midpoint decimal min/km. */
-function midpointPaceMinKm(zone: TrainingZone): number {
+export function midpointPaceMinKm(zone: TrainingZone): number {
 	const low = parsePace(zone.paceMinKmLow)!;
 	const high = parsePace(zone.paceMinKmHigh)!;
 	return (low + high) / 2;
