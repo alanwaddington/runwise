@@ -16,6 +16,16 @@ export interface WorkoutSegment {
 	intensity: number;
 }
 
+export type WorkoutPattern =
+	| 'standard'
+	| 'fartlek'
+	| 'progression'
+	| 'decay'
+	| 'time-based'
+	| 'mixed-zone'
+	| 'recovery'
+	| 'race-prep';
+
 export interface Workout {
 	/** e.g. "1000m reps", "Continuous tempo", "Long run" */
 	label: string;
@@ -29,6 +39,8 @@ export interface Workout {
 	estimatedDurationMinutes: number;
 	/** Chronological warm-up/work/recovery/cool-down timeline, for the profile chart. Durations sum to estimatedDurationMinutes. */
 	segments: WorkoutSegment[];
+	/** Absent on existing "standard" builders until Task 7 backfills it; defaults to 'standard' in the UI. */
+	pattern?: WorkoutPattern;
 }
 
 export interface WorkoutZone {
