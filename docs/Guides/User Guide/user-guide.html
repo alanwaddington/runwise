@@ -422,8 +422,8 @@
 <p>Cross-links to the HR Zone Calculator are displayed with results.</p>
 <hr>
 <h3>Workout Suggestions — <code>/workouts</code></h3>
-<p>Turn your training paces or your device&#39;s running power into concrete session plans, scaled to your current weekly training mileage. Based on Jack Daniels&#39; weekly-mileage-scaling rules layered on top of the Training Pace Calculator&#39;s VDOT method — Power mode reuses the exact same session shapes and scaling rules, substituting an estimated pace derived from your power value.</p>
-<p><strong>Mode toggle:</strong> A Pace / Power segmented control at the top switches between the two input sets below. Your weekly mileage carries over between modes (it&#39;s a single shared field), but pace-specific and power-specific inputs and their validation states do not.</p>
+<p>Turn your training paces, your device&#39;s running power, or your heart rate into concrete session plans, scaled to your current weekly training mileage — plus a 4-week race-prep plan once a race is on the horizon. Based on Jack Daniels&#39; weekly-mileage-scaling rules layered on top of the Training Pace Calculator&#39;s VDOT method — Power and HR modes reuse the exact same session shapes and scaling rules, substituting an estimated pace derived from your power value or heart rate zone.</p>
+<p><strong>Mode toggle:</strong> A Pace / Power / HR segmented control at the top switches between input sets. A fourth &quot;Race-Prep&quot; tab appears once you&#39;ve entered a race date 4–8 weeks away (see Race-Prep mode, below) — outside that window it&#39;s hidden rather than shown disabled. Your weekly mileage, and your race date, carry over between modes (both are single shared fields), but mode-specific inputs and their validation states do not.</p>
 <p><strong>Pace mode inputs:</strong></p>
 <table>
 <thead>
@@ -480,7 +480,28 @@
 <td>50</td>
 </tr>
 </tbody></table>
-<p><strong>Output (both modes):</strong> Pace mode shows your VDOT score; Power mode shows your entered power value. Both then show all five training zones (E, M, T, I, R) with the zone&#39;s pace or watt range, and multiple example workouts per zone — 3 for E/M/T, 4 for I/R:</p>
+<p><strong>HR mode inputs:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Lactate threshold heart rate (LTHR)</td>
+<td>BPM (100–200)</td>
+<td>172</td>
+</tr>
+<tr>
+<td>Weekly training mileage</td>
+<td>Decimal km (1–300), shared with Pace mode</td>
+<td>50</td>
+</tr>
+</tbody></table>
+<p>If you&#39;ve also entered a race result on the Pace tab, HR mode automatically uses your own training paces to size each zone&#39;s session duration and shows an informational pace range on Interval/Repetition workout cards (see below). Without a race result, durations fall back to a general easy pace and a notice says so.</p>
+<p><strong>Output (Pace/Power/HR modes):</strong> Pace mode shows your VDOT score; Power mode shows your entered power value; HR mode shows your entered LTHR plus a zone-mapping list — each of the five zones&#39; BPM range alongside a confidence badge (High/Medium/Low, hover for why) reflecting how reliably heart rate maps to that zone. Threshold is Medium confidence because the threshold heart rate band is inherently fuzzy; Interval is Low confidence because heart rate lags behind effort on short reps; Repetition sits <em>above</em> Interval (it&#39;s Daniels&#39; fastest zone, not a low-intensity &quot;recovery&quot; zone) and is High-confidence-but-pace-led for the same reason — reps are too short for heart rate to catch up, so pace/effort is the more reliable guide even though the zone boundary itself is unambiguous. All three modes then show all five training zones (E, M, T, I, R) with the zone&#39;s pace, watt, or BPM range, and multiple example workouts per zone — 3 for E/M/T, 4 for I/R:</p>
 <table>
 <thead>
 <tr>
@@ -509,10 +530,12 @@
 <td>Three rep-distance variants (e.g. 200m/400m/800m in Pace mode) plus a descending-reps session</td>
 </tr>
 </tbody></table>
-<p>Each workout card shows the session format, target pace or power, recovery, total quality volume (Pace mode) or estimated duration, and a warm-up/cool-down line — each scaled independently to the session&#39;s intensity and length (longer for harder efforts like Interval and Repetition, shorter for Easy running), with cool-down typically the shorter of the two — plus a small visual profile chart underneath: a bar for each segment of the session (warm-up, work, recovery, cool-down), sized by duration and coloured by intensity, so you can see a session&#39;s shape (e.g. steady continuous effort vs. repeated intervals) at a glance alongside the text. Every segment&#39;s duration is rounded to the nearest 5 seconds, and shown as an exact time (not rounded further for display) so it always matches what&#39;s in an exported file (see Download as .FIT, below).</p>
+<p>Each workout card shows the session format, target pace or power, recovery, total quality volume (Pace mode) or estimated duration, and a warm-up/cool-down line — each scaled independently to the session&#39;s intensity and length (longer for harder efforts like Interval and Repetition, shorter for Easy running), with cool-down typically the shorter of the two — plus a small visual profile chart underneath: a bar for each segment of the session (warm-up, work, recovery, cool-down), sized by duration and coloured by intensity, so you can see a session&#39;s shape (e.g. steady continuous effort vs. repeated intervals) at a glance alongside the text. Every segment&#39;s duration is rounded to the nearest 5 seconds, and shown as an exact time (not rounded further for display) so it always matches what&#39;s in an exported file (see Download as .FIT, below), and always equals the sum of that workout&#39;s own segments. In HR mode, Interval and Repetition zone cards additionally show a de-emphasized &quot;Pace (reference only)&quot; line when a race result is available — heart rate is the primary prescription for those zones, pace is shown only for context.</p>
+<p><strong>Mixed-Zone Sessions (Pace mode only):</strong> Below the five zone sections, a &quot;Mixed-Zone Sessions&quot; section offers three additional workouts, each blending two adjacent effort zones in one session rather than staying in a single zone throughout: an Easy run with marathon-pace bridges (E+M), a Marathon-pace base with threshold surges (M+T), and Threshold blocks with fast VO₂max pickups (T+I). Each card carries a small corner badge (e.g. &quot;E+M&quot;) in place of the usual single zone letter, and its detail view adds one line explaining the intensity transition: ease into each higher-intensity segment, then settle back to the base pace.</p>
+<p><strong>Race-Prep mode:</strong> Enter a race date (shown alongside the shared inputs, next to Weekly training mileage) — the Race-Prep tab appears once that date is 4–8 weeks away, using the same race result and weekly mileage you&#39;ve already entered on the Pace tab. Selecting it shows your goal race pace and a 4-week plan: Week 1 (Build Aerobic Base), Week 2 (Strength), Week 3 (Peak VO2 Max), Week 4 (Taper) — each with 3–5 workouts drawn from the same zone builders as Pace mode (curated and relabeled per phase) plus two race-pace-specific sessions (a race-pace tempo run and race-pace reps) that appear at the appropriate phase. Taper week trains at reduced weekly-mileage volume to shed fatigue while keeping race-pace feel sharp. Every Race-Prep and Mixed-Zone card carries a small &quot;Race-Prep&quot; or pair-key badge in its top-right corner so you can tell it apart from a standard zone workout at a glance.</p>
 <p><strong>Time-available filter (Pace mode only):</strong> A dropdown (Any time / Under 30 min / 30–45 min / 45–60 min / 60+ min) filters which workouts are shown across every zone at once. If no workout in a zone fits the selected window, that zone shows a short message instead of a mismatched or hidden result.</p>
-<p><strong>Workout detail view:</strong> Click any workout card to open a full-screen detail view: a plain-language explanation of the zone&#39;s purpose and how to execute it, total volume/duration/recovery stats, the same profile chart at a larger size, and a segment-by-segment breakdown showing each segment&#39;s exact target range (pace or power, narrowed to that specific segment&#39;s intensity within the zone) and exact duration.</p>
-<p><strong>Download as .FIT:</strong> The detail view&#39;s &quot;Download as .FIT&quot; button saves the workout as a structured <code>.fit</code> file — the same target pace/power and warm-up/work/recovery/cool-down timing shown on screen, ready to follow step-by-step directly on a compatible device instead of watched manually against a stopwatch. A success or failure notification confirms the result. Device support today:</p>
+<p><strong>Workout detail view:</strong> Click any workout card to open a full-screen detail view: a plain-language explanation of the zone&#39;s purpose and how to execute it (or, for a Mixed-Zone session, an explanation of the intensity transition instead), total volume/duration/recovery stats, the same profile chart at a larger size, and a segment-by-segment breakdown showing each segment&#39;s exact target range (pace, power, or BPM, narrowed to that specific segment&#39;s intensity within the zone) and exact duration.</p>
+<p><strong>Download as .FIT:</strong> The detail view&#39;s &quot;Download as .FIT&quot; button saves the workout as a structured <code>.fit</code> file — the same target pace/power and warm-up/work/recovery/cool-down timing shown on screen, ready to follow step-by-step directly on a compatible device instead of watched manually against a stopwatch. A success or failure notification confirms the result. The button doesn&#39;t appear for Race-Prep or Mixed-Zone Sessions cards, since they don&#39;t belong to a single zone. Device support today:</p>
 <table>
 <thead>
 <tr>

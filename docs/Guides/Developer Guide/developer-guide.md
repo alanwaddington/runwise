@@ -108,7 +108,7 @@ src/
 │   │   ├── race-result-params.test.ts
 │   │   ├── training-paces.ts        # VDOT calculation (Daniels' formula), training zone pace derivation
 │   │   ├── training-paces.test.ts
-│   │   ├── hr-zones.ts              # Max HR zones, Friel LTHR zones, LTHR sub-zones, Tanaka age estimate
+│   │   ├── hr-zones.ts              # Max HR zones, Friel LTHR zones, LTHR sub-zones, Tanaka age estimate, calculateDanielsLthrZones (E/M/T/I/R HR zones w/ confidence tiers)
 │   │   ├── hr-zones.test.ts
 │   │   ├── vo2max.ts                # ACSM normative data, getFitnessCategory, getAcsmTable, CATEGORY_COLOURS
 │   │   ├── vo2max.test.ts
@@ -117,10 +117,18 @@ src/
 │   │   ├── validation.ts            # Shared input validation helpers (validatePositive, validateRange)
 │   │   ├── power-zones.ts           # Per-device (Stryd/Garmin/COROS/Polar) running-power zone tables and calculatePowerZones()
 │   │   ├── power-zones.test.ts
-│   │   ├── workouts.ts              # Pace-mode workout generation (Daniels weekly-mileage scaling), buildWorkoutsResult, roundWorkoutSegments
+│   │   ├── workouts.ts              # Pace-mode workout generation (Daniels weekly-mileage scaling), buildWorkoutsResult, roundWorkoutSegments, sumSegmentMinutes, the Workout.pattern field
 │   │   ├── workouts.test.ts
 │   │   ├── power-workouts.ts        # Power-mode equivalent of workouts.ts (device power → estimated pace → same session shapes)
 │   │   ├── power-workouts.test.ts
+│   │   ├── hr-workouts.ts           # HR-mode equivalent of workouts.ts — duration-based (no distance), buildHrWorkoutsResult, falls back to a default pace when no race result is available
+│   │   ├── hr-workouts.test.ts
+│   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones (race-pace tempo/reps today; fartlek/progression/decay/time-based land in Phase 2)
+│   │   ├── workout-patterns.test.ts
+│   │   ├── mixed-zone-workouts.ts   # Two-zone-blend workouts (E+M/M+T/T+I), buildMixedZoneWorkouts
+│   │   ├── mixed-zone-workouts.test.ts
+│   │   ├── race-prep.ts             # 4-week race-prep plan — curates/relabels buildZoneWorkouts output rather than a separate workout library, buildRacePrepResult, isRacePrepEligible
+│   │   ├── race-prep.test.ts
 │   │   ├── segment-targets.ts       # Per-segment pace/power target-range math, shared by the /workouts UI and fit-export.ts
 │   │   ├── segment-targets.test.ts
 │   │   ├── fit-export.ts            # Encodes a generated workout as a downloadable FIT file (via @garmin/fitsdk), for watch upload
@@ -139,7 +147,7 @@ src/
     ├── vo2max/
     ├── parkrun/
     ├── power-zones/     # Power Zones Calculator (Stryd/Garmin/COROS*/Polar) — *COROS currently hidden pending further research
-    ├── workouts/        # Workout Suggestions (pace and power mode) — includes the workout detail modal and "Download as .FIT" export
+    ├── workouts/        # Workout Suggestions (Pace/Power/HR/Race-Prep modes, plus Mixed-Zone Sessions) — includes the workout detail modal and "Download as .FIT" export
     └── privacy/         # Privacy Policy page
 ```
 
