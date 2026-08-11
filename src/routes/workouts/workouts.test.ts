@@ -68,13 +68,14 @@ describe('Workouts page', () => {
 		expect(screen.getByText(/must be between 1 and 300/i)).toBeInTheDocument();
 	});
 
-	it('renders 5 zones with 3-4 workout cards each by default', async () => {
+	it('renders 5 zones with 3-4 workout cards each by default, plus 3 mixed-zone cards', async () => {
 		await fillValidForm();
 		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
 			expect(screen.getByLabelText(`Zone ${zoneLabel}`)).toBeInTheDocument();
 		}
-		// 17 workout cards total (E:3, M:3, T:3, I:4, R:4), identified by "Estimated duration" text
-		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(17);
+		// 17 zone workout cards (E:3, M:3, T:3, I:4, R:4) + 3 mixed-zone cards (E+M, M+T, T+I),
+		// identified by "Estimated duration" text
+		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(20);
 	});
 
 	it('renders all 17 workout cards without error at low weekly mileage (regression)', async () => {
@@ -92,7 +93,7 @@ describe('Workouts page', () => {
 		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
 			expect(screen.getByLabelText(`Zone ${zoneLabel}`)).toBeInTheDocument();
 		}
-		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(17);
+		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(20);
 	});
 
 	it('renders the time-band filter select', async () => {
@@ -159,7 +160,7 @@ describe('Workouts page', () => {
 	it('shows a per-workout warm-up/cool-down value, not one shared fixed figure', async () => {
 		await fillValidForm();
 		const warmupLines = screen.getAllByText(/includes a \d+ min warm-up and \d+ min cool-down/i);
-		expect(warmupLines).toHaveLength(17);
+		expect(warmupLines).toHaveLength(20);
 		const warmupMinutes = warmupLines.map((el) => {
 			const match = el.textContent!.match(/includes a (\d+) min warm-up/i);
 			return match![1];
@@ -299,5 +300,167 @@ describe('Download as .FIT workflow', () => {
 
 		const toast = await screen.findByRole('alert');
 		expect(toast).toHaveTextContent("Couldn't create the file. Try again.");
+	});
+});
+
+describe('Mode tabs', () => {
+	it('always shows Pace, Power, and HR tabs', () => {
+		render(Workouts);
+		expect(screen.getByRole('tab', { name: 'Pace' })).toBeInTheDocument();
+		expect(screen.getByRole('tab', { name: 'Power' })).toBeInTheDocument();
+		expect(screen.getByRole('tab', { name: 'HR' })).toBeInTheDocument();
+	});
+
+	it('does not show the Race-Prep tab when no race date is entered', () => {
+		render(Workouts);
+		expect(screen.queryByRole('tab', { name: 'Race-Prep' })).toBeNull();
+	});
+});
+
+describe('HR mode', () => {
+	async function switchToHrMode() {
+		render(Workouts);
+		await fireEvent.click(screen.getByRole('tab', { name: 'HR' }));
+	}
+
+	it('shows the LTHR input when HR tab is selected', async () => {
+		await switchToHrMode();
+		expect(screen.getByLabelText(/lactate threshold heart rate/i)).toBeInTheDocument();
+	});
+
+	it('shows empty state when nothing is entered', async () => {
+		await switchToHrMode();
+		expect(screen.getByText(/enter your lthr and weekly mileage/i)).toBeInTheDocument();
+	});
+
+	it('shows an inline error for an implausible LTHR', async () => {
+		await switchToHrMode();
+		const lthrInput = screen.getByLabelText(/lactate threshold heart rate/i);
+		await fireEvent.input(lthrInput, { target: { value: '250' } });
+		await fireEvent.blur(lthrInput);
+		expect(screen.getByText(/must be between 100 and 200/i)).toBeInTheDocument();
+	});
+
+	it('shows the LTHR headline and 5 HR zones for valid inputs', async () => {
+		await switchToHrMode();
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+			target: { value: '172' }
+		});
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		expect(screen.getByText(/your lthr/i)).toBeInTheDocument();
+		expect(screen.getByText('172 bpm')).toBeInTheDocument();
+		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
+			expect(screen.getAllByLabelText(`Zone ${zoneLabel}`).length).toBeGreaterThan(0);
+		}
+	});
+
+	it('shows the fallback-pace notice when no race result has been entered', async () => {
+		await switchToHrMode();
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+			target: { value: '172' }
+		});
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		expect(screen.getByText(/durations are estimated using a general easy pace/i)).toBeInTheDocument();
+	});
+
+	it('does not show the fallback-pace notice once a race result is entered on the Pace tab', async () => {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		await fireEvent.click(screen.getByRole('tab', { name: 'HR' }));
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+			target: { value: '172' }
+		});
+		expect(screen.queryByText(/durations are estimated using a general easy pace/i)).toBeNull();
+	});
+});
+
+describe('Race-Prep mode', () => {
+	it('shows the race-date input on the Pace tab', () => {
+		render(Workouts);
+		expect(screen.getByLabelText(/race date/i)).toBeInTheDocument();
+	});
+
+	it('does not show the Race-Prep tab for a race less than 4 weeks away', async () => {
+		render(Workouts);
+		const soon = new Date();
+		soon.setDate(soon.getDate() + 7);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: soon.toISOString().slice(0, 10) }
+		});
+		expect(screen.queryByRole('tab', { name: 'Race-Prep' })).toBeNull();
+		expect(screen.getByText(/unlocks between 4 and 8 weeks out/i)).toBeInTheDocument();
+	});
+
+	it('shows the Race-Prep tab for a race 5 weeks away with a valid race result', async () => {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		const fiveWeeksOut = new Date();
+		fiveWeeksOut.setDate(fiveWeeksOut.getDate() + 35);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: fiveWeeksOut.toISOString().slice(0, 10) }
+		});
+		expect(screen.getByRole('tab', { name: 'Race-Prep' })).toBeInTheDocument();
+	});
+
+	it('shows 4 week sections with the expected phases once selected', async () => {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		const fiveWeeksOut = new Date();
+		fiveWeeksOut.setDate(fiveWeeksOut.getDate() + 35);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: fiveWeeksOut.toISOString().slice(0, 10) }
+		});
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-Prep' }));
+
+		expect(screen.getByText(/week 1: build aerobic base/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 2: strength/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 3: peak vo2 max/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 4: taper/i)).toBeInTheDocument();
+	});
+
+	it('input values persist when toggling away from Race-Prep and back (AC-1.7)', async () => {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		const fiveWeeksOut = new Date();
+		fiveWeeksOut.setDate(fiveWeeksOut.getDate() + 35);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: fiveWeeksOut.toISOString().slice(0, 10) }
+		});
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-Prep' }));
+		await fireEvent.click(screen.getByRole('tab', { name: 'Pace' }));
+
+		expect(screen.getByLabelText(/race time/i)).toHaveValue('25:00');
+		expect(screen.getByRole('tab', { name: 'Race-Prep' })).toBeInTheDocument();
+	});
+});
+
+describe('Mixed-zone workouts', () => {
+	it('shows the Mixed-Zone Sessions section with 3 cards once results are valid', async () => {
+		await fillValidForm();
+		expect(screen.getByText(/mixed-zone sessions/i)).toBeInTheDocument();
+		expect(screen.getByText('E+M: Easy Run with Marathon Surges')).toBeInTheDocument();
+		expect(screen.getByText('M+T: Marathon Base with Threshold Surges')).toBeInTheDocument();
+		expect(screen.getByText('T+I: Threshold Blocks with Fast Pickups')).toBeInTheDocument();
+	});
+
+	it('does not show the Mixed-Zone Sessions section in the empty state', () => {
+		render(Workouts);
+		expect(screen.queryByText(/mixed-zone sessions/i)).toBeNull();
 	});
 });
