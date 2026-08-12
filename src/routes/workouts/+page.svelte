@@ -784,15 +784,15 @@
 									<p class="font-medium text-ink">{workout.label}</p>
 									<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 									<dl class="mt-3 space-y-1 text-xs text-muted">
-										<div class="flex justify-between gap-2">
+										<div>
 											<dt>Recovery</dt>
-											<dd class="text-right">{workout.recovery}</dd>
+											<dd>{workout.recovery}</dd>
 										</div>
-										<div class="flex justify-between gap-2">
+										<div>
 											<dt>Total volume</dt>
 											<dd class="tabular-nums">{workout.totalVolumeKm} km</dd>
 										</div>
-										<div class="flex justify-between gap-2">
+										<div>
 											<dt>Estimated duration</dt>
 											<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
 										</div>
@@ -864,18 +864,17 @@
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Recovery</dt>
-										<dd class="text-right">{workout.recovery}</dd>
+										<dd>{workout.recovery}</dd>
 									</div>
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Total volume</dt>
 										<dd class="tabular-nums">{workout.totalVolumeKm} km</dd>
 									</div>
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd
-										>
+										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
 									</div>
 								</dl>
 								<p class="mt-3 text-xs text-muted">
@@ -1010,11 +1009,11 @@
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Recovery</dt>
-										<dd class="text-right">{workout.recovery}</dd>
+										<dd>{workout.recovery}</dd>
 									</div>
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Estimated duration</dt>
 										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
 									</div>
@@ -1220,14 +1219,13 @@
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Recovery</dt>
-										<dd class="text-right">{workout.recovery}</dd>
+										<dd>{workout.recovery}</dd>
 									</div>
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd
-										>
+										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
 									</div>
 									{#if (zone.zone === 'I' || zone.zone === 'R') && zone.informationalPaceLow}
 										<div class="flex justify-between gap-2">
@@ -1362,18 +1360,17 @@
 								<p class="font-medium text-ink">{workout.label}</p>
 								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
 								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Recovery</dt>
-										<dd class="text-right">{workout.recovery}</dd>
+										<dd>{workout.recovery}</dd>
 									</div>
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Total volume</dt>
 										<dd class="tabular-nums">{workout.totalVolumeKm} km</dd>
 									</div>
-									<div class="flex justify-between gap-2">
+									<div>
 										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd
-										>
+										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
 									</div>
 								</dl>
 								<p class="mt-3 text-xs text-muted">
