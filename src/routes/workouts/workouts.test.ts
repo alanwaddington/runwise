@@ -412,16 +412,16 @@ describe('Race-Prep mode', () => {
 		expect(screen.getByRole('tab', { name: 'Race-Prep' })).toBeInTheDocument();
 	});
 
-	it('shows 4 week sections with the expected phases once selected', async () => {
+	it('shows 4 week sections with the expected phases for a race exactly 4 weeks out', async () => {
 		render(Workouts);
 		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
 		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
 			target: { value: '60' }
 		});
-		const fiveWeeksOut = new Date();
-		fiveWeeksOut.setDate(fiveWeeksOut.getDate() + 35);
+		const fourWeeksOut = new Date();
+		fourWeeksOut.setDate(fourWeeksOut.getDate() + 28);
 		await fireEvent.input(screen.getByLabelText(/race date/i), {
-			target: { value: fiveWeeksOut.toISOString().slice(0, 10) }
+			target: { value: fourWeeksOut.toISOString().slice(0, 10) }
 		});
 		await fireEvent.click(screen.getByRole('tab', { name: 'Race-Prep' }));
 
@@ -429,6 +429,27 @@ describe('Race-Prep mode', () => {
 		expect(screen.getByText(/week 2: strength/i)).toBeInTheDocument();
 		expect(screen.getByText(/week 3: peak vo2 max/i)).toBeInTheDocument();
 		expect(screen.getByText(/week 4: taper/i)).toBeInTheDocument();
+	});
+
+	it('scales the plan to 6 weeks (with a repeated Build phase) for a race 6 weeks out', async () => {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		const sixWeeksOut = new Date();
+		sixWeeksOut.setDate(sixWeeksOut.getDate() + 42);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: sixWeeksOut.toISOString().slice(0, 10) }
+		});
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-Prep' }));
+
+		expect(screen.getByText(/week 1: build aerobic base/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 2: build aerobic base/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 3: strength/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 4: strength/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 5: peak vo2 max/i)).toBeInTheDocument();
+		expect(screen.getByText(/week 6: taper/i)).toBeInTheDocument();
 	});
 
 	it('input values persist when toggling away from Race-Prep and back (AC-1.7)', async () => {
@@ -450,10 +471,95 @@ describe('Race-Prep mode', () => {
 	});
 });
 
+describe('Race-Prep modality (AC-1.6/AC-2.10)', () => {
+	async function enterRacePrepEligibleForm() {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		const fourWeeksOut = new Date();
+		fourWeeksOut.setDate(fourWeeksOut.getDate() + 28);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: fourWeeksOut.toISOString().slice(0, 10) }
+		});
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-Prep' }));
+	}
+
+	it('defaults to Pace modality with no extra input required', async () => {
+		await enterRacePrepEligibleForm();
+		expect(screen.getByRole('tab', { name: 'Race-prep pace modality' })).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect(screen.getByText(/week 1: build aerobic base/i)).toBeInTheDocument();
+	});
+
+	it('shows an empty state until power is entered when Power modality is selected', async () => {
+		await enterRacePrepEligibleForm();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-prep power modality' }));
+
+		expect(screen.getByText(/plus your power/i)).toBeInTheDocument();
+		expect(screen.queryByText(/week 1: build aerobic base/i)).toBeNull();
+	});
+
+	it('generates a plan once power is entered in Power modality', async () => {
+		await enterRacePrepEligibleForm();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-prep power modality' }));
+		const powerInput = document.getElementById('power') as HTMLInputElement;
+		await fireEvent.input(powerInput, { target: { value: '250' } });
+
+		expect(screen.getByText(/week 1: build aerobic base/i)).toBeInTheDocument();
+	});
+
+	it('shows an empty state until LTHR is entered when HR modality is selected', async () => {
+		await enterRacePrepEligibleForm();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-prep HR modality' }));
+
+		expect(screen.getByText(/plus your lthr/i)).toBeInTheDocument();
+		expect(screen.queryByText(/week 1: build aerobic base/i)).toBeNull();
+	});
+
+	it('generates a plan once LTHR is entered in HR modality', async () => {
+		await enterRacePrepEligibleForm();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-prep HR modality' }));
+		const lthrInput = screen.getByLabelText(/lactate threshold heart rate/i);
+		await fireEvent.input(lthrInput, { target: { value: '172' } });
+
+		expect(screen.getByText(/week 1: build aerobic base/i)).toBeInTheDocument();
+	});
+
+	it('enables FIT download for a Power-modality race-prep workout card', async () => {
+		await enterRacePrepEligibleForm();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-prep power modality' }));
+		await fireEvent.input(document.getElementById('power') as HTMLInputElement, {
+			target: { value: '250' }
+		});
+
+		const card = document.querySelector('section button[type="button"]') as HTMLButtonElement;
+		await fireEvent.click(card);
+
+		expect(screen.getByRole('button', { name: /download as \.fit/i })).toBeInTheDocument();
+	});
+
+	it('enables FIT download for an HR-modality race-prep workout card', async () => {
+		await enterRacePrepEligibleForm();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-prep HR modality' }));
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+			target: { value: '172' }
+		});
+
+		const card = document.querySelector('section button[type="button"]') as HTMLButtonElement;
+		await fireEvent.click(card);
+
+		expect(screen.getByRole('button', { name: /download as \.fit/i })).toBeInTheDocument();
+	});
+});
+
 describe('Mixed-zone workouts', () => {
 	it('shows the Mixed-Zone Sessions section with 3 cards once results are valid', async () => {
 		await fillValidForm();
-		expect(screen.getByText(/mixed-zone sessions/i)).toBeInTheDocument();
+		expect(screen.getByRole('heading', { name: /mixed-zone sessions/i })).toBeInTheDocument();
 		expect(screen.getByText('E+M: Easy Run with Marathon Surges')).toBeInTheDocument();
 		expect(screen.getByText('M+T: Marathon Base with Threshold Surges')).toBeInTheDocument();
 		expect(screen.getByText('T+I: Threshold Blocks with Fast Pickups')).toBeInTheDocument();

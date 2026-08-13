@@ -223,3 +223,11 @@ export function calculateDanielsLthrZones(lthr: number): HrTrainingZone[] | null
 		confidence
 	}));
 }
+
+/** "145–160 bpm" (both bounds), "< 160 bpm" / "> 145 bpm" (one open-ended bound), or "N/A". */
+export function formatBpmRange(bpmLow: number | null, bpmHigh: number | null): string {
+	if (bpmLow !== null && bpmHigh !== null) return `${bpmLow}–${bpmHigh} bpm`;
+	if (bpmHigh !== null) return `<${bpmHigh} bpm`;
+	if (bpmLow !== null) return `>${bpmLow} bpm`;
+	return 'N/A';
+}

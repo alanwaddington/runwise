@@ -12,15 +12,30 @@
 	import WorkoutProfileChart from '$lib/components/WorkoutProfileChart.svelte';
 	import { buildPowerWorkoutsResult } from '$lib/utils/power-workouts';
 	import { DEVICE_DISPLAY_NAME, DEVICE_METRIC_LABEL, type PowerMeterDevice } from '$lib/utils/power-zones';
-	import { getSegmentPaceRange, getSegmentPowerRange } from '$lib/utils/segment-targets';
-	import { buildFitWorkout } from '$lib/utils/fit-export';
+	import { getSegmentPaceRange, getSegmentPowerRange, getSegmentBpmRange } from '$lib/utils/segment-targets';
+	import { buildFitWorkout, type FitExportKind } from '$lib/utils/fit-export';
 	import { buildTrainingPaceResult, type ZoneKey } from '$lib/utils/training-paces';
 	import Toast from '$lib/components/Toast.svelte';
 	import { showToast } from '$lib/stores/toast';
 	import { buildHrWorkoutsResult } from '$lib/utils/hr-workouts';
-	import { buildRacePrepResult, computeWeeksUntilRace, isRacePrepEligible } from '$lib/utils/race-prep';
+	import { formatBpmRange } from '$lib/utils/hr-zones';
+	import {
+		buildRacePrepResult,
+		computeWeeksUntilRace,
+		isRacePrepEligible,
+		type RacePrepModalityInput
+	} from '$lib/utils/race-prep';
 	import { buildMixedZoneWorkouts, type MixedZonePairKey } from '$lib/utils/mixed-zone-workouts';
 	import { formatPace } from '$lib/utils/pace';
+	import PatternBadge from '$lib/components/PatternBadge.svelte';
+	import WorkoutRail from '$lib/components/WorkoutRail.svelte';
+
+	interface CardStat {
+		icon?: 'clock' | 'refresh';
+		text: string;
+		srLabel: string;
+		muted?: boolean;
+	}
 
 	const TIME_BANDS = ['Any time', 'Under 30 min', '30–45 min', '45–60 min', '60+ min'] as const;
 	type TimeBand = (typeof TIME_BANDS)[number];
@@ -88,8 +103,10 @@
 		pattern?: Workout['pattern'];
 		powerRange?: string;
 		paceRange?: string;
+		hrRange?: string;
 		easyPaceRange?: string;
 		easyPowerRange?: string;
+		easyHrRange?: string;
 	} | null>(null);
 
 	let downloadingFit = $state(false);
@@ -161,9 +178,36 @@
 	let weeksUntilRace = $derived(raceDateRaw ? computeWeeksUntilRace(raceDateRaw, todayISO) : null);
 	let racePrepEligible = $derived(weeksUntilRace !== null && isRacePrepEligible(weeksUntilRace));
 
+	// Which modality Race-Prep workouts are prescribed in — a sub-selector independent of the
+	// top-level Pace/Power/HR tabs (AC-1.6/AC-2.10), since a plan built for "wherever you were
+	// last" would be fragile if the user lands directly on Race-Prep or bounces between tabs.
+	let racePrepModality = $state<'pace' | 'power' | 'hr'>('pace');
+
+	let racePrepModalityInput = $derived.by((): RacePrepModalityInput | null => {
+		if (racePrepModality === 'power') {
+			return power !== null ? { modality: 'power', power, device: selectedDevice } : null;
+		}
+		if (racePrepModality === 'hr') {
+			return lthr !== null ? { modality: 'hr', lthr } : null;
+		}
+		return { modality: 'pace' };
+	});
+
 	let racePrepResult = $derived(
-		mode === 'race-prep' && distanceKm > 0 && timeSeconds !== null && raceDateRaw && weeklyMileageKm > 0
-			? buildRacePrepResult(distanceKm, timeSeconds, raceDateRaw, todayISO, weeklyMileageKm)
+		mode === 'race-prep' &&
+			distanceKm > 0 &&
+			timeSeconds !== null &&
+			raceDateRaw &&
+			weeklyMileageKm > 0 &&
+			racePrepModalityInput !== null
+			? buildRacePrepResult(
+					distanceKm,
+					timeSeconds,
+					raceDateRaw,
+					todayISO,
+					weeklyMileageKm,
+					racePrepModalityInput
+				)
 			: null
 	);
 
@@ -179,28 +223,19 @@
 			: []
 	);
 
-	let maxWorkoutsPerZone = $derived(
-		(() => {
-			const zones =
-				mode === 'pace'
-					? result !== null && result !== 'out-of-range'
-						? result.zones
-						: null
-					: powerResult !== null && powerResult !== 'out-of-range'
-						? powerResult.zones
-						: null;
-			if (!zones || zones.length === 0) return 2;
-			return Math.max(...zones.map((z) => z.workouts.length));
-		})()
-	);
-
-	let maxHrWorkoutsPerZone = $derived(
-		hrResult !== null && hrResult !== 'out-of-range' && hrResult.zones.length > 0
-			? Math.max(...hrResult.zones.map((z) => z.workouts.length))
-			: 2
-	);
-
-	let maxMixedZoneWorkoutsPerRow = $derived(Math.max(1, mixedZoneWorkouts.length));
+	// Race-Prep plan is read as a timeline, one week at a time, rather than four full-length
+	// zone-style sections stacked in a row. Reset to Week 1 whenever a new plan is generated
+	// (not on every keystroke — only when the plan's identity actually changes).
+	let selectedRacePrepWeek = $state(1);
+	let lastRacePrepPlanKey = $state('');
+	$effect(() => {
+		if (racePrepResult === null || racePrepResult === 'out-of-range') return;
+		const key = `${racePrepResult.weeksUntilRace}-${racePrepResult.goalPaceMinKm}-${racePrepResult.weeks.length}`;
+		if (key !== lastRacePrepPlanKey) {
+			lastRacePrepPlanKey = key;
+			selectedRacePrepWeek = 1;
+		}
+	});
 
 	function fitsBand(minutes: number, band: TimeBand): boolean {
 		switch (band) {
@@ -333,11 +368,26 @@
 		weeklyMileageError = null;
 	}
 
-	function formatBpmRange(bpmLow: number | null, bpmHigh: number | null): string {
-		if (bpmLow !== null && bpmHigh !== null) return `${bpmLow}–${bpmHigh} bpm`;
-		if (bpmHigh !== null) return `<${bpmHigh} bpm`;
-		if (bpmLow !== null) return `>${bpmLow} bpm`;
-		return 'N/A';
+	/** The effort text shown per segment in the modal's breakdown — narrowed to the segment's own
+	 *  intensity for work segments (via the matching modality's getSegment*Range), or the full
+	 *  easy-zone band unnarrowed for warmup/recovery/cooldown. */
+	function segmentRangeFor(segment: {
+		type: 'warmup' | 'work' | 'recovery' | 'cooldown';
+		intensity: number;
+	}): string | undefined {
+		if (!selectedWorkout) return undefined;
+		const isWork = segment.type === 'work';
+		if (isWork && selectedWorkout.paceRange) {
+			return getSegmentPaceRange(selectedWorkout.paceRange, segment.intensity, segment.type);
+		}
+		if (isWork && selectedWorkout.powerRange) {
+			return getSegmentPowerRange(selectedWorkout.powerRange, segment.intensity, segment.type);
+		}
+		if (isWork && selectedWorkout.hrRange) {
+			return getSegmentBpmRange(selectedWorkout.hrRange, segment.intensity, segment.type);
+		}
+		if (isWork) return selectedWorkout.paceRange || selectedWorkout.powerRange || selectedWorkout.hrRange;
+		return selectedWorkout.easyPaceRange || selectedWorkout.easyPowerRange || selectedWorkout.easyHrRange;
 	}
 
 	const PHASE_PURPOSE: Record<string, string> = {
@@ -351,17 +401,71 @@
 		return `${Math.round(minutes)} min`;
 	}
 
+	// Shared by each card's inline "Purpose & execution" disclosure — kept out of the modal,
+	// which now only covers the segment breakdown + FIT download (that content already lives
+	// on the card, so repeating it in the modal was pure duplication).
+	function workoutPurpose(pattern: Workout['pattern'] | undefined, zoneName: string): string {
+		if (pattern === 'mixed-zone') {
+			return 'Mixed-zone sessions practice shifting between effort levels within one run, mirroring how race intensity actually varies — a bridge between steady training and race-specific pace changes.';
+		}
+		if (zoneName.includes('Easy')) {
+			return 'Easy runs are the foundation of your training. They build aerobic capacity, aid recovery, and teach your body to rely on fat as fuel at race-ready paces.';
+		}
+		if (zoneName.includes('Moderate')) {
+			return 'Moderate-pace work teaches your body to clear lactate efficiently and prepares your aerobic system for harder efforts. These workouts build mental toughness and race-specific endurance.';
+		}
+		if (zoneName.includes('Threshold')) {
+			return 'Threshold runs teach your body to sustain harder efforts while clearing metabolic byproducts. They improve your lactate threshold and build mental toughness for race day.';
+		}
+		if (zoneName.includes('Interval')) {
+			return 'Interval workouts develop VO₂ max and teach your body to deliver and use oxygen more efficiently. These sessions have the highest return on time invested.';
+		}
+		if (zoneName.includes('Rep') || zoneName.includes('Sprint')) {
+			return 'Repetition workouts at the highest intensity develop neuromuscular power and speed. These brief, all-out efforts train your body to operate at maximum intensity.';
+		}
+		return 'This workout builds fitness through structured effort and recovery.';
+	}
+
+	function workoutExecuteGuidance(pattern: Workout['pattern'] | undefined, zoneName: string): string {
+		if (pattern === 'mixed-zone') {
+			return 'Settle into the base effort first. As each higher-intensity segment starts, pick up smoothly rather than surging — then ease back to the base pace once it ends.';
+		}
+		if (zoneName.includes('Easy')) {
+			return 'Run at a conversational pace. You should be able to speak in sentences. Focus on relaxation and smooth cadence.';
+		}
+		if (zoneName.includes('Moderate')) {
+			return 'Hold a steady, controlled effort. You can speak a few words but not full sentences. Maintain consistent pacing throughout.';
+		}
+		if (zoneName.includes('Threshold')) {
+			return 'Run at a comfortably hard pace. You can only speak a few words. Maintain consistent effort and focus on controlled breathing.';
+		}
+		if (zoneName.includes('Interval')) {
+			return "Each repeat should feel challenging but sustainable. Take recovery periods seriously; they're part of the workout. Focus on controlled effort.";
+		}
+		if (zoneName.includes('Rep') || zoneName.includes('Sprint')) {
+			return 'Go all out on each repeat. Use recovery periods to fully recover. These should feel hard and fast, but controlled.';
+		}
+		return 'Execute the prescribed format and maintain consistent effort.';
+	}
+
 	async function downloadFitWorkout() {
-		// zone is absent for Race-Prep cards (no single zone applies) — the download button
-		// isn't rendered for those, but guard here too rather than crash if it ever is.
+		// zone is absent for cards with no single zone band (mixed-zone, and race-prep's
+		// race-pace-tempo/reps variants) — the download button isn't rendered for those, but
+		// guard here too rather than crash if it ever is.
 		if (!selectedWorkout || downloadingFit || !selectedWorkout.zone) return;
 		const workout = selectedWorkout;
 
 		downloadingFit = true;
 		try {
-			const kind: 'pace' | 'power' = workout.paceRange ? 'pace' : 'power';
-			const zoneRange = kind === 'pace' ? workout.paceRange! : workout.powerRange!;
-			const easyRange = kind === 'pace' ? workout.easyPaceRange! : workout.easyPowerRange!;
+			const kind: FitExportKind = workout.paceRange ? 'pace' : workout.powerRange ? 'power' : 'hr';
+			const zoneRange =
+				kind === 'pace' ? workout.paceRange! : kind === 'power' ? workout.powerRange! : workout.hrRange!;
+			const easyRange =
+				kind === 'pace'
+					? workout.easyPaceRange!
+					: kind === 'power'
+						? workout.easyPowerRange!
+						: workout.easyHrRange!;
 
 			const { bytes, filename } = await buildFitWorkout({
 				label: workout.label,
@@ -396,6 +500,144 @@
 
 <SeoHead route="/workouts" />
 
+{#snippet statIcon(icon: 'clock' | 'refresh')}
+	{#if icon === 'clock'}
+		<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
+			<circle cx="12" cy="13" r="8" />
+			<path d="M12 9v4l2 2" />
+			<path d="M9 3h6" />
+			<path d="M12 3v2" />
+		</svg>
+	{:else}
+		<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
+			<path d="M21 12a9 9 0 1 1-3-6.7" />
+			<path d="M21 3v6h-6" />
+		</svg>
+	{/if}
+{/snippet}
+
+{#snippet workoutCard(
+	workout: Workout,
+	badgeLabel: string | undefined,
+	stats: CardStat[],
+	warmupCooldownText: string,
+	purposeZoneName: string,
+	onOpen: () => void
+)}
+	<div
+		style="min-height: var(--card-h, auto);"
+		class="relative flex w-64 shrink-0 snap-start flex-col rounded-lg border border-ink/10 p-4 transition-all hover:border-accent hover:shadow-md"
+	>
+		<PatternBadge pattern={workout.pattern} label={badgeLabel} />
+		<button
+			type="button"
+			onclick={onOpen}
+			class="rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+		>
+			<p class="font-medium text-ink">{workout.label}</p>
+			<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
+		</button>
+		<dl class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+			{#each stats as stat (stat.srLabel)}
+				<div class="inline-flex items-center gap-1 {stat.muted ? 'text-muted/60 italic' : ''}">
+					{#if stat.icon}{@render statIcon(stat.icon)}{/if}
+					<dt class="sr-only">{stat.srLabel}</dt>
+					<dd class="tabular-nums">{stat.text}</dd>
+				</div>
+			{/each}
+		</dl>
+		<p class="mt-3 text-xs text-muted">{warmupCooldownText}</p>
+		<details class="mt-2 text-xs">
+			<summary
+				class="flex cursor-pointer list-none items-center gap-1 rounded-sm font-medium text-ink [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 transition-transform [details[open]_&]:rotate-90">
+					<path d="m9 18 6-6-6-6" />
+				</svg>
+				Purpose &amp; execution
+			</summary>
+			<div class="mt-2 space-y-2 rounded-md bg-accent/5 p-2.5 leading-relaxed text-muted">
+				<p><span class="font-semibold text-accent">Purpose:</span> {workoutPurpose(workout.pattern, purposeZoneName)}</p>
+				<p><span class="font-semibold text-accent">How to execute:</span> {workoutExecuteGuidance(workout.pattern, purposeZoneName)}</p>
+			</div>
+		</details>
+		<div class="mt-auto pt-3">
+			<WorkoutProfileChart segments={workout.segments} />
+			<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
+				<span class="inline-flex items-center gap-1"
+					><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"></span>Work</span
+				>
+				<span class="inline-flex items-center gap-1"
+					><span class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600" aria-hidden="true"
+					></span>Warm-up / recovery / cool-down</span
+				>
+			</p>
+		</div>
+	</div>
+{/snippet}
+
+{#snippet powerModalityInputs()}
+	<!-- Device selector -->
+	<div class="mb-4">
+		<label for="device-select" class="mb-1.5 block text-sm font-medium text-ink">Power meter device</label>
+		<div class="relative">
+			<select
+				id="device-select"
+				value={selectedDevice}
+				onchange={onDeviceChange}
+				aria-label="Power meter device, required"
+				class="h-12 w-full appearance-none rounded-lg border border-gray-300 bg-bg px-3 pr-10 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
+			>
+				{#each POWER_DEVICES as device (device)}
+					<option value={device}>{DEVICE_DISPLAY_NAME[device]}</option>
+				{/each}
+			</select>
+			<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="m6 9 6 6 6-6" />
+				</svg>
+			</span>
+		</div>
+	</div>
+
+	<!-- Power input -->
+	<InputField
+		id="power"
+		label={DEVICE_METRIC_LABEL[selectedDevice]}
+		bind:value={powerRaw}
+		unit="W"
+		type="text"
+		inputmode="decimal"
+		placeholder="e.g. 250"
+		required
+		error={powerError}
+		touched={powerTouched}
+		oninput={onPowerInput}
+		onblur={() => (powerTouched = true)}
+	/>
+	<p class="mt-1 text-xs text-muted">Enter your device's power value (watts).</p>
+{/snippet}
+
+{#snippet hrModalityInput()}
+	<InputField
+		id="lthr"
+		label="Lactate threshold heart rate (LTHR)"
+		bind:value={lthrRaw}
+		unit="bpm"
+		type="text"
+		inputmode="decimal"
+		placeholder="e.g. 172"
+		required
+		error={lthrError}
+		touched={lthrTouched}
+		oninput={onLthrInput}
+		onblur={() => (lthrTouched = true)}
+	/>
+	<p class="mt-1 text-xs text-muted">
+		Your heart rate at lactate threshold — the effort you could sustain for about an hour.
+	</p>
+{/snippet}
+
 <ToolLayout
 	title="Workout Suggestions"
 	description="Turn your training paces and power into concrete session plans, scaled to your weekly mileage."
@@ -403,7 +645,7 @@
 >
 	<!-- Mode toggle tabs -->
 	<div
-		class="mb-6 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 sm:grid-cols-4 dark:bg-gray-800"
+		class="sticky-with-header-offset z-20 mb-6 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 sm:grid-cols-4 dark:bg-gray-800"
 		role="tablist"
 		tabindex="-1"
 	>
@@ -541,81 +783,82 @@
 			onblur={() => (timeTouched = true)}
 		/>
 		<p class="mt-1 text-xs text-muted">Enter MM:SS or H:MM:SS</p>
-	{:else if mode === 'power'}
-		<!-- POWER MODE INPUTS -->
-		<!-- Device selector -->
-		<div class="mb-4">
-			<label for="device-select" class="mb-1.5 block text-sm font-medium text-ink"
-				>Power meter device</label
-			>
-			<div class="relative">
-				<select
-					id="device-select"
-					value={selectedDevice}
-					onchange={onDeviceChange}
-					aria-label="Power meter device, required"
-					class="h-12 w-full appearance-none rounded-lg border border-gray-300 bg-bg px-3 pr-10 text-ink focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-gray-700"
-				>
-					{#each POWER_DEVICES as device (device)}
-						<option value={device}>{DEVICE_DISPLAY_NAME[device]}</option>
-					{/each}
-				</select>
-				<span
-					class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted"
-					aria-hidden="true"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="m6 9 6 6 6-6" />
-					</svg>
-				</span>
-			</div>
-		</div>
 
-		<!-- Power input -->
-		<InputField
-			id="power"
-			label={DEVICE_METRIC_LABEL[selectedDevice]}
-			bind:value={powerRaw}
-			unit="W"
-			type="text"
-			inputmode="decimal"
-			placeholder="e.g. 250"
-			required
-			error={powerError}
-			touched={powerTouched}
-			oninput={onPowerInput}
-			onblur={() => (powerTouched = true)}
-		/>
-		<p class="mt-1 text-xs text-muted">Enter your device's power value (watts).</p>
+		{#if mode === 'race-prep'}
+			<!-- Race-Prep modality sub-selector — which zone system its workouts are prescribed in.
+				 Independent of the top-level Pace/Power/HR tabs (AC-1.6/AC-2.10). -->
+			<div class="mt-4 border-t border-ink/10 pt-4">
+				<span class="mb-1.5 block text-sm font-medium text-ink">Train by</span>
+				<div
+					class="grid grid-cols-3 gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
+					role="tablist"
+					aria-label="Race-prep training modality"
+				>
+					<button
+						type="button"
+						role="tab"
+						aria-label="Race-prep pace modality"
+						aria-selected={racePrepModality === 'pace'}
+						onclick={() => (racePrepModality = 'pace')}
+						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class:bg-accent={racePrepModality === 'pace'}
+						class:text-white={racePrepModality === 'pace'}
+						class:font-semibold={racePrepModality === 'pace'}
+						class:text-muted={racePrepModality !== 'pace'}
+						class:hover:text-hover={racePrepModality !== 'pace'}
+					>
+						Pace
+					</button>
+					<button
+						type="button"
+						role="tab"
+						aria-label="Race-prep power modality"
+						aria-selected={racePrepModality === 'power'}
+						onclick={() => (racePrepModality = 'power')}
+						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class:bg-accent={racePrepModality === 'power'}
+						class:text-white={racePrepModality === 'power'}
+						class:font-semibold={racePrepModality === 'power'}
+						class:text-muted={racePrepModality !== 'power'}
+						class:hover:text-hover={racePrepModality !== 'power'}
+					>
+						Power
+					</button>
+					<button
+						type="button"
+						role="tab"
+						aria-label="Race-prep HR modality"
+						aria-selected={racePrepModality === 'hr'}
+						onclick={() => (racePrepModality = 'hr')}
+						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class:bg-accent={racePrepModality === 'hr'}
+						class:text-white={racePrepModality === 'hr'}
+						class:font-semibold={racePrepModality === 'hr'}
+						class:text-muted={racePrepModality !== 'hr'}
+						class:hover:text-hover={racePrepModality !== 'hr'}
+					>
+						HR
+					</button>
+				</div>
+				<p class="mt-1 text-xs text-muted">
+					Goal race pace is always shown as a reference, regardless of modality.
+				</p>
+			</div>
+
+			{#if racePrepModality === 'power'}
+				<div class="mt-4">
+					{@render powerModalityInputs()}
+				</div>
+			{:else if racePrepModality === 'hr'}
+				<div class="mt-4">
+					{@render hrModalityInput()}
+				</div>
+			{/if}
+		{/if}
+	{:else if mode === 'power'}
+		{@render powerModalityInputs()}
 	{:else}
-		<!-- HR MODE INPUTS -->
-		<InputField
-			id="lthr"
-			label="Lactate threshold heart rate (LTHR)"
-			bind:value={lthrRaw}
-			unit="bpm"
-			type="text"
-			inputmode="decimal"
-			placeholder="e.g. 172"
-			required
-			error={lthrError}
-			touched={lthrTouched}
-			oninput={onLthrInput}
-			onblur={() => (lthrTouched = true)}
-		/>
-		<p class="mt-1 text-xs text-muted">
-			Your heart rate at lactate threshold — the effort you could sustain for about an hour.
-		</p>
+		{@render hrModalityInput()}
 	{/if}
 
 	<!-- Shared weekly mileage input -->
@@ -771,54 +1014,34 @@
 							No workout in this zone fits {timeBand}. Try a longer window.
 						</p>
 					{:else}
-						<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
+						<WorkoutRail label="{zone.name} workouts">
 							{#each zone.filtered as workout (workout.label + workout.description)}
-								<button type="button" onclick={() => { const easyZone = result.zones.find(z => z.name.includes('Easy')); selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, pattern: workout.pattern, paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`, easyPaceRange: easyZone ? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km` : `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km` }; }} class="relative flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
-									{#if workout.pattern && workout.pattern !== 'standard'}
-										<span
-											class="absolute top-2 right-2 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-text"
-										>
-											{workout.pattern === 'mixed-zone' ? workout.label.split(':')[0] : 'Race-Prep'}
-										</span>
-									{/if}
-									<p class="font-medium text-ink">{workout.label}</p>
-									<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
-									<dl class="mt-3 space-y-1 text-xs text-muted">
-										<div>
-											<dt>Recovery</dt>
-											<dd>{workout.recovery}</dd>
-										</div>
-										<div>
-											<dt>Total volume</dt>
-											<dd class="tabular-nums">{workout.totalVolumeKm} km</dd>
-										</div>
-										<div>
-											<dt>Estimated duration</dt>
-											<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
-										</div>
-									</dl>
-									<p class="mt-3 text-xs text-muted">
-										Includes a {formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and {formatMinutesShort(workout
-											.segments[workout.segments.length - 1].durationMinutes)} cool-down.
-									</p>
-									<div class="mt-auto">
-										<WorkoutProfileChart segments={workout.segments} />
-										<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
-											<span class="inline-flex items-center gap-1"
-												><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
-												></span>Work</span
-											>
-											<span class="inline-flex items-center gap-1"
-												><span
-													class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
-													aria-hidden="true"
-												></span>Warm-up / recovery / cool-down</span
-											>
-										</p>
-									</div>
-								</button>
+								{@render workoutCard(
+									workout,
+									workout.pattern === 'mixed-zone' ? workout.label.split(':')[0] : undefined,
+									[
+										{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
+										{ text: `${workout.totalVolumeKm} km`, srLabel: 'Total volume' },
+										{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
+									],
+									`Includes a ${formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and ${formatMinutesShort(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
+									zone.name,
+									() => {
+										const easyZone = result.zones.find((z) => z.name.includes('Easy'));
+										selectedWorkout = {
+											...workout,
+											zoneName: zone.name,
+											zone: zone.zone,
+											pattern: workout.pattern,
+											paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`,
+											easyPaceRange: easyZone
+												? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
+												: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`
+										};
+									}
+								)}
 							{/each}
-						</div>
+						</WorkoutRail>
 					{/if}
 				</section>
 			{/each}
@@ -833,14 +1056,19 @@
 							race-specific intensity.
 						</p>
 					</div>
-					<div
-						class="grid gap-3"
-						style="grid-template-columns: repeat({maxMixedZoneWorkoutsPerRow}, 1fr)"
-					>
+					<WorkoutRail label="Mixed-zone workouts">
 						{#each mixedZoneWorkouts as workout (workout.label)}
-							<button
-								type="button"
-								onclick={() => {
+							{@render workoutCard(
+								workout,
+								workout.label.split(':')[0],
+								[
+									{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
+									{ text: `${workout.totalVolumeKm} km`, srLabel: 'Total volume' },
+									{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
+								],
+								`Includes a ${formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and ${formatMinutesShort(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
+								workout.label,
+								() => {
 									const easyZone = result.zones.find((z) => z.name.includes('Easy'));
 									selectedWorkout = {
 										...workout,
@@ -851,57 +1079,10 @@
 											? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
 											: undefined
 									};
-								}}
-								class="relative flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-							>
-								{#if workout.pattern && workout.pattern !== 'standard'}
-									<span
-										class="absolute top-2 right-2 rounded-full bg-ink/10 px-2 py-0.5 text-[10px] font-medium text-ink"
-									>
-										{workout.label.split(':')[0]}
-									</span>
-								{/if}
-								<p class="font-medium text-ink">{workout.label}</p>
-								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
-								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div>
-										<dt>Recovery</dt>
-										<dd>{workout.recovery}</dd>
-									</div>
-									<div>
-										<dt>Total volume</dt>
-										<dd class="tabular-nums">{workout.totalVolumeKm} km</dd>
-									</div>
-									<div>
-										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
-									</div>
-								</dl>
-								<p class="mt-3 text-xs text-muted">
-									Includes a {formatMinutesShort(
-										workout.segments[0].durationMinutes
-									)} warm-up and {formatMinutesShort(
-										workout.segments[workout.segments.length - 1].durationMinutes
-									)} cool-down.
-								</p>
-								<div class="mt-auto">
-									<WorkoutProfileChart segments={workout.segments} />
-									<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
-										<span class="inline-flex items-center gap-1"
-											><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
-											></span>Work</span
-										>
-										<span class="inline-flex items-center gap-1"
-											><span
-												class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
-												aria-hidden="true"
-											></span>Warm-up / recovery / cool-down</span
-										>
-									</p>
-								</div>
-							</button>
+								}
+							)}
 						{/each}
-					</div>
+					</WorkoutRail>
 				</section>
 			{/if}
 
@@ -996,50 +1177,33 @@
 						>
 					</div>
 
-					<div class="grid gap-3" style="grid-template-columns: repeat({maxWorkoutsPerZone}, 1fr)">
+					<WorkoutRail label="{zone.name} workouts">
 						{#each zone.workouts as workout (workout.label + workout.description)}
-							<button type="button" onclick={() => { const easyZone = powerResult.zones.find(z => z.name.includes('Easy')); selectedWorkout = { ...workout, zoneName: zone.name, zone: zone.zone, pattern: workout.pattern, powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`, easyPowerRange: easyZone ? `${easyZone.wattsLow}–${easyZone.wattsHigh} W` : `${zone.wattsLow}–${zone.wattsHigh} W` }; }} class="relative flex h-full text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 flex-col rounded-lg border border-ink/10 p-4">
-								{#if workout.pattern && workout.pattern !== 'standard'}
-									<span
-										class="absolute top-2 right-2 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-text"
-									>
-										{workout.pattern === 'mixed-zone' ? workout.label.split(':')[0] : 'Race-Prep'}
-									</span>
-								{/if}
-								<p class="font-medium text-ink">{workout.label}</p>
-								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
-								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div>
-										<dt>Recovery</dt>
-										<dd>{workout.recovery}</dd>
-									</div>
-									<div>
-										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
-									</div>
-								</dl>
-								<p class="mt-3 text-xs text-muted">
-									Includes a {formatDurationMinutes(workout.segments[0].durationMinutes)} warm-up and {formatDurationMinutes(workout
-										.segments[workout.segments.length - 1].durationMinutes)} cool-down.
-								</p>
-								<div class="mt-auto">
-									<WorkoutProfileChart segments={workout.segments} />
-									<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
-										<span class="inline-flex items-center gap-1"
-											><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
-											></span>Work</span
-										>
-										<span class="inline-flex items-center gap-1"
-											><span
-												class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
-												aria-hidden="true"
-											></span>Warm-up / recovery / cool-down</span
-										>
-									</p>
-								</div>
-							</button>
+							{@render workoutCard(
+								workout,
+								workout.pattern === 'mixed-zone' ? workout.label.split(':')[0] : undefined,
+								[
+									{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
+									{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
+								],
+								`Includes a ${formatDurationMinutes(workout.segments[0].durationMinutes)} warm-up and ${formatDurationMinutes(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
+								zone.name,
+								() => {
+									const easyZone = powerResult.zones.find((z) => z.name.includes('Easy'));
+									selectedWorkout = {
+										...workout,
+										zoneName: zone.name,
+										zone: zone.zone,
+										pattern: workout.pattern,
+										powerRange: `${zone.wattsLow}–${zone.wattsHigh} W`,
+										easyPowerRange: easyZone
+											? `${easyZone.wattsLow}–${easyZone.wattsHigh} W`
+											: `${zone.wattsLow}–${zone.wattsHigh} W`
+									};
+								}
+							)}
 						{/each}
-					</div>
+					</WorkoutRail>
 				</section>
 			{/each}
 
@@ -1196,71 +1360,36 @@
 						</span>
 					</div>
 
-					<div class="grid gap-3" style="grid-template-columns: repeat({maxHrWorkoutsPerZone}, 1fr)">
+					<WorkoutRail label="{zone.name} workouts">
 						{#each zone.workouts as workout (workout.label + workout.description)}
-							<button
-								type="button"
-								onclick={() => {
+							{@render workoutCard(
+								workout,
+								undefined,
+								[
+									{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
+									{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' },
+									...((zone.zone === 'I' || zone.zone === 'R') && zone.informationalPaceLow
+										? [{ text: `${zone.informationalPaceLow}–${zone.informationalPaceHigh} /km`, srLabel: 'Pace (reference only)', muted: true }]
+										: [])
+								],
+								`Includes a ${formatDurationMinutes(workout.segments[0].durationMinutes)} warm-up and ${formatDurationMinutes(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
+								zone.name,
+								() => {
+									const easyZone = hrResult.zones.find((z) => z.name.includes('Easy'));
 									selectedWorkout = {
 										...workout,
 										zoneName: zone.name,
-										pattern: workout.pattern
+										zone: zone.zone,
+										pattern: workout.pattern,
+										hrRange: formatBpmRange(zone.bpmLow, zone.bpmHigh),
+										easyHrRange: easyZone
+											? formatBpmRange(easyZone.bpmLow, easyZone.bpmHigh)
+											: formatBpmRange(zone.bpmLow, zone.bpmHigh)
 									};
-								}}
-								class="relative flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-							>
-								{#if workout.pattern && workout.pattern !== 'standard'}
-									<span
-										class="absolute top-2 right-2 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-text"
-									>
-										Race-Prep
-									</span>
-								{/if}
-								<p class="font-medium text-ink">{workout.label}</p>
-								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
-								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div>
-										<dt>Recovery</dt>
-										<dd>{workout.recovery}</dd>
-									</div>
-									<div>
-										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
-									</div>
-									{#if (zone.zone === 'I' || zone.zone === 'R') && zone.informationalPaceLow}
-										<div class="flex justify-between gap-2">
-											<dt>Pace (reference only)</dt>
-											<dd class="text-right text-muted/60 italic"
-												>{zone.informationalPaceLow}–{zone.informationalPaceHigh} /km</dd
-											>
-										</div>
-									{/if}
-								</dl>
-								<p class="mt-3 text-xs text-muted">
-									Includes a {formatDurationMinutes(
-										workout.segments[0].durationMinutes
-									)} warm-up and {formatDurationMinutes(
-										workout.segments[workout.segments.length - 1].durationMinutes
-									)} cool-down.
-								</p>
-								<div class="mt-auto">
-									<WorkoutProfileChart segments={workout.segments} />
-									<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
-										<span class="inline-flex items-center gap-1"
-											><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
-											></span>Work</span
-										>
-										<span class="inline-flex items-center gap-1"
-											><span
-												class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
-												aria-hidden="true"
-											></span>Warm-up / recovery / cool-down</span
-										>
-									</p>
-								</div>
-							</button>
+								}
+							)}
 						{/each}
-					</div>
+					</WorkoutRail>
 				</section>
 			{/each}
 		{/if}
@@ -1287,7 +1416,11 @@
 					<path d="M12 3v2" />
 				</svg>
 				<p class="mt-3 text-sm text-muted">
-					Enter your race result, race date, and weekly mileage above to see your race-prep plan.
+					Enter your race result, race date, and weekly mileage{racePrepModality === 'power'
+						? ', plus your power'
+						: racePrepModality === 'hr'
+							? ', plus your LTHR'
+							: ''} above to see your race-prep plan.
 				</p>
 			</div>
 		{:else if racePrepResult === 'out-of-range'}
@@ -1331,73 +1464,81 @@
 				<p class="mt-1 text-xs text-muted">Goal race pace</p>
 			</div>
 
+			<!-- Week timeline: navigate the plan's arc instead of scrolling past four full sections -->
+			<div class="mb-6 flex items-center" role="tablist" aria-label="Race-prep week">
+				{#each racePrepResult.weeks as week, i (week.weekNumber)}
+					<button
+						type="button"
+						role="tab"
+						aria-selected={selectedRacePrepWeek === week.weekNumber}
+						onclick={() => (selectedRacePrepWeek = week.weekNumber)}
+						class="flex flex-1 flex-col items-center gap-1.5 rounded-sm px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+					>
+						<span
+							class="flex h-8 w-8 items-center justify-center rounded-full border-2 font-mono text-xs font-bold transition-colors {selectedRacePrepWeek ===
+							week.weekNumber
+								? 'border-accent bg-accent text-white'
+								: 'border-ink/15 text-muted'}"
+						>
+							{week.weekNumber}
+						</span>
+						<span
+							class="text-center text-[11px] leading-tight font-medium"
+							class:text-ink={selectedRacePrepWeek === week.weekNumber}
+							class:text-muted={selectedRacePrepWeek !== week.weekNumber}
+						>
+							{week.phase}
+						</span>
+					</button>
+					{#if i < racePrepResult.weeks.length - 1}
+						<div class="mx-1 mb-5 h-0.5 flex-1 rounded-full bg-ink/10" aria-hidden="true"></div>
+					{/if}
+				{/each}
+			</div>
+
 			<!-- Weekly plan -->
 			{#each racePrepResult.weeks as week (week.weekNumber)}
-				<section class="mb-8 last:mb-0">
+				<section class="mb-8 last:mb-0" class:hidden={selectedRacePrepWeek !== week.weekNumber}>
 					<div class="mb-3">
 						<h3 class="font-medium text-ink">Week {week.weekNumber}: {week.phase}</h3>
 						<p class="mt-1 text-sm text-muted">{PHASE_PURPOSE[week.phase]}</p>
 					</div>
 
-					<div class="grid gap-3" style="grid-template-columns: repeat({week.workouts.length}, 1fr)">
+					<WorkoutRail label="Week {week.weekNumber} workouts">
 						{#each week.workouts as workout (workout.label + workout.description)}
-							<button
-								type="button"
-								onclick={() => {
+							{@const band = workout.zone
+								? racePrepResult.zoneBands.find((b) => b.zone === workout.zone)?.rangeLabel
+								: undefined}
+							{@const easyBand = racePrepResult.zoneBands.find((b) => b.zone === 'E')?.rangeLabel}
+							{@render workoutCard(
+								workout,
+								'Race-Prep',
+								[
+									{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
+									...(racePrepResult.modality === 'pace'
+										? [{ text: `${workout.totalVolumeKm} km`, srLabel: 'Total volume' }]
+										: []),
+									{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
+								],
+								`Includes a ${formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and ${formatMinutesShort(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
+								week.phase,
+								() => {
 									selectedWorkout = {
 										...workout,
 										zoneName: week.phase,
-										pattern: workout.pattern
+										zone: workout.zone,
+										pattern: workout.pattern,
+										paceRange: racePrepResult.modality === 'pace' ? band : undefined,
+										powerRange: racePrepResult.modality === 'power' ? band : undefined,
+										hrRange: racePrepResult.modality === 'hr' ? band : undefined,
+										easyPaceRange: racePrepResult.modality === 'pace' ? easyBand : undefined,
+										easyPowerRange: racePrepResult.modality === 'power' ? easyBand : undefined,
+										easyHrRange: racePrepResult.modality === 'hr' ? easyBand : undefined
 									};
-								}}
-								class="relative flex h-full flex-col rounded-lg border border-ink/10 p-4 text-left transition-all hover:border-accent hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-							>
-								<span
-									class="absolute top-2 right-2 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-text"
-								>
-									Race-Prep
-								</span>
-								<p class="font-medium text-ink">{workout.label}</p>
-								<p class="mt-1 text-sm leading-relaxed text-muted">{workout.description}</p>
-								<dl class="mt-3 space-y-1 text-xs text-muted">
-									<div>
-										<dt>Recovery</dt>
-										<dd>{workout.recovery}</dd>
-									</div>
-									<div>
-										<dt>Total volume</dt>
-										<dd class="tabular-nums">{workout.totalVolumeKm} km</dd>
-									</div>
-									<div>
-										<dt>Estimated duration</dt>
-										<dd class="tabular-nums">{formatDurationMinutes(workout.estimatedDurationMinutes)}</dd>
-									</div>
-								</dl>
-								<p class="mt-3 text-xs text-muted">
-									Includes a {formatMinutesShort(
-										workout.segments[0].durationMinutes
-									)} warm-up and {formatMinutesShort(
-										workout.segments[workout.segments.length - 1].durationMinutes
-									)} cool-down.
-								</p>
-								<div class="mt-auto">
-									<WorkoutProfileChart segments={workout.segments} />
-									<p class="mt-1 flex items-center gap-3 text-[11px] text-muted">
-										<span class="inline-flex items-center gap-1"
-											><span class="inline-block h-2 w-2 rounded-full bg-accent" aria-hidden="true"
-											></span>Work</span
-										>
-										<span class="inline-flex items-center gap-1"
-											><span
-												class="inline-block h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600"
-												aria-hidden="true"
-											></span>Warm-up / recovery / cool-down</span
-										>
-									</p>
-								</div>
-							</button>
+								}
+							)}
 						{/each}
-					</div>
+					</WorkoutRail>
 				</section>
 			{/each}
 		{/if}
@@ -1464,50 +1605,6 @@
 							settle back to the base pace.
 						</p>
 					{/if}
-
-					<div class="space-y-2 rounded-lg bg-accent/5 p-4 text-sm leading-relaxed text-ink">
-						<div>
-							<p class="font-semibold text-accent">Purpose</p>
-							<p class="mt-1">
-								{#if selectedWorkout.pattern === 'mixed-zone'}
-									Mixed-zone sessions practice shifting between effort levels within one run, mirroring how race intensity actually varies — a bridge between steady training and race-specific pace changes.
-								{:else if selectedWorkout.zoneName.includes('Easy')}
-									Easy runs are the foundation of your training. They build aerobic capacity, aid recovery, and teach your body to rely on fat as fuel at race-ready paces.
-								{:else if selectedWorkout.zoneName.includes('Moderate')}
-									Moderate-pace work teaches your body to clear lactate efficiently and prepares your aerobic system for harder efforts. These workouts build mental toughness and race-specific endurance.
-								{:else if selectedWorkout.zoneName.includes('Threshold')}
-									Threshold runs teach your body to sustain harder efforts while clearing metabolic byproducts. They improve your lactate threshold and build mental toughness for race day.
-								{:else if selectedWorkout.zoneName.includes('Interval')}
-									Interval workouts develop VO₂ max and teach your body to deliver and use oxygen more efficiently. These sessions have the highest return on time invested.
-								{:else if selectedWorkout.zoneName.includes('Rep') || selectedWorkout.zoneName.includes('Sprint')}
-									Repetition workouts at the highest intensity develop neuromuscular power and speed. These brief, all-out efforts train your body to operate at maximum intensity.
-								{:else}
-									This workout builds fitness through structured effort and recovery.
-								{/if}
-							</p>
-						</div>
-
-						<div>
-							<p class="font-semibold text-accent">How to Execute</p>
-							<p class="mt-1">
-								{#if selectedWorkout.pattern === 'mixed-zone'}
-									Settle into the base effort first. As each higher-intensity segment starts, pick up smoothly rather than surging — then ease back to the base pace once it ends.
-								{:else if selectedWorkout.zoneName.includes('Easy')}
-									Run at a conversational pace. You should be able to speak in sentences. Focus on relaxation and smooth cadence.
-								{:else if selectedWorkout.zoneName.includes('Moderate')}
-									Hold a steady, controlled effort. You can speak a few words but not full sentences. Maintain consistent pacing throughout.
-								{:else if selectedWorkout.zoneName.includes('Threshold')}
-									Run at a comfortably hard pace. You can only speak a few words. Maintain consistent effort and focus on controlled breathing.
-								{:else if selectedWorkout.zoneName.includes('Interval')}
-									Each repeat should feel challenging but sustainable. Take recovery periods seriously; they're part of the workout. Focus on controlled effort.
-								{:else if selectedWorkout.zoneName.includes('Rep') || selectedWorkout.zoneName.includes('Sprint')}
-									Go all out on each repeat. Use recovery periods to fully recover. These should feel hard and fast, but controlled.
-								{:else}
-									Execute the prescribed format and maintain consistent effort.
-								{/if}
-							</p>
-						</div>
-					</div>
 				</div>
 
 				<div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-ink/5 p-4">
@@ -1548,7 +1645,7 @@
 					<!-- Segment breakdown -->
 					<div class="mt-4 space-y-1 rounded-lg bg-ink/5 p-3 text-sm">
 						{#each selectedWorkout.segments as segment, i (i)}
-							{@const segmentRange = segment.type === 'work' && selectedWorkout.paceRange ? getSegmentPaceRange(selectedWorkout.paceRange, segment.intensity, segment.type) : segment.type === 'work' && selectedWorkout.powerRange ? getSegmentPowerRange(selectedWorkout.powerRange, segment.intensity, segment.type) : segment.type === 'work' ? selectedWorkout.paceRange || selectedWorkout.powerRange : selectedWorkout.easyPaceRange || selectedWorkout.easyPowerRange}
+							{@const segmentRange = segmentRangeFor(segment)}
 							<div
 								class="flex items-center justify-between gap-2 rounded px-2 py-1 transition-colors hover:bg-accent/10"
 							>

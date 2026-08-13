@@ -3,7 +3,9 @@ import {
 	getSegmentPaceRange,
 	getSegmentPaceRangeSeconds,
 	getSegmentPowerRange,
-	getSegmentPowerRangeWatts
+	getSegmentPowerRangeWatts,
+	getSegmentBpmRange,
+	getSegmentBpmRangeNumeric
 } from './segment-targets';
 
 describe('getSegmentPaceRangeSeconds', () => {
@@ -85,5 +87,45 @@ describe('getSegmentPowerRange', () => {
 
 	it('getSegmentPowerRange_NonWorkSegment_ReturnsInputUnchanged', () => {
 		expect(getSegmentPowerRange('164–202 W', 1, 'cooldown')).toBe('164–202 W');
+	});
+});
+
+describe('getSegmentBpmRangeNumeric', () => {
+	it('getSegmentBpmRangeNumeric_WorkSegmentIntensity1_ReturnsHighBoundaryMinusMargin', () => {
+		const range = getSegmentBpmRangeNumeric('145–160 bpm', 1, 'work');
+		expect(range).not.toBeNull();
+		expect(range!.low).toBe(157); // 160 - 3
+		expect(range!.high).toBe(160); // clamped at the zone's high boundary
+	});
+
+	it('getSegmentBpmRangeNumeric_WorkSegmentIntensity0_ReturnsLowBoundaryPlusMargin', () => {
+		const range = getSegmentBpmRangeNumeric('145–160 bpm', 0, 'work');
+		expect(range).not.toBeNull();
+		expect(range!.low).toBe(145); // clamped at the zone's low boundary
+		expect(range!.high).toBe(148); // 145 + 3
+	});
+
+	it('getSegmentBpmRangeNumeric_NonWorkSegment_ReturnsFullZoneBandUnnarrowed', () => {
+		expect(getSegmentBpmRangeNumeric('145–160 bpm', 1, 'recovery')).toEqual({ low: 145, high: 160 });
+	});
+
+	it('getSegmentBpmRangeNumeric_MalformedZoneRange_ReturnsNull', () => {
+		expect(getSegmentBpmRangeNumeric('not-a-range', 1, 'work')).toBeNull();
+	});
+
+	it('getSegmentBpmRangeNumeric_OpenEndedZone_ReturnsNull', () => {
+		// "< 145 bpm" / "> 160 bpm" — only one boundary, nothing to narrow between.
+		expect(getSegmentBpmRangeNumeric('< 145 bpm', 1, 'work')).toBeNull();
+		expect(getSegmentBpmRangeNumeric('> 160 bpm', 1, 'work')).toBeNull();
+	});
+});
+
+describe('getSegmentBpmRange', () => {
+	it('getSegmentBpmRange_WorkSegment_ReturnsFormattedNarrowedRange', () => {
+		expect(getSegmentBpmRange('145–160 bpm', 1, 'work')).toBe('157–160 bpm');
+	});
+
+	it('getSegmentBpmRange_NonWorkSegment_ReturnsInputUnchanged', () => {
+		expect(getSegmentBpmRange('145–160 bpm', 1, 'cooldown')).toBe('145–160 bpm');
 	});
 });

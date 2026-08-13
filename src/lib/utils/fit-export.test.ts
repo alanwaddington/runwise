@@ -14,6 +14,8 @@ interface DecodedWorkoutStep {
 	customTargetSpeedHigh?: number;
 	customTargetPowerLow?: number;
 	customTargetPowerHigh?: number;
+	customTargetHeartRateLow?: number;
+	customTargetHeartRateHigh?: number;
 	intensity?: string;
 }
 
@@ -89,6 +91,10 @@ describe('buildFitFilename', () => {
 	it('buildFitFilename_LabelWithLeadingTrailingPunctuation_TrimsHyphens', () => {
 		expect(buildFitFilename('  -Easy Run- ', 'E', 'pace')).toBe('runwise-easy-run-E-pace.fit');
 	});
+
+	it('buildFitFilename_HrWorkout_UsesHrSuffix', () => {
+		expect(buildFitFilename('1000m reps', 'I', 'hr')).toBe('runwise-1000m-reps-I-hr.fit');
+	});
 });
 
 describe('buildFitWorkout', () => {
@@ -124,6 +130,21 @@ describe('buildFitWorkout', () => {
 			seg('work', 2, 1),
 			seg('recovery', 1, 0),
 			seg('work', 2, 1),
+			seg('cooldown', 10, 0)
+		]
+	};
+
+	const HR_REP_WORKOUT: FitExportInput = {
+		label: '4 x 3min HR',
+		zone: 'I',
+		kind: 'hr',
+		zoneRange: '160–172 bpm',
+		easyRange: '120–140 bpm',
+		segments: [
+			seg('warmup', 10, 0),
+			seg('work', 3, 1),
+			seg('recovery', 1, 0),
+			seg('work', 3, 1),
 			seg('cooldown', 10, 0)
 		]
 	};
@@ -188,6 +209,28 @@ describe('buildFitWorkout', () => {
 		// 250-280W zone, intensity 1 -> narrowed to the high boundary -6W (274-280W)
 		expect(workStep!.customTargetPowerLow).toBe(274);
 		expect(workStep!.customTargetPowerHigh).toBe(280);
+	});
+
+	it('buildFitWorkout_HrRepWorkout_ProducesValidFitBinaryWithHeartRateTargets', async () => {
+		const { bytes, filename } = await buildFitWorkout(HR_REP_WORKOUT);
+		expect(filename).toBe('runwise-4-x-3min-hr-I-hr.fit');
+
+		const messages = await decodeWorkout(bytes);
+		const unrolled = unrollSteps(messages.workoutStepMesgs);
+		expect(unrolled.every((s) => s.targetType === 'heartRate')).toBe(true);
+
+		const workStep = unrolled.find((s) => s.intensity === 'active');
+		expect(workStep).toBeDefined();
+		// 160-172 bpm zone, intensity 1 -> narrowed to the high boundary -3bpm (169-172bpm),
+		// encoded as bpm + 100 per FIT's workoutHr bpmOffset convention.
+		expect(workStep!.customTargetHeartRateLow).toBe(269);
+		expect(workStep!.customTargetHeartRateHigh).toBe(272);
+
+		const warmupStep = unrolled.find((s) => s.intensity === 'warmup');
+		expect(warmupStep).toBeDefined();
+		// Non-work segments use the full easy-zone band unnarrowed: 120-140 bpm -> 220-240.
+		expect(warmupStep!.customTargetHeartRateLow).toBe(220);
+		expect(warmupStep!.customTargetHeartRateHigh).toBe(240);
 	});
 
 	it('buildFitWorkout_RepWorkout_EncodesRepeatedIntervalUsingNativeRepeatStep', async () => {

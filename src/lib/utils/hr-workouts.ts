@@ -432,7 +432,7 @@ function buildHrZoneWorkoutsUnrounded(
 	return [short, medium, long, descending];
 }
 
-function buildHrZoneWorkouts(
+export function buildHrZoneWorkouts(
 	zone: ZoneKey,
 	hrZone: HrTrainingZone,
 	weeklyMileageKm: number,

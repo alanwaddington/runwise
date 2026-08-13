@@ -41,6 +41,14 @@ export interface Workout {
 	segments: WorkoutSegment[];
 	/** Absent on existing "standard" builders until Task 7 backfills it; defaults to 'standard' in the UI. */
 	pattern?: WorkoutPattern;
+	/**
+	 * Which training zone this workout was generated for. Absent for zone-grouped output (Pace/
+	 * Power/HR mode), where the enclosing WorkoutZone/PowerWorkoutZone/HrWorkoutZone already
+	 * carries this — only needed where workouts from different zones are mixed into one
+	 * ungrouped list (Race-Prep weeks), so the UI can still look up the right pace/power/HR band
+	 * per card.
+	 */
+	zone?: ZoneKey;
 }
 
 export interface WorkoutZone {
