@@ -157,8 +157,10 @@ npm run dev
 │   │   ├── power-workouts.test.ts
 │   │   ├── hr-workouts.ts           # HR-mode equivalent of workouts.ts — duration-based (no distance), buildHrWorkoutsResult, falls back to a default pace when no race result is available
 │   │   ├── hr-workouts.test.ts
-│   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones (race-pace tempo/reps today; fartlek/progression/decay/time-based land in Phase 2)
+│   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones: race-pace tempo/reps (race-prep); buildFartlekWorkout (M/T/I); buildProgressionWorkout (T/I); buildDecayWorkout (I/R); buildRepExpansionWorkouts (I/R, distance + time-based). All wired into buildZoneWorkouts (workouts.ts), Pace mode only.
 │   │   ├── workout-patterns.test.ts
+│   │   ├── recovery-workouts.ts     # buildRecoveryWorkouts(): Easy float, Recovery striders, Shakeout run — fixed flexible durations, not derived from weekly mileage/pace like everything else; wired into R zone&#39;s buildZoneWorkouts output but gated in separately, not through the (zone, pace, volumeKm) pattern-builder signature above
+│   │   ├── recovery-workouts.test.ts
 │   │   ├── mixed-zone-workouts.ts   # Two-zone-blend workouts (E+M/M+T/T+I), buildMixedZoneWorkouts
 │   │   ├── mixed-zone-workouts.test.ts
 │   │   ├── race-prep.ts             # 4-8 week race-prep plan (scales with weeksUntilRace) — curates/relabels buildZoneWorkouts output rather than a separate workout library; buildRacePrepResult, isRacePrepEligible; supports Pace, Power, and HR modality via a &quot;Train by&quot; sub-selector independent of the page&#39;s top-level mode

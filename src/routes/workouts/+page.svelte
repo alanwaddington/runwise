@@ -1071,16 +1071,22 @@
 										`Includes a ${formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and ${formatMinutesShort(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
 										zone.name,
 										() => {
+											// Recovery workouts run entirely at (or below) Easy effort -- unlike
+											// every other R-zone card, there's no "harder work segment" here, so
+											// both the work and the warmup/recovery/cooldown segments should target
+											// the Easy pace band, not R's (would otherwise prescribe R-pace, R's
+											// fastest zone, for what's meant to be an easy recovery session).
 											const easyZone = result.zones.find((z) => z.name.includes('Easy'));
+											const easyPaceRangeStr = easyZone
+												? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
+												: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`;
 											selectedWorkout = {
 												...workout,
 												zoneName: zone.name,
 												zone: zone.zone,
 												pattern: workout.pattern,
-												paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`,
-												easyPaceRange: easyZone
-													? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
-													: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`
+												paceRange: easyPaceRangeStr,
+												easyPaceRange: easyPaceRangeStr
 											};
 										}
 									)}
@@ -1653,10 +1659,12 @@
 				</div>
 
 				<div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-ink/5 p-4">
-					<div>
-						<p class="text-xs font-medium uppercase tracking-wide text-muted">Total Volume</p>
-						<p class="text-lg font-bold text-ink">{selectedWorkout.totalVolumeKm} km</p>
-					</div>
+					{#if selectedWorkout.pattern !== 'recovery'}
+						<div>
+							<p class="text-xs font-medium uppercase tracking-wide text-muted">Total Volume</p>
+							<p class="text-lg font-bold text-ink">{selectedWorkout.totalVolumeKm} km</p>
+						</div>
+					{/if}
 					<div>
 						<p class="text-xs font-medium uppercase tracking-wide text-muted">Estimated Duration</p>
 						<p class="text-lg font-bold text-ink">{formatDurationMinutes(selectedWorkout.estimatedDurationMinutes)}</p>

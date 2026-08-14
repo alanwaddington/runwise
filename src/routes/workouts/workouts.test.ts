@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { render, cleanup, screen, fireEvent } from '@testing-library/svelte';
+import { render, cleanup, screen, fireEvent, within } from '@testing-library/svelte';
 
 const mockPage = { url: new URL('http://localhost/workouts') };
 
@@ -636,6 +636,34 @@ describe('Recovery Options subsection (Task 11, Open Question #4)', () => {
 		await fillValidForm();
 		expect(screen.getByRole('region', { name: 'Repetition workouts' })).toBeInTheDocument();
 		expect(screen.getByRole('region', { name: 'Recovery options' })).toBeInTheDocument();
+	});
+
+	it('the workout detail modal omits the Total Volume stat for a recovery card (regression: showed "0 km")', async () => {
+		await fillValidForm();
+		await fireEvent.click(screen.getByText('Easy float'));
+		const modal = screen.getByRole('dialog');
+		expect(within(modal).queryByText('Total Volume')).toBeNull();
+		expect(modal.textContent).not.toMatch(/0\s*km/);
+	});
+
+	it('a recovery card\'s segment pace targets use Easy pace, not Repetition pace (regression)', async () => {
+		// Recovery cards are rendered under the Repetition zone section, but the workouts
+		// themselves run at Easy-or-below effort -- the FIT-export/segment-target pace band must
+		// come from the Easy zone, not from Repetition's own (much faster) pace band.
+		await fillValidForm();
+		// The Repetition zone heading shows its own pace band, e.g. "3:48–4:00 /km".
+		const rZoneHeading = screen.getByText('Repetition').closest('div')!;
+		const rZonePaceText = within(rZoneHeading).getByText(/\d+:\d+–\d+:\d+ \/km/).textContent;
+
+		await fireEvent.click(screen.getByText('Easy float'));
+		const modal = screen.getByRole('dialog');
+		const modalPaceTexts = within(modal)
+			.getAllByText(/\d+:\d+–\d+:\d+ \/km/)
+			.map((el) => el.textContent);
+		expect(modalPaceTexts.length).toBeGreaterThan(0);
+		for (const paceText of modalPaceTexts) {
+			expect(paceText).not.toBe(rZonePaceText);
+		}
 	});
 });
 
