@@ -73,6 +73,7 @@ src/
 │   │   ├── InputField.test.ts
 │   │   ├── PageExplainer.svelte       # Per-route "About this tool" footer content, driven by lib/content/explainers.ts; sections may include outbound reference links
 │   │   ├── PageExplainer.test.ts
+│   │   ├── PatternBadge.svelte        # Consolidated workout-pattern badge (Race-Prep, mixed-zone pair key, etc.) — one component, own row under the card title, replaces two earlier inconsistent badge styles
 │   │   ├── ResultDisplay.svelte
 │   │   ├── ResultDisplay.test.ts
 │   │   ├── SeoHead.svelte             # Per-page meta tags, OG, JSON-LD, AdSense account verification
@@ -89,7 +90,9 @@ src/
 │   │   ├── ToolLayout.svelte
 │   │   ├── ToolLayout.test.ts
 │   │   ├── WorkoutProfileChart.svelte # Segment-by-segment bar chart (warm-up/work/recovery/cool-down) for a single workout
-│   │   └── WorkoutProfileChart.test.ts
+│   │   ├── WorkoutProfileChart.test.ts
+│   │   ├── WorkoutRail.svelte         # Horizontal scroll-snap card rail with uniform card height/width and keyboard (Arrow Left/Right) scroll support (WAI-ARIA APG scrollable-region pattern)
+│   │   └── WorkoutRail.test.ts
 │   ├── config/
 │   │   └── toolValidation.ts    # Per-field validation rule config shared across tool pages
 │   ├── content/
@@ -127,11 +130,11 @@ src/
 │   │   ├── workout-patterns.test.ts
 │   │   ├── mixed-zone-workouts.ts   # Two-zone-blend workouts (E+M/M+T/T+I), buildMixedZoneWorkouts
 │   │   ├── mixed-zone-workouts.test.ts
-│   │   ├── race-prep.ts             # 4-week race-prep plan — curates/relabels buildZoneWorkouts output rather than a separate workout library, buildRacePrepResult, isRacePrepEligible
+│   │   ├── race-prep.ts             # 4-8 week race-prep plan (scales with weeksUntilRace) — curates/relabels buildZoneWorkouts output rather than a separate workout library; buildRacePrepResult, isRacePrepEligible; supports Pace, Power, and HR modality via a "Train by" sub-selector independent of the page's top-level mode
 │   │   ├── race-prep.test.ts
-│   │   ├── segment-targets.ts       # Per-segment pace/power target-range math, shared by the /workouts UI and fit-export.ts
+│   │   ├── segment-targets.ts       # Per-segment pace/power/bpm target-range math, shared by the /workouts UI and fit-export.ts; getOpenEndedBpmBound() handles Daniels' open-ended E/R HR zones ("<N bpm"/">N bpm"), which have no second bound to narrow toward
 │   │   ├── segment-targets.test.ts
-│   │   ├── fit-export.ts            # Encodes a generated workout as a downloadable FIT file (via @garmin/fitsdk), for watch upload
+│   │   ├── fit-export.ts            # Encodes a generated workout as a downloadable FIT file (via @garmin/fitsdk), for watch upload — falls back to a one-sided target for open-ended HR zones rather than throwing
 │   │   └── fit-export.test.ts
 │   └── vite-plugins/
 │       ├── git-dates.ts        # Vite plugin exposing virtual:git-dates — a per-route lastmod date map derived from git history
