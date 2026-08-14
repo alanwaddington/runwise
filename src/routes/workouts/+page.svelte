@@ -645,7 +645,7 @@
 >
 	<!-- Mode toggle tabs -->
 	<div
-		class="sticky-with-header-offset z-20 mb-6 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 sm:grid-cols-4 dark:bg-gray-800"
+		class="mb-6 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 sm:grid-cols-4 dark:bg-gray-800"
 		role="tablist"
 		tabindex="-1"
 	>
