@@ -141,14 +141,11 @@ describe('buildZoneWorkouts', () => {
 	});
 
 	it('buildZoneWorkouts_EveryZone_ReturnsMultipleWorkouts', () => {
+		// E returns 3; M, T, R return 4; I returns 5 (Task 7 appended a fartlek variant to M/T/I).
+		const expectedLengths = { E: 3, M: 4, T: 4, I: 5, R: 4 } as const;
 		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
 			const workouts = buildZoneWorkouts(zone, VDOT_40_ZONES, 80);
-			// E, M, T return 3 workouts; I, R return 4
-			if (zone === 'I' || zone === 'R') {
-				expect(workouts).toHaveLength(4);
-			} else {
-				expect(workouts).toHaveLength(3);
-			}
+			expect(workouts).toHaveLength(expectedLengths[zone]);
 		}
 	});
 
@@ -164,12 +161,13 @@ describe('buildZoneWorkouts', () => {
 
 	it('buildZoneWorkouts_IZone_IncludesMultipleDifferentFormats', () => {
 		const workouts = buildZoneWorkouts('I', VDOT_40_ZONES, 80);
-		expect(workouts).toHaveLength(4);
-		// Should have 400m, 800m, 1200m reps, and a pyramid
+		expect(workouts).toHaveLength(5);
+		// Should have 400m, 800m, 1200m reps, a pyramid, and (Task 7) a fartlek
 		expect(workouts[0].label).toBe('400m reps');
 		expect(workouts[1].label).toBe('800m reps');
 		expect(workouts[2].label).toBe('1200m reps');
 		expect(workouts[3].label).toBe('Pyramid');
+		expect(workouts[4].label).toBe('Interval fartlek');
 	});
 
 	it('buildZoneWorkouts_RZone_IncludesMultipleDifferentFormats', () => {
@@ -448,13 +446,10 @@ describe('buildWorkoutsResult', () => {
 	it('buildWorkoutsResult_ValidInput_Returns5ZonesWithMultipleWorkoutsEach', () => {
 		const result = buildWorkoutsResult(5, 1500, 80) as { zones: { zone: string; workouts: unknown[] }[] };
 		expect(result.zones).toHaveLength(5);
+		// E returns 3; M, T, R return 4; I returns 5 (Task 7 appended a fartlek variant to M/T/I).
+		const expectedLengths: Record<string, number> = { E: 3, M: 4, T: 4, I: 5, R: 4 };
 		for (const zone of result.zones) {
-			// E, M, T return 3 workouts; I, R return 4
-			if (zone.zone === 'I' || zone.zone === 'R') {
-				expect(zone.workouts).toHaveLength(4);
-			} else {
-				expect(zone.workouts).toHaveLength(3);
-			}
+			expect(zone.workouts).toHaveLength(expectedLengths[zone.zone]);
 		}
 	});
 

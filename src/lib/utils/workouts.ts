@@ -6,6 +6,7 @@ import {
 	type ZoneKey,
 	type TrainingZone
 } from './training-paces';
+import { buildFartlekWorkout } from './workout-patterns';
 
 export type WorkoutSegmentType = 'warmup' | 'work' | 'recovery' | 'cooldown';
 
@@ -296,7 +297,8 @@ function continuousWorkout(
 		totalVolumeKm: round1(volumeKm),
 		recovery: 'None (continuous)',
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
-		segments
+		segments,
+		pattern: 'standard'
 	};
 }
 
@@ -351,7 +353,8 @@ function buildEWorkouts(volumeKm: number, longRunVolumeKm: number, pace: number)
 		totalVolumeKm: round1(fartlekKm),
 		recovery: `${round1(recoveryKm)}km easy jog between pickups`,
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(fartlekSegments)),
-		segments: fartlekSegments
+		segments: fartlekSegments,
+		pattern: 'fartlek'
 	};
 
 	return [regular, long, fartlek];
@@ -385,7 +388,8 @@ function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): Workout
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${jogKm}km easy jog between segments`,
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segmentedSegments)),
-		segments: segmentedSegments
+		segments: segmentedSegments,
+		pattern: 'standard'
 	};
 
 	// Progression variant
@@ -412,7 +416,8 @@ function buildMWorkouts(volumeKm: number, mPace: number, ePace: number): Workout
 		totalVolumeKm: round1(volumeKm),
 		recovery: 'None (continuous progression)',
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(progSegments)),
-		segments: progSegments
+		segments: progSegments,
+		pattern: 'progression'
 	};
 
 	return [continuous, segmented, progression];
@@ -453,7 +458,8 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${formatDurationMinutes(recoveryPerRep)} jog between reps`,
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(cruiseSegments)),
-		segments: cruiseSegments
+		segments: cruiseSegments,
+		pattern: 'standard'
 	};
 
 	// Tempo ladder variant - variable recovery proportional to work duration
@@ -508,7 +514,8 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
 		totalVolumeKm: round1(volumeKm),
 		recovery: 'Recovery increases with each rung',
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(ladderSegments)),
-		segments: ladderSegments
+		segments: ladderSegments,
+		pattern: 'standard'
 	};
 
 	return [continuous, cruise, ladder];
@@ -557,7 +564,8 @@ function buildRepsWorkout(
 		totalVolumeKm,
 		recovery: recoveryDescription(repDistanceM, recoveryMinutes),
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
-		segments
+		segments,
+		pattern: 'standard'
 	};
 }
 
@@ -637,7 +645,8 @@ function buildIWorkouts(volumeKm: number, iPace: number): Workout[] {
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${formatMinutes(stepMinutes)} recovery between steps`,
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(pyramidSegments)),
-		segments: pyramidSegments
+		segments: pyramidSegments,
+		pattern: 'standard'
 	};
 
 	return [short, medium, long, pyramid];
@@ -703,7 +712,8 @@ function buildRWorkouts(volumeKm: number, rPace: number): Workout[] {
 		totalVolumeKm: round1(volumeKm),
 		recovery: `${formatMinutes(descendingStepMinutes)} recovery between reps`,
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(descendingSegments)),
-		segments: descendingSegments
+		segments: descendingSegments,
+		pattern: 'standard'
 	};
 
 	return [short, medium, long, descending];
@@ -732,16 +742,21 @@ function buildZoneWorkoutsUnrounded(
 			const longVolume = computeELongRunVolumeKm(weeklyMileageKm, ePace);
 			return buildEWorkouts(regularVolume, longVolume, ePace);
 		}
-		case 'M':
-			return buildMWorkouts(
-				computeZoneVolumeKm('M', weeklyMileageKm, pace),
-				pace,
-				paceByZone.get('E')!
-			);
-		case 'T':
-			return buildTWorkouts(computeZoneVolumeKm('T', weeklyMileageKm, pace), pace);
-		case 'I':
-			return buildIWorkouts(computeZoneVolumeKm('I', weeklyMileageKm, pace), pace);
+		case 'M': {
+			const volumeKm = computeZoneVolumeKm('M', weeklyMileageKm, pace);
+			return [
+				...buildMWorkouts(volumeKm, pace, paceByZone.get('E')!),
+				buildFartlekWorkout('M', pace, volumeKm)
+			];
+		}
+		case 'T': {
+			const volumeKm = computeZoneVolumeKm('T', weeklyMileageKm, pace);
+			return [...buildTWorkouts(volumeKm, pace), buildFartlekWorkout('T', pace, volumeKm)];
+		}
+		case 'I': {
+			const volumeKm = computeZoneVolumeKm('I', weeklyMileageKm, pace);
+			return [...buildIWorkouts(volumeKm, pace), buildFartlekWorkout('I', pace, volumeKm)];
+		}
 		case 'R':
 			return buildRWorkouts(computeZoneVolumeKm('R', weeklyMileageKm, pace), pace);
 	}
