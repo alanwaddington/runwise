@@ -142,7 +142,7 @@ describe('buildZoneWorkouts', () => {
 
 	it('buildZoneWorkouts_EveryZone_ReturnsMultipleWorkouts', () => {
 		// E returns 3; M, T, R return 4; I returns 5 (Task 7 appended a fartlek variant to M/T/I).
-		const expectedLengths = { E: 3, M: 4, T: 4, I: 5, R: 4 } as const;
+		const expectedLengths = { E: 3, M: 4, T: 5, I: 7, R: 5 } as const;
 		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
 			const workouts = buildZoneWorkouts(zone, VDOT_40_ZONES, 80);
 			expect(workouts).toHaveLength(expectedLengths[zone]);
@@ -161,23 +161,26 @@ describe('buildZoneWorkouts', () => {
 
 	it('buildZoneWorkouts_IZone_IncludesMultipleDifferentFormats', () => {
 		const workouts = buildZoneWorkouts('I', VDOT_40_ZONES, 80);
-		expect(workouts).toHaveLength(5);
-		// Should have 400m, 800m, 1200m reps, a pyramid, and (Task 7) a fartlek
+		expect(workouts).toHaveLength(7);
+		// 400m/800m/1200m reps, a pyramid, (Task 7) a fartlek, (Task 8) progression and decay
 		expect(workouts[0].label).toBe('400m reps');
 		expect(workouts[1].label).toBe('800m reps');
 		expect(workouts[2].label).toBe('1200m reps');
 		expect(workouts[3].label).toBe('Pyramid');
 		expect(workouts[4].label).toBe('Interval fartlek');
+		expect(workouts[5].label).toBe('Interval progression');
+		expect(workouts[6].label).toBe('Hard-to-easy decay');
 	});
 
 	it('buildZoneWorkouts_RZone_IncludesMultipleDifferentFormats', () => {
 		const workouts = buildZoneWorkouts('R', VDOT_40_ZONES, 80);
-		expect(workouts).toHaveLength(4);
-		// Should have 200m, 400m, 800m reps, and descending reps
+		expect(workouts).toHaveLength(5);
+		// 200m/400m/800m reps, descending reps, and (Task 8) decay
 		expect(workouts[0].label).toBe('200m reps');
 		expect(workouts[1].label).toBe('400m reps');
 		expect(workouts[2].label).toBe('800m reps');
 		expect(workouts[3].label).toBe('Descending reps');
+		expect(workouts[4].label).toBe('Repetition decay');
 	});
 
 	it('buildZoneWorkouts_IZone_NeverFewerThan3Reps', () => {
@@ -447,7 +450,7 @@ describe('buildWorkoutsResult', () => {
 		const result = buildWorkoutsResult(5, 1500, 80) as { zones: { zone: string; workouts: unknown[] }[] };
 		expect(result.zones).toHaveLength(5);
 		// E returns 3; M, T, R return 4; I returns 5 (Task 7 appended a fartlek variant to M/T/I).
-		const expectedLengths: Record<string, number> = { E: 3, M: 4, T: 4, I: 5, R: 4 };
+		const expectedLengths: Record<string, number> = { E: 3, M: 4, T: 5, I: 7, R: 5 };
 		for (const zone of result.zones) {
 			expect(zone.workouts).toHaveLength(expectedLengths[zone.zone]);
 		}

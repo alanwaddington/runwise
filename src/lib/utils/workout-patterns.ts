@@ -259,3 +259,196 @@ export function buildFartlekWorkout(zone: 'M' | 'T' | 'I', pace: number, volumeK
 			return buildIFartlekWorkout(pace, volumeKm);
 	}
 }
+
+// ─── Progression patterns (Task 8, AC-4.1-4.3, AC-4.7, AC-4.8) ─────────────
+// M already has one (buildMWorkouts' "Progression run"); this adds T and I. Both build
+// increasing-duration reps at a fixed set of ratios (rather than increasing intensity) — matching
+// AC-4.2's own example ("3 reps of 5min, 6min, 7min") and, for I, AC-4.3's "400m->600m->800m"
+// example, which is a distance/duration increase at constant pace, not an intensity increase.
+
+const T_PROGRESSION_STEP_RATIOS = [0.8, 1, 1.2]; // ~5:6:7 min, AC-4.2's own example
+const T_PROGRESSION_RECOVERY_FRACTION = 0.2; // matches Cruise Intervals' ~1:5 work:rest convention
+
+function buildTProgressionWorkout(pace: number, volumeKm: number): Workout {
+	const ratioSum = T_PROGRESSION_STEP_RATIOS.reduce((a, b) => a + b, 0);
+	const baseMinutes = (volumeKm * pace) / ratioSum;
+
+	const segments: WorkoutSegment[] = [];
+	T_PROGRESSION_STEP_RATIOS.forEach((ratio, i) => {
+		const repMinutes = roundToNearest5Seconds(baseMinutes * ratio);
+		segments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY.T });
+		if (i < T_PROGRESSION_STEP_RATIOS.length - 1) {
+			segments.push({
+				type: 'recovery',
+				durationMinutes: roundToNearest5Seconds(repMinutes * T_PROGRESSION_RECOVERY_FRACTION),
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	});
+
+	const qualityTime = sumSegmentMinutes(segments);
+	segments.unshift(warmupSegment(computeWarmupMinutes('T', qualityTime)));
+	segments.push(cooldownSegment(computeCooldownMinutes('T', qualityTime)));
+
+	const stepMinutesLabel = T_PROGRESSION_STEP_RATIOS.map((r) => formatMinutes(baseMinutes * r)).join(', ');
+	return {
+		label: 'Threshold progression',
+		description: `3 reps of increasing duration at T pace (${stepMinutesLabel} min)`,
+		totalVolumeKm: round1(volumeKm),
+		recovery: 'Short jog, proportional to each rep’s own duration',
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
+		segments,
+		pattern: 'progression'
+	};
+}
+
+const I_PROGRESSION_STEP_RATIOS = [1, 1.5, 2]; // approximates AC-4.3's 400m:600m:800m example
+const I_PROGRESSION_RECOVERY_FRACTION = 0.75; // matches buildIWorkouts' own jog-recovery convention
+
+function buildIProgressionWorkout(pace: number, volumeKm: number): Workout {
+	const ratioSum = I_PROGRESSION_STEP_RATIOS.reduce((a, b) => a + b, 0);
+	const baseMinutes = (volumeKm * pace) / ratioSum;
+
+	const segments: WorkoutSegment[] = [];
+	I_PROGRESSION_STEP_RATIOS.forEach((ratio, i) => {
+		const repMinutes = roundToNearest5Seconds(baseMinutes * ratio);
+		segments.push({ type: 'work', durationMinutes: repMinutes, intensity: ZONE_INTENSITY.I });
+		if (i < I_PROGRESSION_STEP_RATIOS.length - 1) {
+			segments.push({
+				type: 'recovery',
+				durationMinutes: roundToNearest5Seconds(repMinutes * I_PROGRESSION_RECOVERY_FRACTION),
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	});
+
+	const qualityTime = sumSegmentMinutes(segments);
+	segments.unshift(warmupSegment(computeWarmupMinutes('I', qualityTime)));
+	segments.push(cooldownSegment(computeCooldownMinutes('I', qualityTime)));
+
+	const stepMinutesLabel = I_PROGRESSION_STEP_RATIOS.map((r) => formatMinutes(baseMinutes * r)).join(', ');
+	return {
+		label: 'Interval progression',
+		description: `3 reps of increasing duration at I pace (${stepMinutesLabel} min), approximating a 400m→600m→800m progression`,
+		totalVolumeKm: round1(volumeKm),
+		recovery: 'Jog recovery, proportional to each rep’s own duration',
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
+		segments,
+		pattern: 'progression'
+	};
+}
+
+/**
+ * Build the progression variant for T or I zone (AC-4.1). M already has its own (buildMWorkouts).
+ * Both increase rep duration across 3 reps at a fixed ratio set — see each zone's own AC for why
+ * duration (not intensity) is what increases.
+ */
+export function buildProgressionWorkout(zone: 'T' | 'I', pace: number, volumeKm: number): Workout {
+	switch (zone) {
+		case 'T':
+			return buildTProgressionWorkout(pace, volumeKm);
+		case 'I':
+			return buildIProgressionWorkout(pace, volumeKm);
+	}
+}
+
+// ─── Decay patterns (Task 8, AC-4.4-4.7) ───────────────────────────────────
+// I: hard reps followed by shorter/easier reps (AC-4.5's "2x800m hard, 2x400m recovery" — the
+// second half decays in both duration and intensity, not just duration).
+// R: intensity decays rep-by-rep from full R pace down to genuine recovery effort by the final
+// rep (AC-4.6) — "not exceeding recovery zone" describes where the *decayed end* bottoms out,
+// not a reinterpretation of R itself (Runwise's R is still Daniels' Repetition zone — the
+// fastest zone, not a generic low-intensity "Recovery" zone; see hr-zones.ts's own R-zone note).
+
+const I_DECAY_HARD_REPS = 2;
+const I_DECAY_EASY_REPS = 2;
+const I_DECAY_EASY_DURATION_FRACTION = 0.5; // AC-4.5's 800m -> 400m halving
+const I_DECAY_EASY_INTENSITY_FRACTION = 0.5; // how far toward recovery intensity the easy reps decay
+const I_DECAY_RECOVERY_FRACTION = 0.75; // matches buildIWorkouts' own jog-recovery convention
+
+function buildIDecayWorkout(pace: number, volumeKm: number): Workout {
+	// hardReps at full duration + easyReps at half duration = (2*1 + 2*0.5) = 3 "duration units".
+	const totalUnits = I_DECAY_HARD_REPS + I_DECAY_EASY_REPS * I_DECAY_EASY_DURATION_FRACTION;
+	const unitMinutes = (volumeKm * pace) / totalUnits;
+	const hardMinutes = roundToNearest5Seconds(unitMinutes);
+	const easyMinutes = roundToNearest5Seconds(unitMinutes * I_DECAY_EASY_DURATION_FRACTION);
+	const easyIntensity =
+		ZONE_INTENSITY.I - I_DECAY_EASY_INTENSITY_FRACTION * (ZONE_INTENSITY.I - RECOVERY_INTENSITY);
+
+	const repPlan: Array<{ minutes: number; intensity: number }> = [
+		...Array.from({ length: I_DECAY_HARD_REPS }, () => ({ minutes: hardMinutes, intensity: ZONE_INTENSITY.I })),
+		...Array.from({ length: I_DECAY_EASY_REPS }, () => ({ minutes: easyMinutes, intensity: easyIntensity }))
+	];
+
+	const segments: WorkoutSegment[] = [];
+	repPlan.forEach((rep, i) => {
+		segments.push({ type: 'work', durationMinutes: rep.minutes, intensity: rep.intensity });
+		if (i < repPlan.length - 1) {
+			segments.push({
+				type: 'recovery',
+				durationMinutes: roundToNearest5Seconds(rep.minutes * I_DECAY_RECOVERY_FRACTION),
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	});
+
+	const qualityTime = sumSegmentMinutes(segments);
+	segments.unshift(warmupSegment(computeWarmupMinutes('I', qualityTime)));
+	segments.push(cooldownSegment(computeCooldownMinutes('I', qualityTime)));
+
+	return {
+		label: 'Hard-to-easy decay',
+		description: `${I_DECAY_HARD_REPS} hard reps at I pace (${formatMinutes(hardMinutes)} min) then ${I_DECAY_EASY_REPS} easier reps (${formatMinutes(easyMinutes)} min), jog recovery between`,
+		totalVolumeKm: round1(volumeKm),
+		recovery: 'Jog recovery, proportional to each rep’s own duration',
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
+		segments,
+		pattern: 'decay'
+	};
+}
+
+const R_DECAY_REP_DISTANCE_M = 200; // matches R zone's existing shortest rep-distance convention
+const R_DECAY_MIN_REPS = 3;
+
+function buildRDecayWorkout(pace: number, volumeKm: number): Workout {
+	const repKm = R_DECAY_REP_DISTANCE_M / 1000;
+	const reps = Math.max(R_DECAY_MIN_REPS, Math.round((volumeKm * 1000) / R_DECAY_REP_DISTANCE_M));
+	const repMinutes = roundToNearest5Seconds(repKm * pace);
+
+	const segments: WorkoutSegment[] = [];
+	for (let i = 0; i < reps; i++) {
+		// Linear decay from full R intensity (rep 0) down to exactly RECOVERY_INTENSITY at the
+		// final rep — the boundary condition AC-4.7 asks to be tested, and AC-4.6's "not exceeding
+		// recovery zone" floor: the decayed end never drops below genuine recovery effort.
+		const t = reps === 1 ? 0 : i / (reps - 1);
+		const intensity = ZONE_INTENSITY.R - t * (ZONE_INTENSITY.R - RECOVERY_INTENSITY);
+		segments.push({ type: 'work', durationMinutes: repMinutes, intensity });
+		if (i < reps - 1) {
+			segments.push({ type: 'recovery', durationMinutes: repMinutes, intensity: RECOVERY_INTENSITY });
+		}
+	}
+
+	const qualityTime = sumSegmentMinutes(segments);
+	segments.unshift(warmupSegment(computeWarmupMinutes('R', qualityTime)));
+	segments.push(cooldownSegment(computeCooldownMinutes('R', qualityTime)));
+
+	return {
+		label: 'Repetition decay',
+		description: `${reps} x ${R_DECAY_REP_DISTANCE_M}m, intensity decaying from R pace down to easy effort by the final rep`,
+		totalVolumeKm: round1(reps * repKm),
+		recovery: `${R_DECAY_REP_DISTANCE_M}m jog recovery, easing further each rep`,
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
+		segments,
+		pattern: 'decay'
+	};
+}
+
+/** Build the decay variant for I or R zone (AC-4.4). See each zone's own AC for its decay shape. */
+export function buildDecayWorkout(zone: 'I' | 'R', pace: number, volumeKm: number): Workout {
+	switch (zone) {
+		case 'I':
+			return buildIDecayWorkout(pace, volumeKm);
+		case 'R':
+			return buildRDecayWorkout(pace, volumeKm);
+	}
+}

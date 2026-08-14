@@ -6,7 +6,7 @@ import {
 	type ZoneKey,
 	type TrainingZone
 } from './training-paces';
-import { buildFartlekWorkout } from './workout-patterns';
+import { buildFartlekWorkout, buildProgressionWorkout, buildDecayWorkout } from './workout-patterns';
 
 export type WorkoutSegmentType = 'warmup' | 'work' | 'recovery' | 'cooldown';
 
@@ -751,14 +751,25 @@ function buildZoneWorkoutsUnrounded(
 		}
 		case 'T': {
 			const volumeKm = computeZoneVolumeKm('T', weeklyMileageKm, pace);
-			return [...buildTWorkouts(volumeKm, pace), buildFartlekWorkout('T', pace, volumeKm)];
+			return [
+				...buildTWorkouts(volumeKm, pace),
+				buildFartlekWorkout('T', pace, volumeKm),
+				buildProgressionWorkout('T', pace, volumeKm)
+			];
 		}
 		case 'I': {
 			const volumeKm = computeZoneVolumeKm('I', weeklyMileageKm, pace);
-			return [...buildIWorkouts(volumeKm, pace), buildFartlekWorkout('I', pace, volumeKm)];
+			return [
+				...buildIWorkouts(volumeKm, pace),
+				buildFartlekWorkout('I', pace, volumeKm),
+				buildProgressionWorkout('I', pace, volumeKm),
+				buildDecayWorkout('I', pace, volumeKm)
+			];
 		}
-		case 'R':
-			return buildRWorkouts(computeZoneVolumeKm('R', weeklyMileageKm, pace), pace);
+		case 'R': {
+			const volumeKm = computeZoneVolumeKm('R', weeklyMileageKm, pace);
+			return [...buildRWorkouts(volumeKm, pace), buildDecayWorkout('R', pace, volumeKm)];
+		}
 	}
 }
 
