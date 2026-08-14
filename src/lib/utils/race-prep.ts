@@ -1,11 +1,7 @@
 import { buildTrainingPaceResult, type TrainingZone, type ZoneKey } from './training-paces';
 import { buildZoneWorkouts, type Workout } from './workouts';
 import { buildRacePaceTempoWorkout, buildRacePaceRepsWorkout } from './workout-patterns';
-import {
-	calculatePowerZones,
-	type PowerMeterDevice,
-	type PowerZone
-} from './power-zones';
+import { calculatePowerZones, type PowerMeterDevice } from './power-zones';
 import { buildPowerZoneWorkouts, mapPowerZoneToTrainingZone, formatPowerRangeStr } from './power-workouts';
 import { calculateDanielsLthrZones, formatBpmRange } from './hr-zones';
 import { buildHrZoneWorkouts } from './hr-workouts';

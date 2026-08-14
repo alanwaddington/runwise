@@ -3,7 +3,8 @@ import type { ZoneKey } from './training-paces';
 import {
 	getSegmentPaceRangeSeconds,
 	getSegmentPowerRangeWatts,
-	getSegmentBpmRangeNumeric
+	getSegmentBpmRangeNumeric,
+	getOpenEndedBpmBound
 } from './segment-targets';
 import type { Encodable, Encoder, Mesg } from '@garmin/fitsdk';
 
@@ -81,10 +82,21 @@ function computeStepTarget(input: FitExportInput, segment: FitExportSegment): St
 	}
 
 	const range = getSegmentBpmRangeNumeric(zoneRangeForSegment, segment.intensity, segment.type);
-	if (range === null) {
-		throw new Error(`Unable to compute HR target for zone range "${zoneRangeForSegment}"`);
+	if (range !== null) {
+		return { targetType: 'heartRate', low: range.low, high: range.high };
 	}
-	return { targetType: 'heartRate', low: range.low, high: range.high };
+
+	// Daniels' E ("<N bpm") and R (">N bpm") zones have only one bound, so there's nothing to
+	// narrow toward — encode a one-sided target at that bound rather than fabricating a second
+	// number. This is the common case, not an edge case: every HR workout's warmup/cooldown
+	// segments use the Easy zone's (open-ended) band via easyRange, regardless of the workout's
+	// own zone.
+	const openBound = getOpenEndedBpmBound(zoneRangeForSegment);
+	if (openBound !== null) {
+		return { targetType: 'heartRate', low: openBound, high: openBound };
+	}
+
+	throw new Error(`Unable to compute HR target for zone range "${zoneRangeForSegment}"`);
 }
 
 // The FIT JS SDK Encoder does NOT resolve dynamic subfields (e.g. durationTime,

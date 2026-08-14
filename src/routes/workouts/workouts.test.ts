@@ -554,6 +554,35 @@ describe('Race-Prep modality (AC-1.6/AC-2.10)', () => {
 
 		expect(screen.getByRole('button', { name: /download as \.fit/i })).toBeInTheDocument();
 	});
+
+	it('actually downloads an HR-modality race-prep workout when the FIT button is clicked (regression: was throwing for the plan\'s E-zone build weeks)', async () => {
+		mockBuildFitWorkout.mockReset();
+		mockBuildFitWorkout.mockResolvedValueOnce({
+			bytes: new Uint8Array([1, 2, 3]),
+			filename: 'runwise-regular-easy-run-E-hr.fit'
+		});
+		window.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+		HTMLAnchorElement.prototype.click = vi.fn();
+		window.URL.revokeObjectURL = vi.fn();
+
+		await enterRacePrepEligibleForm();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-prep HR modality' }));
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+			target: { value: '172' }
+		});
+
+		// Week 1's first card is a Build-phase E-zone workout (race-prep.ts's phase composition) --
+		// the exact case that used to throw, since E is one of Daniels' two open-ended HR zones.
+		const card = document.querySelector('section button[type="button"]') as HTMLButtonElement;
+		await fireEvent.click(card);
+
+		const downloadBtn = screen.getByRole('button', { name: /download as \.fit/i });
+		await fireEvent.click(downloadBtn);
+
+		const toast = await screen.findByRole('status');
+		expect(toast).toHaveTextContent('Downloaded runwise-regular-easy-run-E-hr.fit');
+		expect(mockBuildFitWorkout).toHaveBeenCalledWith(expect.objectContaining({ kind: 'hr' }));
+	});
 });
 
 describe('Mixed-zone workouts', () => {

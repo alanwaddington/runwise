@@ -149,6 +149,24 @@ describe('buildFitWorkout', () => {
 		]
 	};
 
+	const HR_E_ZONE_WORKOUT: FitExportInput = {
+		label: 'Regular easy run',
+		zone: 'E',
+		kind: 'hr',
+		zoneRange: '<152 bpm', // Daniels' E zone has no lower bound (formatBpmRange's convention)
+		easyRange: '<152 bpm',
+		segments: [seg('warmup', 8, 0), seg('work', 30, 0.5), seg('cooldown', 5, 0)]
+	};
+
+	const HR_R_ZONE_WORKOUT: FitExportInput = {
+		label: '400m reps',
+		zone: 'R',
+		kind: 'hr',
+		zoneRange: '>190 bpm', // Daniels' R zone has no upper bound
+		easyRange: '<152 bpm',
+		segments: [seg('warmup', 10, 0), seg('work', 1, 1), seg('recovery', 2, 0), seg('work', 1, 1), seg('cooldown', 10, 0)]
+	};
+
 	const CONTINUOUS_WORKOUT: FitExportInput = {
 		label: 'Continuous tempo',
 		zone: 'T',
@@ -231,6 +249,39 @@ describe('buildFitWorkout', () => {
 		// Non-work segments use the full easy-zone band unnarrowed: 120-140 bpm -> 220-240.
 		expect(warmupStep!.customTargetHeartRateLow).toBe(220);
 		expect(warmupStep!.customTargetHeartRateHigh).toBe(240);
+	});
+
+	it('buildFitWorkout_HrEZoneWorkout_EncodesOneSidedTargetAtOpenEndedBound', async () => {
+		// E zone is open-ended ("<152 bpm") -- regression test for the FIT-export crash this
+		// used to throw on for every HR E-zone/R-zone workout (no second bound to narrow toward).
+		const { bytes, filename } = await buildFitWorkout(HR_E_ZONE_WORKOUT);
+		expect(filename).toBe('runwise-regular-easy-run-E-hr.fit');
+
+		const messages = await decodeWorkout(bytes);
+		const unrolled = unrollSteps(messages.workoutStepMesgs);
+		expect(unrolled.every((s) => s.targetType === 'heartRate')).toBe(true);
+
+		const workStep = unrolled.find((s) => s.intensity === 'active');
+		expect(workStep).toBeDefined();
+		// One-sided target: low === high === the zone's only known bound (152), + FIT's bpm offset.
+		expect(workStep!.customTargetHeartRateLow).toBe(252);
+		expect(workStep!.customTargetHeartRateHigh).toBe(252);
+
+		const warmupStep = unrolled.find((s) => s.intensity === 'warmup');
+		expect(warmupStep!.customTargetHeartRateLow).toBe(252);
+		expect(warmupStep!.customTargetHeartRateHigh).toBe(252);
+	});
+
+	it('buildFitWorkout_HrRZoneWorkout_EncodesOneSidedTargetAtOpenEndedBound', async () => {
+		// R zone is open-ended (">190 bpm") -- the other Daniels zone with only one bound.
+		const { bytes } = await buildFitWorkout(HR_R_ZONE_WORKOUT);
+		const messages = await decodeWorkout(bytes);
+		const unrolled = unrollSteps(messages.workoutStepMesgs);
+
+		const workStep = unrolled.find((s) => s.intensity === 'active');
+		expect(workStep).toBeDefined();
+		expect(workStep!.customTargetHeartRateLow).toBe(290); // 190 + 100 offset
+		expect(workStep!.customTargetHeartRateHigh).toBe(290);
 	});
 
 	it('buildFitWorkout_RepWorkout_EncodesRepeatedIntervalUsingNativeRepeatStep', async () => {

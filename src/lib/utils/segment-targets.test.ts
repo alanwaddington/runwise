@@ -5,7 +5,8 @@ import {
 	getSegmentPowerRange,
 	getSegmentPowerRangeWatts,
 	getSegmentBpmRange,
-	getSegmentBpmRangeNumeric
+	getSegmentBpmRangeNumeric,
+	getOpenEndedBpmBound
 } from './segment-targets';
 
 describe('getSegmentPaceRangeSeconds', () => {
@@ -117,6 +118,29 @@ describe('getSegmentBpmRangeNumeric', () => {
 		// "< 145 bpm" / "> 160 bpm" — only one boundary, nothing to narrow between.
 		expect(getSegmentBpmRangeNumeric('< 145 bpm', 1, 'work')).toBeNull();
 		expect(getSegmentBpmRangeNumeric('> 160 bpm', 1, 'work')).toBeNull();
+	});
+});
+
+describe('getOpenEndedBpmBound', () => {
+	it('getOpenEndedBpmBound_EasyZoneUpperBound_ReturnsBound', () => {
+		expect(getOpenEndedBpmBound('<152 bpm')).toBe(152);
+	});
+
+	it('getOpenEndedBpmBound_RepetitionZoneLowerBound_ReturnsBound', () => {
+		expect(getOpenEndedBpmBound('>190 bpm')).toBe(190);
+	});
+
+	it('getOpenEndedBpmBound_SpacedVariant_ReturnsBound', () => {
+		// formatBpmRange never emits a space, but this stays tolerant of it either way.
+		expect(getOpenEndedBpmBound('< 152 bpm')).toBe(152);
+	});
+
+	it('getOpenEndedBpmBound_ClosedRange_ReturnsNull', () => {
+		expect(getOpenEndedBpmBound('145–160 bpm')).toBeNull();
+	});
+
+	it('getOpenEndedBpmBound_MalformedInput_ReturnsNull', () => {
+		expect(getOpenEndedBpmBound('not-a-range')).toBeNull();
 	});
 });
 

@@ -129,6 +129,19 @@ export function getSegmentBpmRangeNumeric(
 	return { low: lowBpm, high: highBpm };
 }
 
+/**
+ * For HR zones with only one bound (Daniels' E "<N bpm" and R ">N bpm" — see formatBpmRange),
+ * returns that single bpm value. Used only by FIT export, which needs a concrete numeric target
+ * even for zones with no natural second boundary to narrow toward — unlike
+ * getSegmentBpmRangeNumeric (used for on-screen segment-target narrowing, which correctly returns
+ * null here since there's nothing to interpolate against), this doesn't attempt intensity-based
+ * narrowing. Returns null if zoneRange isn't a parseable open-ended bpm string.
+ */
+export function getOpenEndedBpmBound(zoneRange: string): number | null {
+	const match = zoneRange.match(/^[<>]\s*(\d+)\s*bpm$/);
+	return match ? parseInt(match[1], 10) : null;
+}
+
 /** Display-string form of getSegmentBpmRangeNumeric, matching the existing "N–N bpm" UI format. */
 export function getSegmentBpmRange(
 	zoneRange: string,

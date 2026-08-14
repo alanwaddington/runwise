@@ -1472,7 +1472,7 @@
 						role="tab"
 						aria-selected={selectedRacePrepWeek === week.weekNumber}
 						onclick={() => (selectedRacePrepWeek = week.weekNumber)}
-						class="flex flex-1 flex-col items-center gap-1.5 rounded-sm px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+						class="flex flex-1 flex-col items-center gap-1.5 rounded-sm px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						<span
 							class="flex h-8 w-8 items-center justify-center rounded-full border-2 font-mono text-xs font-bold transition-colors {selectedRacePrepWeek ===

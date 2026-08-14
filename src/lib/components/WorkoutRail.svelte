@@ -86,7 +86,7 @@
 			type="button"
 			aria-label="Scroll {label} left"
 			onclick={() => scrollByCard(-1)}
-			class="absolute top-1/2 left-0 z-10 hidden -translate-y-1/2 rounded-full border border-ink/10 bg-bg p-1.5 opacity-0 shadow-md transition-opacity group-hover/rail:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex"
+			class="absolute top-1/2 left-0 z-10 hidden -translate-y-1/2 rounded-full border border-ink/10 bg-bg p-1.5 opacity-0 shadow-md transition-opacity group-hover/rail:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none sm:flex"
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<path d="m15 18-6-6 6-6" />
@@ -117,7 +117,7 @@
 			type="button"
 			aria-label="Scroll {label} right"
 			onclick={() => scrollByCard(1)}
-			class="absolute top-1/2 right-0 z-10 hidden -translate-y-1/2 rounded-full border border-ink/10 bg-bg p-1.5 opacity-0 shadow-md transition-opacity group-hover/rail:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex"
+			class="absolute top-1/2 right-0 z-10 hidden -translate-y-1/2 rounded-full border border-ink/10 bg-bg p-1.5 opacity-0 shadow-md transition-opacity group-hover/rail:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none sm:flex"
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<path d="m9 18 6-6-6-6" />
