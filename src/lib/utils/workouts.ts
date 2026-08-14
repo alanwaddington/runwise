@@ -16,6 +16,16 @@ export interface WorkoutSegment {
 	intensity: number;
 }
 
+export type WorkoutPattern =
+	| 'standard'
+	| 'fartlek'
+	| 'progression'
+	| 'decay'
+	| 'time-based'
+	| 'mixed-zone'
+	| 'recovery'
+	| 'race-prep';
+
 export interface Workout {
 	/** e.g. "1000m reps", "Continuous tempo", "Long run" */
 	label: string;
@@ -29,6 +39,16 @@ export interface Workout {
 	estimatedDurationMinutes: number;
 	/** Chronological warm-up/work/recovery/cool-down timeline, for the profile chart. Durations sum to estimatedDurationMinutes. */
 	segments: WorkoutSegment[];
+	/** Absent on existing "standard" builders until Task 7 backfills it; defaults to 'standard' in the UI. */
+	pattern?: WorkoutPattern;
+	/**
+	 * Which training zone this workout was generated for. Absent for zone-grouped output (Pace/
+	 * Power/HR mode), where the enclosing WorkoutZone/PowerWorkoutZone/HrWorkoutZone already
+	 * carries this — only needed where workouts from different zones are mixed into one
+	 * ungrouped list (Race-Prep weeks), so the UI can still look up the right pace/power/HR band
+	 * per card.
+	 */
+	zone?: ZoneKey;
 }
 
 export interface WorkoutZone {
@@ -194,7 +214,7 @@ function cooldownSegment(minutes: number): WorkoutSegment {
 }
 
 /** Parse a zone's low/high formatted paces to the midpoint decimal min/km. */
-function midpointPaceMinKm(zone: TrainingZone): number {
+export function midpointPaceMinKm(zone: TrainingZone): number {
 	const low = parsePace(zone.paceMinKmLow)!;
 	const high = parsePace(zone.paceMinKmHigh)!;
 	return (low + high) / 2;

@@ -2,6 +2,7 @@ import type { WorkoutSegmentType } from './workouts';
 
 const PACE_TARGET_MARGIN_SECONDS = 4;
 const POWER_TARGET_MARGIN_WATTS = 6;
+const HR_TARGET_MARGIN_BPM = 3;
 
 export interface NumericRange {
 	low: number;
@@ -100,4 +101,57 @@ export function getSegmentPowerRange(
 	if (range === null) return zoneRange;
 
 	return `${range.low}–${range.high} W`;
+}
+
+/**
+ * Narrow an HR zone's "low–high bpm" band to a single segment's target, in bpm. Work segments
+ * are interpolated by the segment's relative intensity with a fixed +/-3bpm margin either side,
+ * clamped to the zone band. Non-work segments return the full band unnarrowed. Returns null if
+ * zoneRange isn't a parseable "low–high bpm" string (including open-ended zones like "< N bpm",
+ * which have no low bound to narrow from).
+ */
+export function getSegmentBpmRangeNumeric(
+	zoneRange: string,
+	intensity: number,
+	segmentType: WorkoutSegmentType
+): NumericRange | null {
+	const match = zoneRange.match(/(\d+)\s*[–-]\s*(\d+)\s*bpm/);
+	if (!match) return null;
+
+	const low = parseInt(match[1], 10);
+	const high = parseInt(match[2], 10);
+
+	if (segmentType !== 'work') return { low, high };
+
+	const targetBpm = low + (high - low) * intensity;
+	const lowBpm = Math.max(low, Math.round(targetBpm - HR_TARGET_MARGIN_BPM));
+	const highBpm = Math.min(high, Math.round(targetBpm + HR_TARGET_MARGIN_BPM));
+	return { low: lowBpm, high: highBpm };
+}
+
+/**
+ * For HR zones with only one bound (Daniels' E "<N bpm" and R ">N bpm" — see formatBpmRange),
+ * returns that single bpm value. Used only by FIT export, which needs a concrete numeric target
+ * even for zones with no natural second boundary to narrow toward — unlike
+ * getSegmentBpmRangeNumeric (used for on-screen segment-target narrowing, which correctly returns
+ * null here since there's nothing to interpolate against), this doesn't attempt intensity-based
+ * narrowing. Returns null if zoneRange isn't a parseable open-ended bpm string.
+ */
+export function getOpenEndedBpmBound(zoneRange: string): number | null {
+	const match = zoneRange.match(/^[<>]\s*(\d+)\s*bpm$/);
+	return match ? parseInt(match[1], 10) : null;
+}
+
+/** Display-string form of getSegmentBpmRangeNumeric, matching the existing "N–N bpm" UI format. */
+export function getSegmentBpmRange(
+	zoneRange: string,
+	intensity: number,
+	segmentType: WorkoutSegmentType
+): string {
+	if (!zoneRange || segmentType !== 'work') return zoneRange;
+
+	const range = getSegmentBpmRangeNumeric(zoneRange, intensity, segmentType);
+	if (range === null) return zoneRange;
+
+	return `${range.low}–${range.high} bpm`;
 }

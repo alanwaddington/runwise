@@ -1,7 +1,14 @@
 import type { WorkoutSegmentType } from './workouts';
 import type { ZoneKey } from './training-paces';
-import { getSegmentPaceRangeSeconds, getSegmentPowerRangeWatts } from './segment-targets';
+import {
+	getSegmentPaceRangeSeconds,
+	getSegmentPowerRangeWatts,
+	getSegmentBpmRangeNumeric,
+	getOpenEndedBpmBound
+} from './segment-targets';
 import type { Encodable, Encoder, Mesg } from '@garmin/fitsdk';
+
+export type FitExportKind = 'pace' | 'power' | 'hr';
 
 /** Lowercase, collapse non-alphanumeric runs to a single hyphen, trim leading/trailing hyphens. */
 function slugify(text: string): string {
@@ -11,8 +18,8 @@ function slugify(text: string): string {
 		.replace(/^-+|-+$/g, '');
 }
 
-/** Filename convention: runwise-<slugified label>-<zone>-<pace|power>.fit */
-export function buildFitFilename(label: string, zone: ZoneKey, kind: 'pace' | 'power'): string {
+/** Filename convention: runwise-<slugified label>-<zone>-<pace|power|hr>.fit */
+export function buildFitFilename(label: string, zone: ZoneKey, kind: FitExportKind): string {
 	return `runwise-${slugify(label)}-${zone}-${kind}.fit`;
 }
 
@@ -26,9 +33,9 @@ export interface FitExportInput {
 	/** Workout name, e.g. "1000m reps". */
 	label: string;
 	zone: ZoneKey;
-	kind: 'pace' | 'power';
+	kind: FitExportKind;
 	segments: FitExportSegment[];
-	/** The workout's own zone band, e.g. "3:30–4:00" (pace) or "250–280 W" (power). Applied to work segments. */
+	/** The workout's own zone band, e.g. "3:30–4:00" (pace), "250–280 W" (power), or "145–160 bpm" (hr). Applied to work segments. */
 	zoneRange: string;
 	/** The Easy-zone band, in the same format as zoneRange. Applied to warmup/recovery/cooldown segments. */
 	easyRange: string;
@@ -47,8 +54,8 @@ const SEGMENT_INTENSITY: Record<WorkoutSegmentType, string> = {
 };
 
 interface StepTarget {
-	targetType: 'speed' | 'power';
-	low: number; // m/s (speed) or watts (power)
+	targetType: 'speed' | 'power' | 'heartRate';
+	low: number; // m/s (speed), watts (power), or bpm (heartRate)
 	high: number;
 }
 
@@ -66,11 +73,30 @@ function computeStepTarget(input: FitExportInput, segment: FitExportSegment): St
 		return { targetType: 'speed', low: 1000 / range.high, high: 1000 / range.low };
 	}
 
-	const range = getSegmentPowerRangeWatts(zoneRangeForSegment, segment.intensity, segment.type);
-	if (range === null) {
-		throw new Error(`Unable to compute power target for zone range "${zoneRangeForSegment}"`);
+	if (input.kind === 'power') {
+		const range = getSegmentPowerRangeWatts(zoneRangeForSegment, segment.intensity, segment.type);
+		if (range === null) {
+			throw new Error(`Unable to compute power target for zone range "${zoneRangeForSegment}"`);
+		}
+		return { targetType: 'power', low: range.low, high: range.high };
 	}
-	return { targetType: 'power', low: range.low, high: range.high };
+
+	const range = getSegmentBpmRangeNumeric(zoneRangeForSegment, segment.intensity, segment.type);
+	if (range !== null) {
+		return { targetType: 'heartRate', low: range.low, high: range.high };
+	}
+
+	// Daniels' E ("<N bpm") and R (">N bpm") zones have only one bound, so there's nothing to
+	// narrow toward — encode a one-sided target at that bound rather than fabricating a second
+	// number. This is the common case, not an edge case: every HR workout's warmup/cooldown
+	// segments use the Easy zone's (open-ended) band via easyRange, regardless of the workout's
+	// own zone.
+	const openBound = getOpenEndedBpmBound(zoneRangeForSegment);
+	if (openBound !== null) {
+		return { targetType: 'heartRate', low: openBound, high: openBound };
+	}
+
+	throw new Error(`Unable to compute HR target for zone range "${zoneRangeForSegment}"`);
 }
 
 // The FIT JS SDK Encoder does NOT resolve dynamic subfields (e.g. durationTime,
@@ -81,6 +107,9 @@ function computeStepTarget(input: FitExportInput, segment: FitExportSegment): St
 // which is what fit-export.test.ts asserts against.
 const SPEED_SCALE = 1000; // customTargetValueLow/High raw units are mm/s when targetType = speed
 const DURATION_TIME_SCALE = 1000; // durationValue raw units are ms when durationType = time
+// FIT's workoutHr type: raw values 100-231 encode an actual bpm as (bpm + 100); 0-99 would mean
+// "% of max HR" instead, which this app never uses since Daniels LTHR zones are already bpm.
+const HR_BPM_OFFSET = 100;
 
 interface WorkoutStepMessage {
 	messageIndex: number;
@@ -93,20 +122,26 @@ interface WorkoutStepMessage {
 	intensity?: string;
 }
 
+/** Encodes a StepTarget's raw low/high value per targetType's FIT scale/offset convention. */
+function encodeTargetValue(target: StepTarget, rawValue: number): number {
+	if (target.targetType === 'speed') return Math.round(rawValue * SPEED_SCALE);
+	if (target.targetType === 'heartRate') return Math.round(rawValue) + HR_BPM_OFFSET;
+	return Math.round(rawValue); // power: raw watts, no scale/offset
+}
+
 function buildSimpleStep(
 	input: FitExportInput,
 	segment: FitExportSegment,
 	messageIndex: number
 ): WorkoutStepMessage {
 	const target = computeStepTarget(input, segment);
-	const scale = target.targetType === 'speed' ? SPEED_SCALE : 1;
 	return {
 		messageIndex,
 		durationType: 'time',
 		durationValue: Math.round(segment.durationMinutes * 60 * DURATION_TIME_SCALE),
 		targetType: target.targetType,
-		customTargetValueLow: Math.round(target.low * scale),
-		customTargetValueHigh: Math.round(target.high * scale),
+		customTargetValueLow: encodeTargetValue(target, target.low),
+		customTargetValueHigh: encodeTargetValue(target, target.high),
 		intensity: SEGMENT_INTENSITY[segment.type]
 	};
 }

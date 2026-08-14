@@ -11,7 +11,7 @@
 		/** Optional unit shown inline at the right edge of the input, e.g. "min/km" or "bpm". */
 		unit?: string;
 		/** Input type. Defaults to `'number'`. */
-		type?: 'number' | 'text';
+		type?: 'number' | 'text' | 'date';
 		/** Step increment for number inputs. */
 		step?: number;
 		placeholder?: string;

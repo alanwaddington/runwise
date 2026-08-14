@@ -181,3 +181,53 @@ export function estimateMaxHr(age: number): number | null {
 	if (age < MIN_AGE || age > MAX_AGE) return null;
 	return Math.round(208 - 0.7 * age);
 }
+
+// ─── Daniels E/M/T/I/R LTHR zones (for HR-based workout generation) ────────
+
+export interface HrTrainingZone {
+	zone: 'E' | 'M' | 'T' | 'I' | 'R';
+	name: string;
+	bpmLow: number | null;
+	bpmHigh: number | null;
+	confidence: 'high' | 'medium' | 'low';
+}
+
+/**
+ * %LTHR bands for Daniels' E/M/T/I/R zones. R is Repetition — Daniels' fastest
+ * zone (fast, short reps of 30-90s) — placed *above* I, not a generic "Recovery"
+ * zone below E. HR can't stabilise over reps that short, so R's confidence
+ * reflects a well-defined boundary (unambiguously "above I") while the zone
+ * itself stays pace-led rather than HR-led in practice.
+ */
+const DANIELS_LTHR_ZONE_META = [
+	{ zone: 'E', name: 'Easy / Recovery', lowPct: null, highPct: 0.6, confidence: 'high' },
+	{ zone: 'M', name: 'Marathon', lowPct: 0.6, highPct: 0.9, confidence: 'high' },
+	{ zone: 'T', name: 'Threshold / Tempo', lowPct: 0.9, highPct: 1.05, confidence: 'medium' },
+	{ zone: 'I', name: 'Interval', lowPct: 1.05, highPct: 1.2, confidence: 'low' },
+	{ zone: 'R', name: 'Repetition', lowPct: 1.2, highPct: null, confidence: 'high' }
+] as const;
+
+/**
+ * Calculate Daniels-aligned E/M/T/I/R HR training zones from LTHR, with a
+ * confidence tier per zone reflecting how reliably HR maps to that zone's
+ * intended effort. Returns null for physiologically implausible LTHR values.
+ */
+export function calculateDanielsLthrZones(lthr: number): HrTrainingZone[] | null {
+	if (lthr < MIN_LTHR || lthr > MAX_LTHR) return null;
+
+	return DANIELS_LTHR_ZONE_META.map(({ zone, name, lowPct, highPct, confidence }) => ({
+		zone,
+		name,
+		bpmLow: lowPct === null ? null : Math.round(lthr * lowPct),
+		bpmHigh: highPct === null ? null : Math.round(lthr * highPct),
+		confidence
+	}));
+}
+
+/** "145–160 bpm" (both bounds), "< 160 bpm" / "> 145 bpm" (one open-ended bound), or "N/A". */
+export function formatBpmRange(bpmLow: number | null, bpmHigh: number | null): string {
+	if (bpmLow !== null && bpmHigh !== null) return `${bpmLow}–${bpmHigh} bpm`;
+	if (bpmHigh !== null) return `<${bpmHigh} bpm`;
+	if (bpmLow !== null) return `>${bpmLow} bpm`;
+	return 'N/A';
+}

@@ -3,6 +3,7 @@ import {
 	calculateMaxHrZones,
 	calculateLthrZones,
 	calculateLthrSubZones,
+	calculateDanielsLthrZones,
 	estimateMaxHr
 } from './hr-zones';
 
@@ -256,5 +257,83 @@ describe('calculateLthrSubZones', () => {
 
 	it('calculateLthrSubZones_InvalidLthr_ReturnsNull', () => {
 		expect(calculateLthrSubZones(99)).toBeNull();
+	});
+});
+
+// ─── calculateDanielsLthrZones ──────────────────────────────────────────────
+
+describe('calculateDanielsLthrZones', () => {
+	it('calculateDanielsLthrZones_Returns5ZonesInEMTIROrder', () => {
+		const zones = calculateDanielsLthrZones(170)!;
+		expect(zones.map((z) => z.zone)).toEqual(['E', 'M', 'T', 'I', 'R']);
+	});
+
+	it('calculateDanielsLthrZones_ELowerBoundIsNull_UpperIs60PercentLthr', () => {
+		const zones = calculateDanielsLthrZones(170)!;
+		const e = zones[0];
+		expect(e.bpmLow).toBeNull();
+		expect(e.bpmHigh).toBe(Math.round(170 * 0.6));
+		expect(e.confidence).toBe('high');
+	});
+
+	it('calculateDanielsLthrZones_MIs60To90PercentLthr', () => {
+		const zones = calculateDanielsLthrZones(170)!;
+		const m = zones[1];
+		expect(m.bpmLow).toBe(Math.round(170 * 0.6));
+		expect(m.bpmHigh).toBe(Math.round(170 * 0.9));
+		expect(m.confidence).toBe('high');
+	});
+
+	it('calculateDanielsLthrZones_TIs90To105PercentLthr_MediumConfidence', () => {
+		const zones = calculateDanielsLthrZones(170)!;
+		const t = zones[2];
+		expect(t.bpmLow).toBe(Math.round(170 * 0.9));
+		expect(t.bpmHigh).toBe(Math.round(170 * 1.05));
+		expect(t.confidence).toBe('medium');
+	});
+
+	it('calculateDanielsLthrZones_IIs105To120PercentLthr_LowConfidence', () => {
+		const zones = calculateDanielsLthrZones(170)!;
+		const i = zones[3];
+		expect(i.bpmLow).toBe(Math.round(170 * 1.05));
+		expect(i.bpmHigh).toBe(Math.round(170 * 1.2));
+		expect(i.confidence).toBe('low');
+	});
+
+	it('calculateDanielsLthrZones_RIsAbove120PercentLthr_OpenEndedHigh', () => {
+		// R = Repetition (Daniels' fastest zone), not generic "Recovery" — reps are too
+		// short (30-90s) for HR to stabilise, so HR is informational only and pace leads.
+		const zones = calculateDanielsLthrZones(170)!;
+		const r = zones[4];
+		expect(r.bpmLow).toBe(Math.round(170 * 1.2));
+		expect(r.bpmHigh).toBeNull();
+		expect(r.confidence).toBe('high');
+	});
+
+	it('calculateDanielsLthrZones_EachZoneHasName', () => {
+		const zones = calculateDanielsLthrZones(170)!;
+		for (const z of zones) {
+			expect(z.name).toBeTruthy();
+		}
+	});
+
+	it('calculateDanielsLthrZones_BoundaryLthr100_ReturnsResult', () => {
+		expect(calculateDanielsLthrZones(100)).not.toBeNull();
+	});
+
+	it('calculateDanielsLthrZones_BoundaryLthr200_ReturnsResult', () => {
+		expect(calculateDanielsLthrZones(200)).not.toBeNull();
+	});
+
+	it('calculateDanielsLthrZones_LthrBelowMin_ReturnsNull', () => {
+		expect(calculateDanielsLthrZones(99)).toBeNull();
+	});
+
+	it('calculateDanielsLthrZones_LthrAboveMax_ReturnsNull', () => {
+		expect(calculateDanielsLthrZones(201)).toBeNull();
+	});
+
+	it('calculateDanielsLthrZones_ZeroLthr_ReturnsNull', () => {
+		expect(calculateDanielsLthrZones(0)).toBeNull();
 	});
 });
