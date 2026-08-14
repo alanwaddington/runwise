@@ -12,6 +12,7 @@ import {
 	buildDecayWorkout,
 	buildRepExpansionWorkouts
 } from './workout-patterns';
+import { buildRecoveryWorkouts } from './recovery-workouts';
 
 export type WorkoutSegmentType = 'warmup' | 'work' | 'recovery' | 'cooldown';
 
@@ -777,7 +778,11 @@ function buildZoneWorkoutsUnrounded(
 			return [
 				...buildRWorkouts(volumeKm, pace),
 				buildDecayWorkout('R', pace, volumeKm),
-				...buildRepExpansionWorkouts('R', pace, volumeKm)
+				...buildRepExpansionWorkouts('R', pace, volumeKm),
+				// Recovery prescriptions (Task 10) aren't derived from R's own volume/pace budget --
+				// gated in separately here rather than through the fartlek/progression/decay-style
+				// (zone, pace, volumeKm) builders above.
+				...buildRecoveryWorkouts()
 			];
 		}
 	}
