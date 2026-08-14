@@ -6,7 +6,12 @@ import {
 	type ZoneKey,
 	type TrainingZone
 } from './training-paces';
-import { buildFartlekWorkout, buildProgressionWorkout, buildDecayWorkout } from './workout-patterns';
+import {
+	buildFartlekWorkout,
+	buildProgressionWorkout,
+	buildDecayWorkout,
+	buildRepExpansionWorkouts
+} from './workout-patterns';
 
 export type WorkoutSegmentType = 'warmup' | 'work' | 'recovery' | 'cooldown';
 
@@ -530,7 +535,7 @@ function buildTWorkouts(volumeKm: number, tPace: number): Workout[] {
  * distinct keys, and low-mileage inputs previously caused both to fall back to the same smaller
  * distance, crashing the results section entirely.
  */
-function buildRepsWorkout(
+export function buildRepsWorkout(
 	zone: 'I' | 'R',
 	repDistanceM: number,
 	volumeKm: number,
@@ -763,12 +768,17 @@ function buildZoneWorkoutsUnrounded(
 				...buildIWorkouts(volumeKm, pace),
 				buildFartlekWorkout('I', pace, volumeKm),
 				buildProgressionWorkout('I', pace, volumeKm),
-				buildDecayWorkout('I', pace, volumeKm)
+				buildDecayWorkout('I', pace, volumeKm),
+				...buildRepExpansionWorkouts('I', pace, volumeKm)
 			];
 		}
 		case 'R': {
 			const volumeKm = computeZoneVolumeKm('R', weeklyMileageKm, pace);
-			return [...buildRWorkouts(volumeKm, pace), buildDecayWorkout('R', pace, volumeKm)];
+			return [
+				...buildRWorkouts(volumeKm, pace),
+				buildDecayWorkout('R', pace, volumeKm),
+				...buildRepExpansionWorkouts('R', pace, volumeKm)
+			];
 		}
 	}
 }

@@ -3,6 +3,7 @@ import {
 	computeCooldownMinutes,
 	roundToNearest5Seconds,
 	sumSegmentMinutes,
+	buildRepsWorkout,
 	type Workout,
 	type WorkoutSegment
 } from './workouts';
@@ -451,4 +452,127 @@ export function buildDecayWorkout(zone: 'I' | 'R', pace: number, volumeKm: numbe
 		case 'R':
 			return buildRDecayWorkout(pace, volumeKm);
 	}
+}
+
+// ─── Rep Distance Expansion (Task 9, AC-5.1-5.8) ───────────────────────────
+// I's shipped distances are 400/800/1200m and R's are 200/400/800m (workouts.ts) -- AC-5.1's own
+// "in addition to existing 400m, 600m, 800m" text doesn't match what's actually shipped for I
+// (there's no 600m variant), flagged here rather than followed literally; the two new distances
+// (1500m/2000m) are added on top of I's real existing set either way, so the AC's underlying
+// intent (extend I with longer options) is met regardless of the mismatch in its own example.
+// Distance variants reuse buildRepsWorkout (workouts.ts) directly -- the exact same math as the
+// existing 400/800/1200m and 200/400/800m cards, so there's no risk of AC-5.8's "non-redundant"
+// concern arising from two independent implementations drifting apart.
+
+function formatRecoveryMinutes(minutes: number): string {
+	return `${Math.round(minutes)} min`;
+}
+
+const I_RECOVERY_FRACTION = () => 0.75; // matches buildIWorkouts' own convention exactly
+const I_RECOVERY_DESCRIPTION = (_repDistanceM: number, recoveryMinutes: number) =>
+	`jog ${formatRecoveryMinutes(recoveryMinutes)} recovery`;
+
+const R_RECOVERY_FRACTION = () => 1; // matches buildRWorkouts' own convention exactly (equal-distance jog)
+const R_RECOVERY_DESCRIPTION = (repDistanceM: number) => `${repDistanceM}m jog recovery`;
+
+const I_TIME_BASED_DURATIONS_MINUTES = [3, 5, 7]; // AC-5.4's own example set, run within one session
+const I_TIME_BASED_RECOVERY_MINUTES = 1;
+
+/** AC-5.4's time-based I-zone variant: one session showcasing all three duration options. */
+function buildITimeBasedWorkout(pace: number): Workout {
+	const segments: WorkoutSegment[] = [];
+	I_TIME_BASED_DURATIONS_MINUTES.forEach((minutes, i) => {
+		segments.push({
+			type: 'work',
+			durationMinutes: roundToNearest5Seconds(minutes),
+			intensity: ZONE_INTENSITY.I
+		});
+		if (i < I_TIME_BASED_DURATIONS_MINUTES.length - 1) {
+			segments.push({
+				type: 'recovery',
+				durationMinutes: I_TIME_BASED_RECOVERY_MINUTES,
+				intensity: RECOVERY_INTENSITY
+			});
+		}
+	});
+
+	const qualityTime = sumSegmentMinutes(segments);
+	segments.unshift(warmupSegment(computeWarmupMinutes('I', qualityTime)));
+	segments.push(cooldownSegment(computeCooldownMinutes('I', qualityTime)));
+
+	const durationsLabel = I_TIME_BASED_DURATIONS_MINUTES.join('/');
+	return {
+		label: 'Time-based intervals',
+		description: `${durationsLabel} min efforts at I effort, ${I_TIME_BASED_RECOVERY_MINUTES} min recovery between — run by time, no track needed`,
+		totalVolumeKm: round1(I_TIME_BASED_DURATIONS_MINUTES.reduce((a, b) => a + b, 0) / pace),
+		recovery: `${I_TIME_BASED_RECOVERY_MINUTES} min jog between efforts`,
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
+		segments,
+		pattern: 'time-based'
+	};
+}
+
+const R_TIME_BASED_CYCLE_MINUTES = [1, 2]; // AC-5.5's own example set
+const R_TIME_BASED_CYCLE_COUNT = 2; // repeated twice so this reads as a real session, not 2 reps
+const R_TIME_BASED_RECOVERY_MINUTES = 0.5; // AC-5.5's "30 sec off"
+
+/** AC-5.5's time-based R-zone variant: the 1min/2min cycle repeated twice. */
+function buildRTimeBasedWorkout(pace: number): Workout {
+	const segments: WorkoutSegment[] = [];
+	const totalReps = R_TIME_BASED_CYCLE_MINUTES.length * R_TIME_BASED_CYCLE_COUNT;
+	let repIndex = 0;
+	for (let cycle = 0; cycle < R_TIME_BASED_CYCLE_COUNT; cycle++) {
+		for (const minutes of R_TIME_BASED_CYCLE_MINUTES) {
+			segments.push({
+				type: 'work',
+				durationMinutes: roundToNearest5Seconds(minutes),
+				intensity: ZONE_INTENSITY.R
+			});
+			repIndex += 1;
+			if (repIndex < totalReps) {
+				segments.push({
+					type: 'recovery',
+					durationMinutes: R_TIME_BASED_RECOVERY_MINUTES,
+					intensity: RECOVERY_INTENSITY
+				});
+			}
+		}
+	}
+
+	const qualityTime = sumSegmentMinutes(segments);
+	segments.unshift(warmupSegment(computeWarmupMinutes('R', qualityTime)));
+	segments.push(cooldownSegment(computeCooldownMinutes('R', qualityTime)));
+
+	const cycleLabel = R_TIME_BASED_CYCLE_MINUTES.join('/');
+	return {
+		label: 'Time-based reps',
+		description: `${R_TIME_BASED_CYCLE_COUNT} x (${cycleLabel} min at R effort), ${R_TIME_BASED_RECOVERY_MINUTES * 60}sec recovery between — run by time, no track needed`,
+		totalVolumeKm: round1(
+			(R_TIME_BASED_CYCLE_MINUTES.reduce((a, b) => a + b, 0) * R_TIME_BASED_CYCLE_COUNT) / pace
+		),
+		recovery: `${R_TIME_BASED_RECOVERY_MINUTES * 60}sec jog between efforts`,
+		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
+		segments,
+		pattern: 'time-based'
+	};
+}
+
+/**
+ * Build the Rep Distance Expansion variants for I or R zone (AC-5.1/5.2): two new longer/shorter
+ * distance options plus one time-based session (AC-5.3/5.4/5.5) — 3 new workouts per zone, 6
+ * total, landing in AC-5.6's "5-6 new options" range.
+ */
+export function buildRepExpansionWorkouts(zone: 'I' | 'R', pace: number, volumeKm: number): Workout[] {
+	if (zone === 'I') {
+		return [
+			buildRepsWorkout('I', 1500, volumeKm, pace, I_RECOVERY_FRACTION, I_RECOVERY_DESCRIPTION),
+			buildRepsWorkout('I', 2000, volumeKm, pace, I_RECOVERY_FRACTION, I_RECOVERY_DESCRIPTION),
+			buildITimeBasedWorkout(pace)
+		];
+	}
+	return [
+		buildRepsWorkout('R', 150, volumeKm, pace, R_RECOVERY_FRACTION, R_RECOVERY_DESCRIPTION),
+		buildRepsWorkout('R', 300, volumeKm, pace, R_RECOVERY_FRACTION, R_RECOVERY_DESCRIPTION),
+		buildRTimeBasedWorkout(pace)
+	];
 }

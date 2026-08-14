@@ -4,7 +4,8 @@ import {
 	buildRacePaceRepsWorkout,
 	buildFartlekWorkout,
 	buildProgressionWorkout,
-	buildDecayWorkout
+	buildDecayWorkout,
+	buildRepExpansionWorkouts
 } from './workout-patterns';
 import { roundToNearest5Seconds } from './workouts';
 
@@ -436,6 +437,170 @@ describe('buildDecayWorkout', () => {
 				expect(segment.intensity).toBeGreaterThan(0);
 				expect(segment.intensity).toBeLessThanOrEqual(1);
 			}
+		}
+	});
+});
+
+describe('buildRepExpansionWorkouts', () => {
+	const I_PACE = 3.5;
+	const R_PACE = 3.0;
+	const VOLUME_KM = 6;
+
+	describe('I zone (AC-5.1: adds 1500m/2000m; AC-5.4: 3/5/7min time-based)', () => {
+		it('should return exactly 3 workouts', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			expect(workouts).toHaveLength(3);
+		});
+
+		it('should include a 1500m and a 2000m distance-based rep workout', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			expect(workouts.map((w) => w.label)).toContain('1500m reps');
+			expect(workouts.map((w) => w.label)).toContain('2000m reps');
+		});
+
+		it('distance-based variants should be tagged pattern standard, matching existing distance reps', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			const distanceVariants = workouts.filter((w) => w.label.endsWith('m reps'));
+			expect(distanceVariants).toHaveLength(2);
+			for (const w of distanceVariants) expect(w.pattern).toBe('standard');
+		});
+
+		it('the time-based variant should be tagged pattern time-based (AC-5.3)', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based intervals')!;
+			expect(timeBased).toBeDefined();
+			expect(timeBased.pattern).toBe('time-based');
+		});
+
+		it('the time-based variant should include 3, 5, and 7 minute work segments (AC-5.4)', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based intervals')!;
+			const workDurations = timeBased.segments.filter((s) => s.type === 'work').map((s) => s.durationMinutes);
+			expect(workDurations).toEqual([3, 5, 7]);
+		});
+
+		it('the time-based variant"s recovery should be a fixed 1 minute (AC-5.4)', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based intervals')!;
+			const recoverySegments = timeBased.segments.filter((s) => s.type === 'recovery');
+			expect(recoverySegments.length).toBeGreaterThan(0);
+			for (const seg of recoverySegments) expect(seg.durationMinutes).toBe(1);
+		});
+
+		it('the time-based variant"s instructions should explain it needs no track (AC-5.7)', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based intervals')!;
+			expect(timeBased.description.toLowerCase()).toMatch(/no track needed/);
+		});
+
+		it('the 1500m/2000m distances should not duplicate the existing 400/800/1200m variants (AC-5.8)', () => {
+			const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+			const labels = workouts.map((w) => w.label);
+			expect(labels).not.toContain('400m reps');
+			expect(labels).not.toContain('800m reps');
+			expect(labels).not.toContain('1200m reps');
+		});
+	});
+
+	describe('R zone (AC-5.2: adds 150m/300m; AC-5.5: 1/2min time-based)', () => {
+		it('should return exactly 3 workouts', () => {
+			const workouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+			expect(workouts).toHaveLength(3);
+		});
+
+		it('should include a 150m and a 300m distance-based rep workout', () => {
+			const workouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+			expect(workouts.map((w) => w.label)).toContain('150m reps');
+			expect(workouts.map((w) => w.label)).toContain('300m reps');
+		});
+
+		it('the time-based variant should be tagged pattern time-based (AC-5.3)', () => {
+			const workouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based reps')!;
+			expect(timeBased).toBeDefined();
+			expect(timeBased.pattern).toBe('time-based');
+		});
+
+		it('the time-based variant should include 1 and 2 minute work segments (AC-5.5)', () => {
+			const workouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based reps')!;
+			const workDurations = timeBased.segments.filter((s) => s.type === 'work').map((s) => s.durationMinutes);
+			expect(workDurations).toEqual([1, 2, 1, 2]);
+		});
+
+		it('the time-based variant"s recovery should be a fixed 30 seconds (AC-5.5)', () => {
+			const workouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based reps')!;
+			const recoverySegments = timeBased.segments.filter((s) => s.type === 'recovery');
+			expect(recoverySegments.length).toBeGreaterThan(0);
+			for (const seg of recoverySegments) expect(seg.durationMinutes).toBe(0.5);
+		});
+
+		it('the time-based variant"s instructions should explain it needs no track (AC-5.7)', () => {
+			const workouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+			const timeBased = workouts.find((w) => w.label === 'Time-based reps')!;
+			expect(timeBased.description.toLowerCase()).toMatch(/no track needed/);
+		});
+
+		it('the 150m/300m distances should not duplicate the existing 200/400/800m variants (AC-5.8)', () => {
+			const workouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+			const labels = workouts.map((w) => w.label);
+			expect(labels).not.toContain('200m reps');
+			expect(labels).not.toContain('400m reps');
+			expect(labels).not.toContain('800m reps');
+		});
+	});
+
+	it('AC-5.6: exactly 6 new options total across both zones', () => {
+		const iWorkouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+		const rWorkouts = buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM);
+		expect(iWorkouts.length + rWorkouts.length).toBe(6);
+	});
+
+	it('time-based and distance-based options are structurally distinct, not redundant (AC-5.8)', () => {
+		const workouts = buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM);
+		const distanceVariant = workouts.find((w) => w.label === '1500m reps')!;
+		const timeVariant = workouts.find((w) => w.label === 'Time-based intervals')!;
+		// Distance reps all share one duration (uniform rep length); the time-based session
+		// deliberately varies duration per rep -- a structural difference, not just a label change.
+		const distanceDurations = new Set(
+			distanceVariant.segments.filter((s) => s.type === 'work').map((s) => s.durationMinutes)
+		);
+		const timeDurations = new Set(timeVariant.segments.filter((s) => s.type === 'work').map((s) => s.durationMinutes));
+		expect(distanceDurations.size).toBe(1);
+		expect(timeDurations.size).toBeGreaterThan(1);
+	});
+
+	it('every segment duration is rounded to the nearest 5 seconds, across all new workouts', () => {
+		for (const workout of [
+			...buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM),
+			...buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM)
+		]) {
+			for (const segment of workout.segments) {
+				expect(segment.durationMinutes).toBeCloseTo(roundToNearest5Seconds(segment.durationMinutes), 6);
+			}
+		}
+	});
+
+	it('every segment intensity is within (0, 1], across all new workouts', () => {
+		for (const workout of [
+			...buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM),
+			...buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM)
+		]) {
+			for (const segment of workout.segments) {
+				expect(segment.intensity).toBeGreaterThan(0);
+				expect(segment.intensity).toBeLessThanOrEqual(1);
+			}
+		}
+	});
+
+	it('estimatedDurationMinutes should equal the sum of segments, across all new workouts', () => {
+		for (const workout of [
+			...buildRepExpansionWorkouts('I', I_PACE, VOLUME_KM),
+			...buildRepExpansionWorkouts('R', R_PACE, VOLUME_KM)
+		]) {
+			const segSum = workout.segments.reduce((s, seg) => s + seg.durationMinutes, 0);
+			expect(Math.abs(workout.estimatedDurationMinutes - segSum)).toBeLessThanOrEqual(0.6);
 		}
 	});
 });

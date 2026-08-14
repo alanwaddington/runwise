@@ -142,7 +142,7 @@ describe('buildZoneWorkouts', () => {
 
 	it('buildZoneWorkouts_EveryZone_ReturnsMultipleWorkouts', () => {
 		// E returns 3; M, T, R return 4; I returns 5 (Task 7 appended a fartlek variant to M/T/I).
-		const expectedLengths = { E: 3, M: 4, T: 5, I: 7, R: 5 } as const;
+		const expectedLengths = { E: 3, M: 4, T: 5, I: 10, R: 8 } as const;
 		for (const zone of ['E', 'M', 'T', 'I', 'R'] as const) {
 			const workouts = buildZoneWorkouts(zone, VDOT_40_ZONES, 80);
 			expect(workouts).toHaveLength(expectedLengths[zone]);
@@ -161,8 +161,9 @@ describe('buildZoneWorkouts', () => {
 
 	it('buildZoneWorkouts_IZone_IncludesMultipleDifferentFormats', () => {
 		const workouts = buildZoneWorkouts('I', VDOT_40_ZONES, 80);
-		expect(workouts).toHaveLength(7);
-		// 400m/800m/1200m reps, a pyramid, (Task 7) a fartlek, (Task 8) progression and decay
+		expect(workouts).toHaveLength(10);
+		// 400m/800m/1200m reps, a pyramid, (Task 7) a fartlek, (Task 8) progression and decay,
+		// (Task 9) 1500m/2000m reps and a time-based session
 		expect(workouts[0].label).toBe('400m reps');
 		expect(workouts[1].label).toBe('800m reps');
 		expect(workouts[2].label).toBe('1200m reps');
@@ -170,17 +171,23 @@ describe('buildZoneWorkouts', () => {
 		expect(workouts[4].label).toBe('Interval fartlek');
 		expect(workouts[5].label).toBe('Interval progression');
 		expect(workouts[6].label).toBe('Hard-to-easy decay');
+		expect(workouts[7].label).toBe('1500m reps');
+		expect(workouts[8].label).toBe('2000m reps');
+		expect(workouts[9].label).toBe('Time-based intervals');
 	});
 
 	it('buildZoneWorkouts_RZone_IncludesMultipleDifferentFormats', () => {
 		const workouts = buildZoneWorkouts('R', VDOT_40_ZONES, 80);
-		expect(workouts).toHaveLength(5);
-		// 200m/400m/800m reps, descending reps, and (Task 8) decay
+		expect(workouts).toHaveLength(8);
+		// 200m/400m/800m reps, descending reps, (Task 8) decay, (Task 9) 150m/300m reps + time-based
 		expect(workouts[0].label).toBe('200m reps');
 		expect(workouts[1].label).toBe('400m reps');
 		expect(workouts[2].label).toBe('800m reps');
 		expect(workouts[3].label).toBe('Descending reps');
 		expect(workouts[4].label).toBe('Repetition decay');
+		expect(workouts[5].label).toBe('150m reps');
+		expect(workouts[6].label).toBe('300m reps');
+		expect(workouts[7].label).toBe('Time-based reps');
 	});
 
 	it('buildZoneWorkouts_IZone_NeverFewerThan3Reps', () => {
@@ -450,7 +457,7 @@ describe('buildWorkoutsResult', () => {
 		const result = buildWorkoutsResult(5, 1500, 80) as { zones: { zone: string; workouts: unknown[] }[] };
 		expect(result.zones).toHaveLength(5);
 		// E returns 3; M, T, R return 4; I returns 5 (Task 7 appended a fartlek variant to M/T/I).
-		const expectedLengths: Record<string, number> = { E: 3, M: 4, T: 5, I: 7, R: 5 };
+		const expectedLengths: Record<string, number> = { E: 3, M: 4, T: 5, I: 10, R: 8 };
 		for (const zone of result.zones) {
 			expect(zone.workouts).toHaveLength(expectedLengths[zone.zone]);
 		}
