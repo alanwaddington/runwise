@@ -68,17 +68,18 @@ describe('Workouts page', () => {
 		expect(screen.getByText(/must be between 1 and 300/i)).toBeInTheDocument();
 	});
 
-	it('renders 5 zones with 3-4 workout cards each by default, plus 3 mixed-zone cards', async () => {
+	it('renders 5 zones with 3-11 workout cards each by default, plus 3 mixed-zone cards', async () => {
 		await fillValidForm();
 		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
 			expect(screen.getByLabelText(`Zone ${zoneLabel}`)).toBeInTheDocument();
 		}
-		// 17 zone workout cards (E:3, M:3, T:3, I:4, R:4) + 3 mixed-zone cards (E+M, M+T, T+I),
-		// identified by "Estimated duration" text
-		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(20);
+		// 33 zone workout cards (E:3, M:4, T:5, I:10, R:11 -- Phase 2's fartlek/progression/decay/
+		// rep-expansion/recovery additions) + 3 mixed-zone cards (E+M, M+T, T+I), identified by
+		// "Estimated duration" text
+		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(36);
 	});
 
-	it('renders all 17 workout cards without error at low weekly mileage (regression)', async () => {
+	it('renders all workout cards without error at low weekly mileage (regression)', async () => {
 		// Regression: 5K/30:22 + 10km/week previously crashed the whole results section with a
 		// Svelte each_key_duplicate runtime error — the computed I/R-zone volume was too small
 		// for 3 reps at either standard distance, and both workout variants fell back to the
@@ -93,7 +94,7 @@ describe('Workouts page', () => {
 		for (const zoneLabel of ['E', 'M', 'T', 'I', 'R']) {
 			expect(screen.getByLabelText(`Zone ${zoneLabel}`)).toBeInTheDocument();
 		}
-		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(20);
+		expect(screen.getAllByText(/estimated duration/i)).toHaveLength(36);
 	});
 
 	it('renders the time-band filter select', async () => {
@@ -160,12 +161,12 @@ describe('Workouts page', () => {
 	it('shows a per-workout warm-up/cool-down value, not one shared fixed figure', async () => {
 		await fillValidForm();
 		const warmupLines = screen.getAllByText(/includes a \d+ min warm-up and \d+ min cool-down/i);
-		expect(warmupLines).toHaveLength(20);
+		expect(warmupLines).toHaveLength(36);
 		const warmupMinutes = warmupLines.map((el) => {
 			const match = el.textContent!.match(/includes a (\d+) min warm-up/i);
 			return match![1];
 		});
-		// At least two different values across the 17 cards proves this is genuinely per-workout,
+		// At least two different values across the cards proves this is genuinely per-workout,
 		// not a single shared figure repeated on every card.
 		expect(new Set(warmupMinutes).size).toBeGreaterThan(1);
 	});
@@ -597,5 +598,75 @@ describe('Mixed-zone workouts', () => {
 	it('does not show the Mixed-Zone Sessions section in the empty state', () => {
 		render(Workouts);
 		expect(screen.queryByText(/mixed-zone sessions/i)).toBeNull();
+	});
+});
+
+describe('Recovery Options subsection (Task 11, Open Question #4)', () => {
+	it('shows a "Recovery Options" heading, separate from the main Repetition rail', async () => {
+		await fillValidForm();
+		expect(screen.getByRole('heading', { name: 'Recovery Options' })).toBeInTheDocument();
+	});
+
+	it('shows all 3 recovery workout cards: Easy float, Recovery striders, Shakeout run', async () => {
+		await fillValidForm();
+		expect(screen.getByText('Easy float')).toBeInTheDocument();
+		expect(screen.getByText('Recovery striders')).toBeInTheDocument();
+		expect(screen.getByText('Shakeout run')).toBeInTheDocument();
+	});
+
+	it('each recovery card carries a Recovery pattern badge', async () => {
+		await fillValidForm();
+		expect(screen.getAllByText('Recovery').length).toBeGreaterThanOrEqual(3);
+	});
+
+	it('recovery cards do not show a distance/km stat (AC not distance-prescribed)', async () => {
+		await fillValidForm();
+		// "Easy float"'s own card content shouldn't include a "0 km" stat -- the volume stat is
+		// omitted entirely for pattern: 'recovery' cards rather than showing a misleading "0 km".
+		const floatCard = screen.getByText('Easy float').closest('div');
+		expect(floatCard?.textContent).not.toMatch(/0\s*km/);
+	});
+
+	it('does not show the Recovery Options heading in the empty state', () => {
+		render(Workouts);
+		expect(screen.queryByRole('heading', { name: 'Recovery Options' })).toBeNull();
+	});
+
+	it('the structured Repetition rail (200/400/800m reps etc.) is unaffected -- recovery cards live in their own rail', async () => {
+		await fillValidForm();
+		expect(screen.getByRole('region', { name: 'Repetition workouts' })).toBeInTheDocument();
+		expect(screen.getByRole('region', { name: 'Recovery options' })).toBeInTheDocument();
+	});
+});
+
+describe('Pattern badges for Phase 2 workout types (AC-3.7)', () => {
+	it('shows a Fartlek badge somewhere on the page once results are valid', async () => {
+		await fillValidForm();
+		expect(screen.getAllByText('Fartlek').length).toBeGreaterThan(0);
+	});
+
+	it('shows a Progression badge somewhere on the page', async () => {
+		await fillValidForm();
+		expect(screen.getAllByText('Progression').length).toBeGreaterThan(0);
+	});
+
+	it('shows a Decay badge somewhere on the page', async () => {
+		await fillValidForm();
+		expect(screen.getAllByText('Decay').length).toBeGreaterThan(0);
+	});
+
+	it('shows a Time-based badge somewhere on the page', async () => {
+		await fillValidForm();
+		expect(screen.getAllByText('Time-based').length).toBeGreaterThan(0);
+	});
+
+	it('does not show a pattern badge for standard workouts (e.g. Regular easy run)', async () => {
+		await fillValidForm();
+		const card = screen.getByText('Regular easy run').closest('div');
+		// PatternBadge renders nothing at all for pattern: 'standard' -- no stray badge text nearby.
+		// "Recovery" is deliberately excluded from this check: it's also the generic per-card stat
+		// label for recovery guidance (e.g. "None (continuous)"), present on every card regardless
+		// of pattern -- not a reliable signal of the Recovery *badge* specifically.
+		expect(card?.textContent).not.toMatch(/Fartlek|Progression|Decay|Time-based/);
 	});
 });

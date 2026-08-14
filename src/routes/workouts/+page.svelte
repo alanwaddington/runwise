@@ -995,6 +995,8 @@
 
 			<!-- Per-zone workout cards (Pace mode) -->
 			{#each zonesWithFilteredWorkouts as zone (zone.zone)}
+				{@const structured = zone.filtered.filter((w) => w.pattern !== 'recovery')}
+				{@const recoveryOptions = zone.filtered.filter((w) => w.pattern === 'recovery')}
 				<section class="mb-8 last:mb-0">
 					<div class="mb-3 flex items-center gap-2">
 						<span
@@ -1014,34 +1016,77 @@
 							No workout in this zone fits {timeBand}. Try a longer window.
 						</p>
 					{:else}
-						<WorkoutRail label="{zone.name} workouts">
-							{#each zone.filtered as workout (workout.label + workout.description)}
-								{@render workoutCard(
-									workout,
-									workout.pattern === 'mixed-zone' ? workout.label.split(':')[0] : undefined,
-									[
-										{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
-										{ text: `${workout.totalVolumeKm} km`, srLabel: 'Total volume' },
-										{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
-									],
-									`Includes a ${formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and ${formatMinutesShort(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
-									zone.name,
-									() => {
-										const easyZone = result.zones.find((z) => z.name.includes('Easy'));
-										selectedWorkout = {
-											...workout,
-											zoneName: zone.name,
-											zone: zone.zone,
-											pattern: workout.pattern,
-											paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`,
-											easyPaceRange: easyZone
-												? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
-												: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`
-										};
-									}
-								)}
-							{/each}
-						</WorkoutRail>
+						{#if structured.length > 0}
+							<WorkoutRail label="{zone.name} workouts">
+								{#each structured as workout (workout.label + workout.description)}
+									{@render workoutCard(
+										workout,
+										workout.pattern === 'mixed-zone' ? workout.label.split(':')[0] : undefined,
+										[
+											{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
+											{ text: `${workout.totalVolumeKm} km`, srLabel: 'Total volume' },
+											{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
+										],
+										`Includes a ${formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and ${formatMinutesShort(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
+										zone.name,
+										() => {
+											const easyZone = result.zones.find((z) => z.name.includes('Easy'));
+											selectedWorkout = {
+												...workout,
+												zoneName: zone.name,
+												zone: zone.zone,
+												pattern: workout.pattern,
+												paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`,
+												easyPaceRange: easyZone
+													? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
+													: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`
+											};
+										}
+									)}
+								{/each}
+							</WorkoutRail>
+						{/if}
+
+						{#if recoveryOptions.length > 0}
+							<!-- Recovery is conceptually distinct from structured R-zone reps (fixed, flexible
+								 duration rather than volume-derived) -- its own heading + rail, same pattern
+								 already used for Mixed-Zone Sessions below, rather than blending into the R rail
+								 above with only a badge to tell them apart. -->
+							<div class="mt-6 mb-3">
+								<h4 class="text-sm font-medium text-ink">Recovery Options</h4>
+								<p class="mt-0.5 text-xs text-muted">
+									Flexible, unstructured sessions for active recovery days — not scaled to your
+									weekly mileage like the workouts above.
+								</p>
+							</div>
+							<WorkoutRail label="Recovery options">
+								{#each recoveryOptions as workout (workout.label + workout.description)}
+									{@render workoutCard(
+										workout,
+										undefined,
+										[
+											{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
+											{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
+										],
+										`Includes a ${formatMinutesShort(workout.segments[0].durationMinutes)} warm-up and ${formatMinutesShort(workout.segments[workout.segments.length - 1].durationMinutes)} cool-down.`,
+										zone.name,
+										() => {
+											const easyZone = result.zones.find((z) => z.name.includes('Easy'));
+											selectedWorkout = {
+												...workout,
+												zoneName: zone.name,
+												zone: zone.zone,
+												pattern: workout.pattern,
+												paceRange: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`,
+												easyPaceRange: easyZone
+													? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
+													: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`
+											};
+										}
+									)}
+								{/each}
+							</WorkoutRail>
+						{/if}
 					{/if}
 				</section>
 			{/each}
