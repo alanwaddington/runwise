@@ -117,6 +117,9 @@
 	// tabindex="-1" makes that valid); modalTriggerEl is restored on close so keyboard focus lands
 	// back where the user was, not silently at <body>.
 	let modalDialogEl = $state<HTMLDivElement | null>(null);
+	// Plain variable, not $state: modalTriggerEl is only ever read imperatively inside
+	// closeModal()'s event-handler flow, never in a template or $derived/$effect that needs
+	// Svelte to react to it changing -- so reactivity here would just be unused tracking overhead.
 	let modalTriggerEl: HTMLElement | null = null;
 
 	$effect(() => {
