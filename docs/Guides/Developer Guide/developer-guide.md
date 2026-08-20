@@ -126,11 +126,13 @@ src/
 │   │   ├── power-workouts.test.ts
 │   │   ├── hr-workouts.ts           # HR-mode equivalent of workouts.ts — duration-based (no distance), buildHrWorkoutsResult, falls back to a default pace when no race result is available
 │   │   ├── hr-workouts.test.ts
-│   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones (race-pace tempo/reps today; fartlek/progression/decay/time-based land in Phase 2)
+│   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones: race-pace tempo/reps (race-prep); buildFartlekWorkout (M/T/I); buildProgressionWorkout (T/I); buildDecayWorkout (I/R); buildRepExpansionWorkouts (I/R, distance + time-based). All wired into buildZoneWorkouts (workouts.ts), Pace mode only.
 │   │   ├── workout-patterns.test.ts
+│   │   ├── recovery-workouts.ts     # buildRecoveryWorkouts(): Easy float, Recovery striders, Shakeout run — fixed flexible durations, not derived from weekly mileage/pace like everything else; wired into R zone's buildZoneWorkouts output but gated in separately, not through the (zone, pace, volumeKm) pattern-builder signature above. buildShakeoutWorkout() is separately exported so race-prep.ts can pull in just that one variant.
+│   │   ├── recovery-workouts.test.ts
 │   │   ├── mixed-zone-workouts.ts   # Two-zone-blend workouts (E+M/M+T/T+I), buildMixedZoneWorkouts
 │   │   ├── mixed-zone-workouts.test.ts
-│   │   ├── race-prep.ts             # 4-8 week race-prep plan (scales with weeksUntilRace) — curates/relabels buildZoneWorkouts output rather than a separate workout library; buildRacePrepResult, isRacePrepEligible; supports Pace, Power, and HR modality via a "Train by" sub-selector independent of the page's top-level mode
+│   │   ├── race-prep.ts             # 4-8 week race-prep plan (scales with weeksUntilRace) — curates/relabels buildZoneWorkouts output rather than a separate workout library; buildRacePrepResult, isRacePrepEligible; supports Pace, Power, and HR modality via a "Train by" sub-selector independent of the page's top-level mode. Taper week's final workout is always a Shakeout run (buildShakeoutWorkout, recovery-workouts.ts), tagged zone: 'E' in every modality so it resolves to the Easy pace/power/HR band rather than a harder zone's.
 │   │   ├── race-prep.test.ts
 │   │   ├── segment-targets.ts       # Per-segment pace/power/bpm target-range math, shared by the /workouts UI and fit-export.ts; getOpenEndedBpmBound() handles Daniels' open-ended E/R HR zones ("<N bpm"/">N bpm"), which have no second bound to narrow toward
 │   │   ├── segment-targets.test.ts
@@ -328,11 +330,14 @@ E2E tests live in the `e2e/` directory. They run against the production preview 
 ## Code Quality
 
 ```bash
-npm run check        # TypeScript / svelte-check
-npm run lint         # ESLint
-npm run format       # Prettier (auto-fix)
-npm run test:e2e     # Playwright E2E tests (requires built app)
+npm run check              # TypeScript / svelte-check
+npm run lint                # ESLint
+npm run format               # Prettier (auto-fix)
+npm run test:e2e            # Playwright E2E tests (requires built app)
+npm run check:bundle-size   # /workouts client bundle gzip budget (builds if needed)
 ```
+
+`check:bundle-size` (`scripts/check-workouts-bundle-size.js`) walks Vite's own client build manifest from the `/workouts` route entry through its transitive static imports, gzips the result, and fails if it exceeds a 100 KB budget — a regression guard added so a future accidentally-static heavy dependency import (e.g. `@garmin/fitsdk`, normally dynamically imported only on FIT download) doesn't silently balloon the route's initial page weight unnoticed.
 
 ---
 

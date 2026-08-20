@@ -125,6 +125,54 @@ describe('buildRacePrepResult', () => {
 		expect(taperVolume).toBeLessThan(buildVolume);
 	});
 
+	describe('Taper week shakeout run (AC-7.6)', () => {
+		it.each([
+			['pace', PACE, 'km$'],
+			['power', POWER, 'W$'],
+			['hr', HR, 'bpm$']
+		])('appends a Shakeout run as the Taper week\'s final workout, in %s modality', (_label, modalityInput, bandSuffixPattern) => {
+			const result = buildRacePrepResult(5, 1200, raceDate, today, 60, modalityInput);
+			if (result === null || result === 'out-of-range') throw new Error('unexpected sentinel');
+			const taperWeek = result.weeks[result.weeks.length - 1];
+			expect(taperWeek.phase).toBe('Taper');
+			const lastWorkout = taperWeek.workouts[taperWeek.workouts.length - 1];
+			expect(lastWorkout.label).toBe('Shakeout run');
+			expect(lastWorkout.pattern).toBe('race-prep');
+			// Zone-tagged 'E' (not left undefined, not the modality's harder zones) so it resolves
+			// to the Easy pace/power/HR band, not a faster zone's -- same reasoning as the R-zone
+			// Recovery Options fix elsewhere in the workouts module.
+			expect(lastWorkout.zone).toBe('E');
+			const band = result.zoneBands.find((b) => b.zone === 'E');
+			expect(band).toBeDefined();
+			expect(band!.rangeLabel).toMatch(new RegExp(bandSuffixPattern));
+		});
+
+		it('keeps the shakeout distinct from Taper\'s existing reduced-volume E/T/M trio', () => {
+			const result = buildRacePrepResult(5, 1200, raceDate, today, 60, PACE);
+			if (result === null || result === 'out-of-range') throw new Error('unexpected sentinel');
+			const taperWeek = result.weeks[result.weeks.length - 1];
+			expect(taperWeek.workouts).toHaveLength(4);
+			expect(taperWeek.workouts.slice(0, 3).map((w) => w.label)).not.toContain('Shakeout run');
+		});
+
+		it('the shakeout has zero totalVolumeKm (not distance-prescribed) but a nonzero duration', () => {
+			const result = buildRacePrepResult(5, 1200, raceDate, today, 60, PACE);
+			if (result === null || result === 'out-of-range') throw new Error('unexpected sentinel');
+			const taperWeek = result.weeks[result.weeks.length - 1];
+			const shakeout = taperWeek.workouts[taperWeek.workouts.length - 1];
+			expect(shakeout.totalVolumeKm).toBe(0);
+			expect(shakeout.estimatedDurationMinutes).toBeGreaterThan(0);
+		});
+
+		it('does not affect Build/Strength/Peak week workout counts', () => {
+			const result = buildRacePrepResult(5, 1200, raceDate, today, 60, PACE);
+			if (result === null || result === 'out-of-range') throw new Error('unexpected sentinel');
+			expect(result.weeks[0].workouts).toHaveLength(4); // Build (unaffected)
+			expect(result.weeks[1].workouts).toHaveLength(3); // Strength (unaffected)
+			expect(result.weeks[2].workouts).toHaveLength(3); // Peak VO2 Max (unaffected)
+		});
+	});
+
 	describe('plan length scales with weeksUntilRace', () => {
 		it.each([
 			['2026-03-01', 4, ['Build Aerobic Base', 'Strength', 'Peak VO2 Max', 'Taper']],

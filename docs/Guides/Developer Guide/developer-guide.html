@@ -157,11 +157,13 @@ npm run dev
 │   │   ├── power-workouts.test.ts
 │   │   ├── hr-workouts.ts           # HR-mode equivalent of workouts.ts — duration-based (no distance), buildHrWorkoutsResult, falls back to a default pace when no race result is available
 │   │   ├── hr-workouts.test.ts
-│   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones (race-pace tempo/reps today; fartlek/progression/decay/time-based land in Phase 2)
+│   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones: race-pace tempo/reps (race-prep); buildFartlekWorkout (M/T/I); buildProgressionWorkout (T/I); buildDecayWorkout (I/R); buildRepExpansionWorkouts (I/R, distance + time-based). All wired into buildZoneWorkouts (workouts.ts), Pace mode only.
 │   │   ├── workout-patterns.test.ts
+│   │   ├── recovery-workouts.ts     # buildRecoveryWorkouts(): Easy float, Recovery striders, Shakeout run — fixed flexible durations, not derived from weekly mileage/pace like everything else; wired into R zone&#39;s buildZoneWorkouts output but gated in separately, not through the (zone, pace, volumeKm) pattern-builder signature above. buildShakeoutWorkout() is separately exported so race-prep.ts can pull in just that one variant.
+│   │   ├── recovery-workouts.test.ts
 │   │   ├── mixed-zone-workouts.ts   # Two-zone-blend workouts (E+M/M+T/T+I), buildMixedZoneWorkouts
 │   │   ├── mixed-zone-workouts.test.ts
-│   │   ├── race-prep.ts             # 4-8 week race-prep plan (scales with weeksUntilRace) — curates/relabels buildZoneWorkouts output rather than a separate workout library; buildRacePrepResult, isRacePrepEligible; supports Pace, Power, and HR modality via a &quot;Train by&quot; sub-selector independent of the page&#39;s top-level mode
+│   │   ├── race-prep.ts             # 4-8 week race-prep plan (scales with weeksUntilRace) — curates/relabels buildZoneWorkouts output rather than a separate workout library; buildRacePrepResult, isRacePrepEligible; supports Pace, Power, and HR modality via a &quot;Train by&quot; sub-selector independent of the page&#39;s top-level mode. Taper week&#39;s final workout is always a Shakeout run (buildShakeoutWorkout, recovery-workouts.ts), tagged zone: &#39;E&#39; in every modality so it resolves to the Easy pace/power/HR band rather than a harder zone&#39;s.
 │   │   ├── race-prep.test.ts
 │   │   ├── segment-targets.ts       # Per-segment pace/power/bpm target-range math, shared by the /workouts UI and fit-export.ts; getOpenEndedBpmBound() handles Daniels&#39; open-ended E/R HR zones (&quot;&lt;N bpm&quot;/&quot;&gt;N bpm&quot;), which have no second bound to narrow toward
 │   │   ├── segment-targets.test.ts
@@ -477,11 +479,13 @@ npm run test:e2e                 # Run E2E tests against the production build
 <p>E2E tests live in the <code>e2e/</code> directory. They run against the production preview server (<code>npm run build &amp;&amp; npm run preview</code> on port 4173). Configuration is in <code>playwright.config.ts</code>.</p>
 <hr>
 <h2>Code Quality</h2>
-<pre><code class="language-bash">npm run check        # TypeScript / svelte-check
-npm run lint         # ESLint
-npm run format       # Prettier (auto-fix)
-npm run test:e2e     # Playwright E2E tests (requires built app)
+<pre><code class="language-bash">npm run check              # TypeScript / svelte-check
+npm run lint                # ESLint
+npm run format               # Prettier (auto-fix)
+npm run test:e2e            # Playwright E2E tests (requires built app)
+npm run check:bundle-size   # /workouts client bundle gzip budget (builds if needed)
 </code></pre>
+<p><code>check:bundle-size</code> (<code>scripts/check-workouts-bundle-size.js</code>) walks Vite&#39;s own client build manifest from the <code>/workouts</code> route entry through its transitive static imports, gzips the result, and fails if it exceeds a 100 KB budget — a regression guard added so a future accidentally-static heavy dependency import (e.g. <code>@garmin/fitsdk</code>, normally dynamically imported only on FIT download) doesn&#39;t silently balloon the route&#39;s initial page weight unnoticed.</p>
 <hr>
 <h2>Workflow</h2>
 <p>This project follows an issue-driven workflow:</p>
