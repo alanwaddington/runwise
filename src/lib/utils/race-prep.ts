@@ -5,6 +5,7 @@ import { calculatePowerZones, type PowerMeterDevice } from './power-zones';
 import { buildPowerZoneWorkouts, mapPowerZoneToTrainingZone, formatPowerRangeStr } from './power-workouts';
 import { calculateDanielsLthrZones, formatBpmRange } from './hr-zones';
 import { buildHrZoneWorkouts } from './hr-workouts';
+import { buildShakeoutWorkout } from './recovery-workouts';
 
 export type RacePrepPhase = 'Build Aerobic Base' | 'Strength' | 'Peak VO2 Max' | 'Taper';
 export type RacePrepModality = 'pace' | 'power' | 'hr';
@@ -83,6 +84,27 @@ function tagRacePrep(zone: ZoneKey | undefined) {
 	return (workout: Workout): Workout => ({ ...workout, pattern: 'race-prep', zone });
 }
 
+/** Taper week's own E/T/M reduced-volume trio, shared by all three modalities. */
+function buildStandardTaperWorkouts(
+	build: (zone: ZoneKey, mileageKm: number) => Workout[],
+	weeklyMileageKm: number
+): Workout[] {
+	const taperMileageKm = weeklyMileageKm * TAPER_MILEAGE_SHARE;
+	return [build('E', taperMileageKm)[0], build('T', taperMileageKm)[0], build('M', taperMileageKm)[0]];
+}
+
+/**
+ * AC-7.6: Taper week's final workout — a Shakeout run, standing in for the day-before-race
+ * loosen-up run every modality already tapers toward. Tagged zone: 'E' (not left undefined, and
+ * not the modality's Repetition/fastest-zone band) so the UI's zoneBands lookup resolves it to
+ * the Easy pace/power/HR range, same reasoning as the R-zone Recovery Options fix elsewhere in
+ * this codebase: a recovery-effort workout must never inherit a harder zone's band just because
+ * of where it happens to sit in the plan.
+ */
+function buildTaperShakeout(): Workout {
+	return tagRacePrep('E')(buildShakeoutWorkout());
+}
+
 interface ModalityZoneBuild {
 	zoneBands: RacePrepZoneBand[];
 	/** Per-training-zone workout lists, each already tagged with pattern + zone. */
@@ -117,14 +139,10 @@ function buildPaceModality(
 			T: build('T', weeklyMileageKm),
 			I: build('I', weeklyMileageKm)
 		},
-		buildTaperWeekWorkouts: () => {
-			const taperMileageKm = weeklyMileageKm * TAPER_MILEAGE_SHARE;
-			return [
-				build('E', taperMileageKm)[0],
-				build('T', taperMileageKm)[0],
-				build('M', taperMileageKm)[0]
-			];
-		},
+		buildTaperWeekWorkouts: () => [
+			...buildStandardTaperWorkouts(build, weeklyMileageKm),
+			buildTaperShakeout()
+		],
 		racePaceTempo: tagRacePrep(undefined)(buildRacePaceTempoWorkout(goalPaceMinKm, weeklyMileageKm)),
 		racePaceReps: tagRacePrep(undefined)(buildRacePaceRepsWorkout(goalPaceMinKm, weeklyMileageKm))
 	};
@@ -156,14 +174,10 @@ function buildPowerModality(
 			T: build('T', weeklyMileageKm),
 			I: build('I', weeklyMileageKm)
 		},
-		buildTaperWeekWorkouts: () => {
-			const taperMileageKm = weeklyMileageKm * TAPER_MILEAGE_SHARE;
-			return [
-				build('E', taperMileageKm)[0],
-				build('T', taperMileageKm)[0],
-				build('M', taperMileageKm)[0]
-			];
-		},
+		buildTaperWeekWorkouts: () => [
+			...buildStandardTaperWorkouts(build, weeklyMileageKm),
+			buildTaperShakeout()
+		],
 		racePaceTempo: null,
 		racePaceReps: null
 	};
@@ -206,14 +220,10 @@ function buildHrModality(
 			T: build('T', weeklyMileageKm),
 			I: build('I', weeklyMileageKm)
 		},
-		buildTaperWeekWorkouts: () => {
-			const taperMileageKm = weeklyMileageKm * TAPER_MILEAGE_SHARE;
-			return [
-				build('E', taperMileageKm)[0],
-				build('T', taperMileageKm)[0],
-				build('M', taperMileageKm)[0]
-			];
-		},
+		buildTaperWeekWorkouts: () => [
+			...buildStandardTaperWorkouts(build, weeklyMileageKm),
+			buildTaperShakeout()
+		],
 		racePaceTempo: null,
 		racePaceReps: null
 	};

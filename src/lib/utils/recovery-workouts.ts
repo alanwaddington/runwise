@@ -94,8 +94,12 @@ const SHAKEOUT_MIN_MINUTES = 10;
 const SHAKEOUT_MAX_MINUTES = 20;
 const SHAKEOUT_DEFAULT_MINUTES = 15; // midpoint of AC-7.3's 10-20min band
 
-/** AC-7.3: short, easy, minimal structure. */
-function buildShakeoutWorkout(): Workout {
+/**
+ * AC-7.3: short, easy, minimal structure. Exported separately (not just via
+ * buildRecoveryWorkouts) so Race-Prep's Taper phase can offer it standalone as the plan's final,
+ * day-before-race workout (AC-7.6) without pulling in Easy float / Recovery striders too.
+ */
+export function buildShakeoutWorkout(): Workout {
 	const segments: WorkoutSegment[] = [
 		warmupSegment(computeWarmupMinutes('E', SHAKEOUT_DEFAULT_MINUTES)),
 		{ type: 'work', durationMinutes: SHAKEOUT_DEFAULT_MINUTES, intensity: FLOAT_INTENSITY },
