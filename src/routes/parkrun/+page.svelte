@@ -201,10 +201,11 @@
 			aria-selected={mode === 'recent-run'}
 			onclick={() => selectMode('recent-run')}
 			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'recent-run'}
+			class:bg-accent-dark={mode === 'recent-run'}
 			class:text-white={mode === 'recent-run'}
 			class:font-semibold={mode === 'recent-run'}
-			class:text-muted={mode !== 'recent-run'}
+			class:text-subtle={mode !== 'recent-run'}
+			class:dark:text-muted={mode !== 'recent-run'}
 			class:hover:text-hover={mode !== 'recent-run'}
 		>
 			Recent Run
@@ -214,10 +215,11 @@
 			aria-selected={mode === 'average-pace'}
 			onclick={() => selectMode('average-pace')}
 			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'average-pace'}
+			class:bg-accent-dark={mode === 'average-pace'}
 			class:text-white={mode === 'average-pace'}
 			class:font-semibold={mode === 'average-pace'}
-			class:text-muted={mode !== 'average-pace'}
+			class:text-subtle={mode !== 'average-pace'}
+			class:dark:text-muted={mode !== 'average-pace'}
 			class:hover:text-hover={mode !== 'average-pace'}
 		>
 			Average Pace
@@ -227,10 +229,11 @@
 			aria-selected={mode === 'target-time'}
 			onclick={() => selectMode('target-time')}
 			class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'target-time'}
+			class:bg-accent-dark={mode === 'target-time'}
 			class:text-white={mode === 'target-time'}
 			class:font-semibold={mode === 'target-time'}
-			class:text-muted={mode !== 'target-time'}
+			class:text-subtle={mode !== 'target-time'}
+			class:dark:text-muted={mode !== 'target-time'}
 			class:hover:text-hover={mode !== 'target-time'}
 		>
 			Target Time
@@ -467,7 +470,7 @@
 				<a
 					href="/training-paces"
 					aria-label="Training Pace Calculator, see full training paces"
-					class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>Training Pace Calculator</a
 				>
 			</p>
@@ -549,15 +552,15 @@
 
 		<!-- Footer cross-links -->
 		<p class="mt-6 text-center text-xs text-muted">
-			<a href="/race-predictor" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/race-predictor" class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Race Time Predictor</a
 			>
 			&nbsp;·&nbsp;
-			<a href="/training-paces" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/training-paces" class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Training Pace Calculator</a
 			>
 			&nbsp;·&nbsp;
-			<a href="/vo2max" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">VO2 Max Estimator</a
+			<a href="/vo2max" class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">VO2 Max Estimator</a
 			>
 		</p>
 

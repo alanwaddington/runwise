@@ -655,10 +655,11 @@
 			aria-selected={mode === 'pace'}
 			onclick={() => switchMode('pace')}
 			class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'pace'}
+			class:bg-accent-dark={mode === 'pace'}
 			class:text-white={mode === 'pace'}
 			class:font-semibold={mode === 'pace'}
-			class:text-muted={mode !== 'pace'}
+			class:text-subtle={mode !== 'pace'}
+			class:dark:text-muted={mode !== 'pace'}
 			class:hover:text-hover={mode !== 'pace'}
 		>
 			Pace
@@ -669,10 +670,11 @@
 			aria-selected={mode === 'power'}
 			onclick={() => switchMode('power')}
 			class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'power'}
+			class:bg-accent-dark={mode === 'power'}
 			class:text-white={mode === 'power'}
 			class:font-semibold={mode === 'power'}
-			class:text-muted={mode !== 'power'}
+			class:text-subtle={mode !== 'power'}
+			class:dark:text-muted={mode !== 'power'}
 			class:hover:text-hover={mode !== 'power'}
 		>
 			Power
@@ -683,10 +685,11 @@
 			aria-selected={mode === 'hr'}
 			onclick={() => switchMode('hr')}
 			class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'hr'}
+			class:bg-accent-dark={mode === 'hr'}
 			class:text-white={mode === 'hr'}
 			class:font-semibold={mode === 'hr'}
-			class:text-muted={mode !== 'hr'}
+			class:text-subtle={mode !== 'hr'}
+			class:dark:text-muted={mode !== 'hr'}
 			class:hover:text-hover={mode !== 'hr'}
 		>
 			HR
@@ -698,10 +701,11 @@
 				aria-selected={mode === 'race-prep'}
 				onclick={() => switchMode('race-prep')}
 				class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-				class:bg-accent={mode === 'race-prep'}
+				class:bg-accent-dark={mode === 'race-prep'}
 				class:text-white={mode === 'race-prep'}
 				class:font-semibold={mode === 'race-prep'}
-				class:text-muted={mode !== 'race-prep'}
+				class:text-subtle={mode !== 'race-prep'}
+				class:dark:text-muted={mode !== 'race-prep'}
 				class:hover:text-hover={mode !== 'race-prep'}
 			>
 				Race-Prep
@@ -801,10 +805,11 @@
 						aria-selected={racePrepModality === 'pace'}
 						onclick={() => (racePrepModality = 'pace')}
 						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-						class:bg-accent={racePrepModality === 'pace'}
+						class:bg-accent-dark={racePrepModality === 'pace'}
 						class:text-white={racePrepModality === 'pace'}
 						class:font-semibold={racePrepModality === 'pace'}
-						class:text-muted={racePrepModality !== 'pace'}
+						class:text-subtle={racePrepModality !== 'pace'}
+						class:dark:text-muted={racePrepModality !== 'pace'}
 						class:hover:text-hover={racePrepModality !== 'pace'}
 					>
 						Pace
@@ -816,10 +821,11 @@
 						aria-selected={racePrepModality === 'power'}
 						onclick={() => (racePrepModality = 'power')}
 						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-						class:bg-accent={racePrepModality === 'power'}
+						class:bg-accent-dark={racePrepModality === 'power'}
 						class:text-white={racePrepModality === 'power'}
 						class:font-semibold={racePrepModality === 'power'}
-						class:text-muted={racePrepModality !== 'power'}
+						class:text-subtle={racePrepModality !== 'power'}
+						class:dark:text-muted={racePrepModality !== 'power'}
 						class:hover:text-hover={racePrepModality !== 'power'}
 					>
 						Power
@@ -831,10 +837,11 @@
 						aria-selected={racePrepModality === 'hr'}
 						onclick={() => (racePrepModality = 'hr')}
 						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-						class:bg-accent={racePrepModality === 'hr'}
+						class:bg-accent-dark={racePrepModality === 'hr'}
 						class:text-white={racePrepModality === 'hr'}
 						class:font-semibold={racePrepModality === 'hr'}
-						class:text-muted={racePrepModality !== 'hr'}
+						class:text-subtle={racePrepModality !== 'hr'}
+						class:dark:text-muted={racePrepModality !== 'hr'}
 						class:hover:text-hover={racePrepModality !== 'hr'}
 					>
 						HR
@@ -1148,7 +1155,7 @@
 					Want to see your full training pace ranges?
 					<a
 						href="/training-paces?{raceResultQuery}"
-						class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 						>View training paces →</a
 					>
 				</p>
@@ -1268,7 +1275,7 @@
 				Want to explore your power zones in more detail?
 				<a
 					href="/power-zones?device={selectedDevice}&power={powerResult.power}"
-					class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>View power zones →</a
 				>
 			</p>
@@ -1666,21 +1673,21 @@
 				<div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-ink/5 p-4">
 					{#if selectedWorkout.totalVolumeKm > 0}
 						<div>
-							<p class="text-xs font-medium uppercase tracking-wide text-muted">Total Volume</p>
+							<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Total Volume</p>
 							<p class="text-lg font-bold text-ink">{selectedWorkout.totalVolumeKm} km</p>
 						</div>
 					{/if}
 					<div>
-						<p class="text-xs font-medium uppercase tracking-wide text-muted">Estimated Duration</p>
+						<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Estimated Duration</p>
 						<p class="text-lg font-bold text-ink">{formatDurationMinutes(selectedWorkout.estimatedDurationMinutes)}</p>
 					</div>
 					<div>
-						<p class="text-xs font-medium uppercase tracking-wide text-muted">Recovery</p>
+						<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Recovery</p>
 						<p class="text-lg font-bold text-ink">{selectedWorkout.recovery}</p>
 					</div>
 					{#if selectedWorkout.powerRange}
 						<div>
-							<p class="text-xs font-medium uppercase tracking-wide text-muted">Power Range</p>
+							<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Power Range</p>
 							<p class="text-lg font-bold text-accent">{selectedWorkout.powerRange}</p>
 						</div>
 					{/if}
@@ -1719,7 +1726,7 @@
 										<span class="text-ink font-medium capitalize">
 											{segment.type}
 										</span>
-										<span class="text-xs text-muted/70">
+										<span class="text-xs text-subtle dark:text-muted">
 											{segmentRange}
 										</span>
 									</div>

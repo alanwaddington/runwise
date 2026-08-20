@@ -278,7 +278,7 @@
 		<!-- Footer links -->
 		<p class="mt-6 text-center text-xs text-muted">
 			Want to know your aerobic capacity?
-			<a href="/vo2max" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/vo2max" class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Estimate your VO2 max →</a
 			>
 		</p>
@@ -287,7 +287,7 @@
 				Ready to turn these paces into sessions?
 				<a
 					href="/workouts?{raceResultQuery}"
-					class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>See workout suggestions →</a
 				>
 			</p>

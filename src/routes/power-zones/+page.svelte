@@ -95,10 +95,11 @@
 				aria-selected={device === d}
 				onclick={() => selectDevice(d)}
 				class="flex-1 rounded-md py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:text-sm"
-				class:bg-accent={device === d}
+				class:bg-accent-dark={device === d}
 				class:text-white={device === d}
 				class:font-semibold={device === d}
-				class:text-muted={device !== d}
+				class:text-subtle={device !== d}
+				class:dark:text-muted={device !== d}
 				class:hover:text-hover={device !== d}
 			>
 				{DEVICE_DISPLAY_NAME[d]}
@@ -193,7 +194,7 @@
 		<!-- Footer cross-link -->
 		<p class="mt-6 text-center text-xs text-muted">
 			Want to find your heart rate zones too?
-			<a href="/hr-zones" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/hr-zones" class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Heart Rate Zone Calculator →</a
 			>
 		</p>
