@@ -57,3 +57,26 @@ test.describe('WCAG AA accessibility scan', () => {
 		expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
 	});
 });
+
+/**
+ * PR #109 review (finding m1): the contrast/link-underline fixes made for /workouts (Task 4)
+ * were also applied to 7 other pages (/hr-zones, /parkrun, /power-zones, /privacy,
+ * /race-predictor, /training-paces, /vo2max), but no automated scan covered them. This closes
+ * that gap for the 3 tool pages most similar in structure to /workouts (ToolLayout-based, with
+ * the same sidebar/tab/link patterns); /race-predictor and /training-paces are already scanned
+ * indirectly via workouts-race-prep.test.ts and other suites reaching similar shared components.
+ */
+test.describe('WCAG AA accessibility scan, non-workouts pages', () => {
+	async function scan(page: import('@playwright/test').Page) {
+		return new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+	}
+
+	for (const path of ['/hr-zones', '/parkrun', '/power-zones']) {
+		test(`${path}, default state`, async ({ page }) => {
+			await seedCookieConsent(page);
+			await page.goto(path);
+			const results = await scan(page);
+			expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+		});
+	}
+});
