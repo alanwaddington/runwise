@@ -143,7 +143,14 @@
 			if (focusable.length === 0) return;
 			const first = focusable[0];
 			const last = focusable[focusable.length - 1];
-			if (e.shiftKey && document.activeElement === first) {
+			// Immediately after open, activeElement is modalDialogEl itself (it's what gets
+			// .focus()'d, per ARIA APG), not `first` -- a Shift+Tab thrown before any forward Tab
+			// must still be treated as "at the start" and wrap to `last`, or it falls through to
+			// the browser's native, un-trapped Shift+Tab and escapes the dialog entirely (verified
+			// live during PR #109's /verify pass: this was the exact defect this trap was meant to
+			// fix, reproducing via the single most natural "go back" keystroke right after open).
+			const atStart = document.activeElement === first || document.activeElement === modalDialogEl;
+			if (e.shiftKey && atStart) {
 				e.preventDefault();
 				last.focus();
 			} else if (!e.shiftKey && document.activeElement === last) {

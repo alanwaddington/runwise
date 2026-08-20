@@ -63,6 +63,23 @@ test.describe('Workout detail modal keyboard behavior', () => {
 		expect(leftDialog).toBe(false);
 	});
 
+	test('Shift+Tab as the very first keystroke after open stays trapped in the modal (regression)', async ({
+		page
+	}) => {
+		// The single most natural "go back" keystroke a keyboard user reaches for right after a
+		// dialog opens. Found via PR #109's /verify pass: activeElement is the dialog wrapper
+		// itself immediately after open (correct, per ARIA APG), not the first focusable
+		// descendant -- a Shift+Tab-trap check that only compares against `first` misses this and
+		// falls through to the browser's native, un-trapped Shift+Tab.
+		await openFirstCardModal(page);
+		await page.keyboard.press('Shift+Tab');
+		const inDialog = await page.evaluate(() => {
+			const dialog = document.querySelector('[role="dialog"]');
+			return dialog ? dialog.contains(document.activeElement) : false;
+		});
+		expect(inDialog).toBe(true);
+	});
+
 	test('the close (X) button and bottom Close button both close the modal', async ({ page }) => {
 		await openFirstCardModal(page);
 		await page.getByRole('button', { name: 'Close modal' }).click();
