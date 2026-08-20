@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { page } from '$app/state';
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
@@ -108,6 +109,49 @@
 		easyPowerRange?: string;
 		easyHrRange?: string;
 	} | null>(null);
+
+	// Modal focus management (manual audit finding, #100 Phase 3 Task 5): the dialog previously
+	// never moved focus into itself on open, so Escape/Tab-trap both silently no-op'd -- keydown
+	// bubbles from wherever focus actually is, and that stayed on the card button behind the
+	// overlay, outside the dialog's own DOM subtree. modalDialogEl is focused on open (its own
+	// tabindex="-1" makes that valid); modalTriggerEl is restored on close so keyboard focus lands
+	// back where the user was, not silently at <body>.
+	let modalDialogEl = $state<HTMLDivElement | null>(null);
+	let modalTriggerEl: HTMLElement | null = null;
+
+	$effect(() => {
+		if (selectedWorkout && modalDialogEl) {
+			modalDialogEl.focus();
+		}
+	});
+
+	async function closeModal() {
+		selectedWorkout = null;
+		await tick();
+		modalTriggerEl?.focus();
+	}
+
+	function handleModalKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			closeModal();
+			return;
+		}
+		if (e.key === 'Tab' && modalDialogEl) {
+			const focusable = modalDialogEl.querySelectorAll<HTMLElement>(
+				'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+			);
+			if (focusable.length === 0) return;
+			const first = focusable[0];
+			const last = focusable[focusable.length - 1];
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+	}
 
 	let downloadingFit = $state(false);
 
@@ -531,7 +575,10 @@
 		<PatternBadge pattern={workout.pattern} label={badgeLabel} />
 		<button
 			type="button"
-			onclick={onOpen}
+			onclick={(e) => {
+				modalTriggerEl = e.currentTarget;
+				onOpen();
+			}}
 			class="rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 		>
 			<p class="font-medium text-ink">{workout.label}</p>
@@ -1622,21 +1669,16 @@
 	<!-- Workout details modal -->
 	{#if selectedWorkout}
 		<div
+			bind:this={modalDialogEl}
 			class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="workout-modal-title"
 			tabindex="-1"
 			onclick={(e) => {
-				if (e.target === e.currentTarget) {
-					selectedWorkout = null;
-				}
+				if (e.target === e.currentTarget) closeModal();
 			}}
-			onkeydown={(e) => {
-				if (e.key === 'Escape') {
-					selectedWorkout = null;
-				}
-			}}
+			onkeydown={handleModalKeydown}
 		>
 			<div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-bg p-6 shadow-lg">
 				<div class="mb-4 flex items-start justify-between">
@@ -1648,9 +1690,7 @@
 					</div>
 					<button
 						type="button"
-						onclick={() => {
-							selectedWorkout = null;
-						}}
+						onclick={closeModal}
 						class="rounded-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 						aria-label="Close modal"
 					>
@@ -1793,9 +1833,7 @@
 					{/if}
 					<button
 						type="button"
-						onclick={() => {
-							selectedWorkout = null;
-						}}
+						onclick={closeModal}
 						class="flex-1 rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						Close
