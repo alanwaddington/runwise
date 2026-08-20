@@ -596,7 +596,7 @@
 		<p class="mt-3 text-xs text-muted">{warmupCooldownText}</p>
 		<details class="mt-2 text-xs">
 			<summary
-				class="flex cursor-pointer list-none items-center gap-1 rounded-sm font-medium text-ink [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+				class="flex cursor-pointer list-none items-center gap-1 rounded-sm py-2 font-medium text-ink [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 transition-transform [details[open]_&]:rotate-90">
 					<path d="m9 18 6-6-6-6" />
@@ -1691,7 +1691,7 @@
 					<button
 						type="button"
 						onclick={closeModal}
-						class="rounded-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class="-m-2 rounded-sm p-2 text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 						aria-label="Close modal"
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
