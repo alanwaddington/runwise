@@ -1075,15 +1075,20 @@
 											// every other R-zone card, there's no "harder work segment" here, so
 											// both the work and the warmup/recovery/cooldown segments should target
 											// the Easy pace band, not R's (would otherwise prescribe R-pace, R's
-											// fastest zone, for what's meant to be an easy recovery session).
+											// fastest zone, for what's meant to be an easy recovery session). Same
+											// reasoning applies to zoneName/zone below -- these cards are wired into
+											// R's buildZoneWorkouts output for volume/mileage purposes only (see
+											// recovery-workouts.ts), but the modal header and FIT-export filename
+											// should still read "Easy", not "Repetition"/"R-pace", on a workout whose
+											// pace targets are Easy's.
 											const easyZone = result.zones.find((z) => z.name.includes('Easy'));
 											const easyPaceRangeStr = easyZone
 												? `${easyZone.paceMinKmHigh}–${easyZone.paceMinKmLow} /km`
 												: `${zone.paceMinKmHigh}–${zone.paceMinKmLow} /km`;
 											selectedWorkout = {
 												...workout,
-												zoneName: zone.name,
-												zone: zone.zone,
+												zoneName: easyZone ? easyZone.name : zone.name,
+												zone: easyZone ? easyZone.zone : zone.zone,
 												pattern: workout.pattern,
 												paceRange: easyPaceRangeStr,
 												easyPaceRange: easyPaceRangeStr
@@ -1566,7 +1571,7 @@
 								'Race-Prep',
 								[
 									{ icon: 'clock', text: formatDurationMinutes(workout.estimatedDurationMinutes), srLabel: 'Estimated duration' },
-									...(racePrepResult.modality === 'pace'
+									...(racePrepResult.modality === 'pace' && workout.totalVolumeKm > 0
 										? [{ text: `${workout.totalVolumeKm} km`, srLabel: 'Total volume' }]
 										: []),
 									{ icon: 'refresh', text: workout.recovery, srLabel: 'Recovery' }
@@ -1659,7 +1664,7 @@
 				</div>
 
 				<div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-ink/5 p-4">
-					{#if selectedWorkout.pattern !== 'recovery'}
+					{#if selectedWorkout.totalVolumeKm > 0}
 						<div>
 							<p class="text-xs font-medium uppercase tracking-wide text-muted">Total Volume</p>
 							<p class="text-lg font-bold text-ink">{selectedWorkout.totalVolumeKm} km</p>

@@ -453,6 +453,43 @@ describe('Race-Prep mode', () => {
 		expect(screen.getByText(/week 6: taper/i)).toBeInTheDocument();
 	});
 
+	it('shows a Shakeout run card as the Taper week\'s final workout (AC-7.6)', async () => {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		const fourWeeksOut = new Date();
+		fourWeeksOut.setDate(fourWeeksOut.getDate() + 28);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: fourWeeksOut.toISOString().slice(0, 10) }
+		});
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-Prep' }));
+
+		expect(screen.getByText('Shakeout run')).toBeInTheDocument();
+	});
+
+	it('the Taper week\'s Shakeout card does not show a misleading "0 km" volume stat (regression)', async () => {
+		render(Workouts);
+		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		const fourWeeksOut = new Date();
+		fourWeeksOut.setDate(fourWeeksOut.getDate() + 28);
+		await fireEvent.input(screen.getByLabelText(/race date/i), {
+			target: { value: fourWeeksOut.toISOString().slice(0, 10) }
+		});
+		await fireEvent.click(screen.getByRole('tab', { name: 'Race-Prep' }));
+
+		const shakeoutCard = screen.getByText('Shakeout run').closest('div');
+		expect(shakeoutCard?.textContent).not.toMatch(/0\s*km/);
+
+		await fireEvent.click(screen.getByText('Shakeout run'));
+		const modal = screen.getByRole('dialog');
+		expect(within(modal).queryByText('Total Volume')).toBeNull();
+	});
+
 	it('input values persist when toggling away from Race-Prep and back (AC-1.7)', async () => {
 		render(Workouts);
 		await fireEvent.input(screen.getByLabelText(/race time/i), { target: { value: '25:00' } });
@@ -664,6 +701,37 @@ describe('Recovery Options subsection (Task 11, Open Question #4)', () => {
 		for (const paceText of modalPaceTexts) {
 			expect(paceText).not.toBe(rZonePaceText);
 		}
+	});
+
+	it('a recovery card\'s modal header reads the Easy zone, not Repetition (regression: was "Zone Repetition")', async () => {
+		// Companion to the pace-value regression test above -- that test only checked the *values*
+		// shown for work segments, which is why the zone/zoneName half of the same underlying bug
+		// (the modal header, and by the same code path the FIT-export filename) survived the first
+		// fix pass undetected. Assert on the header text directly this time.
+		await fillValidForm();
+		await fireEvent.click(screen.getByText('Easy float'));
+		const modal = screen.getByRole('dialog');
+		expect(within(modal).queryByText(/Zone Repetition/i)).toBeNull();
+		expect(within(modal).getByText(/Zone Easy/i)).toBeInTheDocument();
+	});
+
+	it('a recovery card\'s FIT export is tagged with the Easy zone, not Repetition (regression)', async () => {
+		mockBuildFitWorkout.mockReset();
+		mockBuildFitWorkout.mockResolvedValueOnce({
+			bytes: new Uint8Array([1, 2, 3]),
+			filename: 'runwise-easy-float-E-pace.fit'
+		});
+		window.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+		HTMLAnchorElement.prototype.click = vi.fn();
+		window.URL.revokeObjectURL = vi.fn();
+
+		await fillValidForm();
+		await fireEvent.click(screen.getByText('Easy float'));
+		const downloadBtn = screen.getByRole('button', { name: /download as \.fit/i });
+		await fireEvent.click(downloadBtn);
+		await screen.findByRole('status');
+
+		expect(mockBuildFitWorkout).toHaveBeenCalledWith(expect.objectContaining({ zone: 'E' }));
 	});
 });
 
