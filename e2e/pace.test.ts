@@ -6,7 +6,7 @@ test.describe('Pace Calculator', () => {
 	});
 
 	test('has correct page title', async ({ page }) => {
-		await expect(page).toHaveTitle('Pace Calculator — Runwise');
+		await expect(page).toHaveTitle('Pace Calculator | Runwise');
 	});
 
 	test('typing 5:30 in min/km updates min/mile and km/h', async ({ page }) => {
@@ -27,17 +27,17 @@ test.describe('Pace Calculator', () => {
 		await expect(page.getByText('4:24')).toBeVisible();
 	});
 
-	test('clearing input resets all outputs to em-dash', async ({ page }) => {
+	test('clearing input resets all outputs to a hyphen placeholder', async ({ page }) => {
 		await page.fill('#pace-minkm', '5:30');
 		await page.fill('#pace-minkm', '');
 		await expect(page.locator('#pace-minmile')).toHaveValue('');
-		const dashes = page.getByText('—');
+		const dashes = page.getByText('-', { exact: true });
 		await expect(dashes).toHaveCount(3);
 	});
 
 	test('invalid input does not crash', async ({ page }) => {
 		await page.fill('#pace-minkm', 'abc');
-		const dashes = page.getByText('—');
+		const dashes = page.getByText('-', { exact: true });
 		await expect(dashes).toHaveCount(3);
 	});
 });
