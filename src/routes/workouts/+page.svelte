@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { page } from '$app/state';
 	import ToolLayout from '$lib/components/ToolLayout.svelte';
 	import InputField from '$lib/components/InputField.svelte';
@@ -108,6 +109,59 @@
 		easyPowerRange?: string;
 		easyHrRange?: string;
 	} | null>(null);
+
+	// Modal focus management (manual audit finding, #100 Phase 3 Task 5): the dialog previously
+	// never moved focus into itself on open, so Escape/Tab-trap both silently no-op'd -- keydown
+	// bubbles from wherever focus actually is, and that stayed on the card button behind the
+	// overlay, outside the dialog's own DOM subtree. modalDialogEl is focused on open (its own
+	// tabindex="-1" makes that valid); modalTriggerEl is restored on close so keyboard focus lands
+	// back where the user was, not silently at <body>.
+	let modalDialogEl = $state<HTMLDivElement | null>(null);
+	// Plain variable, not $state: modalTriggerEl is only ever read imperatively inside
+	// closeModal()'s event-handler flow, never in a template or $derived/$effect that needs
+	// Svelte to react to it changing -- so reactivity here would just be unused tracking overhead.
+	let modalTriggerEl: HTMLElement | null = null;
+
+	$effect(() => {
+		if (selectedWorkout && modalDialogEl) {
+			modalDialogEl.focus();
+		}
+	});
+
+	async function closeModal() {
+		selectedWorkout = null;
+		await tick();
+		modalTriggerEl?.focus();
+	}
+
+	function handleModalKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			closeModal();
+			return;
+		}
+		if (e.key === 'Tab' && modalDialogEl) {
+			const focusable = modalDialogEl.querySelectorAll<HTMLElement>(
+				'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+			);
+			if (focusable.length === 0) return;
+			const first = focusable[0];
+			const last = focusable[focusable.length - 1];
+			// Immediately after open, activeElement is modalDialogEl itself (it's what gets
+			// .focus()'d, per ARIA APG), not `first` -- a Shift+Tab thrown before any forward Tab
+			// must still be treated as "at the start" and wrap to `last`, or it falls through to
+			// the browser's native, un-trapped Shift+Tab and escapes the dialog entirely (verified
+			// live during PR #109's /verify pass: this was the exact defect this trap was meant to
+			// fix, reproducing via the single most natural "go back" keystroke right after open).
+			const atStart = document.activeElement === first || document.activeElement === modalDialogEl;
+			if (e.shiftKey && atStart) {
+				e.preventDefault();
+				last.focus();
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+	}
 
 	let downloadingFit = $state(false);
 
@@ -531,7 +585,10 @@
 		<PatternBadge pattern={workout.pattern} label={badgeLabel} />
 		<button
 			type="button"
-			onclick={onOpen}
+			onclick={(e) => {
+				modalTriggerEl = e.currentTarget;
+				onOpen();
+			}}
 			class="rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 		>
 			<p class="font-medium text-ink">{workout.label}</p>
@@ -549,7 +606,7 @@
 		<p class="mt-3 text-xs text-muted">{warmupCooldownText}</p>
 		<details class="mt-2 text-xs">
 			<summary
-				class="flex cursor-pointer list-none items-center gap-1 rounded-sm font-medium text-ink [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+				class="flex cursor-pointer list-none items-center gap-1 rounded-sm py-2 font-medium text-ink [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 transition-transform [details[open]_&]:rotate-90">
 					<path d="m9 18 6-6-6-6" />
@@ -655,10 +712,11 @@
 			aria-selected={mode === 'pace'}
 			onclick={() => switchMode('pace')}
 			class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'pace'}
+			class:bg-accent-dark={mode === 'pace'}
 			class:text-white={mode === 'pace'}
 			class:font-semibold={mode === 'pace'}
-			class:text-muted={mode !== 'pace'}
+			class:text-subtle={mode !== 'pace'}
+			class:dark:text-muted={mode !== 'pace'}
 			class:hover:text-hover={mode !== 'pace'}
 		>
 			Pace
@@ -669,10 +727,11 @@
 			aria-selected={mode === 'power'}
 			onclick={() => switchMode('power')}
 			class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'power'}
+			class:bg-accent-dark={mode === 'power'}
 			class:text-white={mode === 'power'}
 			class:font-semibold={mode === 'power'}
-			class:text-muted={mode !== 'power'}
+			class:text-subtle={mode !== 'power'}
+			class:dark:text-muted={mode !== 'power'}
 			class:hover:text-hover={mode !== 'power'}
 		>
 			Power
@@ -683,10 +742,11 @@
 			aria-selected={mode === 'hr'}
 			onclick={() => switchMode('hr')}
 			class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-			class:bg-accent={mode === 'hr'}
+			class:bg-accent-dark={mode === 'hr'}
 			class:text-white={mode === 'hr'}
 			class:font-semibold={mode === 'hr'}
-			class:text-muted={mode !== 'hr'}
+			class:text-subtle={mode !== 'hr'}
+			class:dark:text-muted={mode !== 'hr'}
 			class:hover:text-hover={mode !== 'hr'}
 		>
 			HR
@@ -698,10 +758,11 @@
 				aria-selected={mode === 'race-prep'}
 				onclick={() => switchMode('race-prep')}
 				class="rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-				class:bg-accent={mode === 'race-prep'}
+				class:bg-accent-dark={mode === 'race-prep'}
 				class:text-white={mode === 'race-prep'}
 				class:font-semibold={mode === 'race-prep'}
-				class:text-muted={mode !== 'race-prep'}
+				class:text-subtle={mode !== 'race-prep'}
+				class:dark:text-muted={mode !== 'race-prep'}
 				class:hover:text-hover={mode !== 'race-prep'}
 			>
 				Race-Prep
@@ -801,10 +862,11 @@
 						aria-selected={racePrepModality === 'pace'}
 						onclick={() => (racePrepModality = 'pace')}
 						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-						class:bg-accent={racePrepModality === 'pace'}
+						class:bg-accent-dark={racePrepModality === 'pace'}
 						class:text-white={racePrepModality === 'pace'}
 						class:font-semibold={racePrepModality === 'pace'}
-						class:text-muted={racePrepModality !== 'pace'}
+						class:text-subtle={racePrepModality !== 'pace'}
+						class:dark:text-muted={racePrepModality !== 'pace'}
 						class:hover:text-hover={racePrepModality !== 'pace'}
 					>
 						Pace
@@ -816,10 +878,11 @@
 						aria-selected={racePrepModality === 'power'}
 						onclick={() => (racePrepModality = 'power')}
 						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-						class:bg-accent={racePrepModality === 'power'}
+						class:bg-accent-dark={racePrepModality === 'power'}
 						class:text-white={racePrepModality === 'power'}
 						class:font-semibold={racePrepModality === 'power'}
-						class:text-muted={racePrepModality !== 'power'}
+						class:text-subtle={racePrepModality !== 'power'}
+						class:dark:text-muted={racePrepModality !== 'power'}
 						class:hover:text-hover={racePrepModality !== 'power'}
 					>
 						Power
@@ -831,10 +894,11 @@
 						aria-selected={racePrepModality === 'hr'}
 						onclick={() => (racePrepModality = 'hr')}
 						class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-						class:bg-accent={racePrepModality === 'hr'}
+						class:bg-accent-dark={racePrepModality === 'hr'}
 						class:text-white={racePrepModality === 'hr'}
 						class:font-semibold={racePrepModality === 'hr'}
-						class:text-muted={racePrepModality !== 'hr'}
+						class:text-subtle={racePrepModality !== 'hr'}
+						class:dark:text-muted={racePrepModality !== 'hr'}
 						class:hover:text-hover={racePrepModality !== 'hr'}
 					>
 						HR
@@ -1148,7 +1212,7 @@
 					Want to see your full training pace ranges?
 					<a
 						href="/training-paces?{raceResultQuery}"
-						class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 						>View training paces →</a
 					>
 				</p>
@@ -1268,7 +1332,7 @@
 				Want to explore your power zones in more detail?
 				<a
 					href="/power-zones?device={selectedDevice}&power={powerResult.power}"
-					class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>View power zones →</a
 				>
 			</p>
@@ -1615,21 +1679,16 @@
 	<!-- Workout details modal -->
 	{#if selectedWorkout}
 		<div
+			bind:this={modalDialogEl}
 			class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="workout-modal-title"
 			tabindex="-1"
 			onclick={(e) => {
-				if (e.target === e.currentTarget) {
-					selectedWorkout = null;
-				}
+				if (e.target === e.currentTarget) closeModal();
 			}}
-			onkeydown={(e) => {
-				if (e.key === 'Escape') {
-					selectedWorkout = null;
-				}
-			}}
+			onkeydown={handleModalKeydown}
 		>
 			<div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-bg p-6 shadow-lg">
 				<div class="mb-4 flex items-start justify-between">
@@ -1641,10 +1700,8 @@
 					</div>
 					<button
 						type="button"
-						onclick={() => {
-							selectedWorkout = null;
-						}}
-						class="rounded-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						onclick={closeModal}
+						class="-m-2 rounded-sm p-2 text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 						aria-label="Close modal"
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1666,21 +1723,21 @@
 				<div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-ink/5 p-4">
 					{#if selectedWorkout.totalVolumeKm > 0}
 						<div>
-							<p class="text-xs font-medium uppercase tracking-wide text-muted">Total Volume</p>
+							<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Total Volume</p>
 							<p class="text-lg font-bold text-ink">{selectedWorkout.totalVolumeKm} km</p>
 						</div>
 					{/if}
 					<div>
-						<p class="text-xs font-medium uppercase tracking-wide text-muted">Estimated Duration</p>
+						<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Estimated Duration</p>
 						<p class="text-lg font-bold text-ink">{formatDurationMinutes(selectedWorkout.estimatedDurationMinutes)}</p>
 					</div>
 					<div>
-						<p class="text-xs font-medium uppercase tracking-wide text-muted">Recovery</p>
+						<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Recovery</p>
 						<p class="text-lg font-bold text-ink">{selectedWorkout.recovery}</p>
 					</div>
 					{#if selectedWorkout.powerRange}
 						<div>
-							<p class="text-xs font-medium uppercase tracking-wide text-muted">Power Range</p>
+							<p class="text-xs font-medium uppercase tracking-wide text-subtle dark:text-muted">Power Range</p>
 							<p class="text-lg font-bold text-accent">{selectedWorkout.powerRange}</p>
 						</div>
 					{/if}
@@ -1719,7 +1776,7 @@
 										<span class="text-ink font-medium capitalize">
 											{segment.type}
 										</span>
-										<span class="text-xs text-muted/70">
+										<span class="text-xs text-subtle dark:text-muted">
 											{segmentRange}
 										</span>
 									</div>
@@ -1786,9 +1843,7 @@
 					{/if}
 					<button
 						type="button"
-						onclick={() => {
-							selectedWorkout = null;
-						}}
+						onclick={closeModal}
 						class="flex-1 rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						Close

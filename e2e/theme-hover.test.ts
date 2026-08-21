@@ -73,15 +73,25 @@ test.describe('Touch-device hover parity', () => {
 		expect(canHover).toBe(false);
 	});
 
-	test('tapping a nav link still applies its hover color', async ({ page }) => {
+	test('tapping a nav element still applies its hover color', async ({ page }) => {
 		await page.goto('/');
-		const link = page.locator('nav a', { hasText: 'Pace' }).first();
-		const box = await link.boundingBox();
-		if (!box) throw new Error('Pace nav link has no bounding box');
+		// A real nav *link* is the wrong target here: SiteNav's desktop <ul> is hidden below the
+		// `md` breakpoint (mobile uses a separate hamburger-triggered <ul>), and even once that's
+		// opened, tapping a real <a href> both navigates (removing this page/element) and runs
+		// SiteNav's own onclick that closes the mobile menu (unmounting the link) -- either one
+		// races the post-tap style read out from under itself. The theme toggle button has the
+		// same confound (tapping it changes the theme, which changes --color-muted itself --
+		// conflating "did :hover apply" with "did the theme change"). The hamburger menu toggle
+		// carries the same `hover:text-hover` mechanism under test, is visible at every viewport
+		// (not gated behind `md:flex`), stays mounted and its own color unaffected regardless of
+		// whether the menu it controls is open or closed, and has no navigation side effect.
+		const hamburger = page.getByRole('button', { name: 'Toggle navigation menu' });
+		const box = await hamburger.boundingBox();
+		if (!box) throw new Error('Hamburger menu button has no bounding box');
 
-		const before = await link.evaluate((el) => getComputedStyle(el).color);
+		const before = await hamburger.evaluate((el) => getComputedStyle(el).color);
 		await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
-		const afterTap = await link.evaluate((el) => getComputedStyle(el).color);
+		const afterTap = await hamburger.evaluate((el) => getComputedStyle(el).color);
 
 		expect(afterTap).not.toBe(before);
 	});

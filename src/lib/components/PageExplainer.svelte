@@ -30,7 +30,7 @@
 										href={link.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="rounded-sm text-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+										class="rounded-sm text-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 									>
 										{link.label} <span aria-hidden="true">→</span>
 									</a>

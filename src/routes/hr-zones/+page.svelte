@@ -128,10 +128,11 @@
 				aria-selected={method === 'maxhr'}
 				onclick={() => selectMethod('maxhr')}
 				class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-				class:bg-accent={method === 'maxhr'}
+				class:bg-accent-dark={method === 'maxhr'}
 				class:text-white={method === 'maxhr'}
 				class:font-semibold={method === 'maxhr'}
-				class:text-muted={method !== 'maxhr'}
+				class:text-subtle={method !== 'maxhr'}
+				class:dark:text-muted={method !== 'maxhr'}
 				class:hover:text-hover={method !== 'maxhr'}
 			>
 				Max HR
@@ -141,10 +142,11 @@
 				aria-selected={method === 'lthr'}
 				onclick={() => selectMethod('lthr')}
 				class="flex-1 rounded-md py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-				class:bg-accent={method === 'lthr'}
+				class:bg-accent-dark={method === 'lthr'}
 				class:text-white={method === 'lthr'}
 				class:font-semibold={method === 'lthr'}
-				class:text-muted={method !== 'lthr'}
+				class:text-subtle={method !== 'lthr'}
+				class:dark:text-muted={method !== 'lthr'}
 				class:hover:text-hover={method !== 'lthr'}
 			>
 				LTHR
@@ -347,7 +349,7 @@
 											e.stopPropagation();
 											zone5Expanded = !zone5Expanded;
 										}}
-										class="ml-1 rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+										class="ml-1 rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 										aria-expanded={zone5Expanded}
 									>
 										{zone5Expanded ? 'Hide' : 'Show'} sub-zones
@@ -392,7 +394,7 @@
 		<!-- Footer cross-link -->
 		<p class="mt-6 text-center text-xs text-muted">
 			Want to find your training paces?
-			<a href="/training-paces" class="rounded-sm text-accent-text underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			<a href="/training-paces" class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 				>Training Pace Calculator →</a
 			>
 		</p>

@@ -325,6 +325,12 @@ npm run test:e2e                 # Run E2E tests against the production build
 
 E2E tests live in the `e2e/` directory. They run against the production preview server (`npm run build && npm run preview` on port 4173). Configuration is in `playwright.config.ts`.
 
+`e2e/helpers.ts` holds shared setup functions (cookie-consent seeding, race-result form filling, mode switching) for multi-file feature areas — introduced for `/workouts`' Phase 3 E2E suite (`e2e/workouts-*.test.ts`: race-prep flow, HR mode + pattern badges, FIT download × 3 modalities + mobile viewport, modal keyboard behavior) since four new spec files needed near-identical setup; most existing single-file E2E specs still duplicate their own setup inline, which is fine at that scale.
+
+**Accessibility scanning** (`e2e/workouts-accessibility.test.ts`) uses `@axe-core/playwright`'s `AxeBuilder` to scan for WCAG AA violations, kept in its own file separate from flow-behavior tests so an accessibility regression and a functional regression don't obscure each other. Only asserts on `results.violations` (definite failures) — axe-core also returns `results.incomplete` (elements it can't reach a confident verdict on, e.g. small rounded-background badges) which isn't a hard pass/fail signal; those need the manual audit process below instead.
+
+**Manual accessibility audits** (keyboard-only navigation, screen-reader spot-checks) are documented as dated findings docs under `docs/accessibility/`, mirroring the `docs/pr-reviews/` precedent — see `docs/accessibility/workouts-manual-audit.md` for the format. Run these for any page with non-trivial interactive state (modals, multi-step flows) that axe-core's static-scan approach can't verify — focus management in particular (does focus actually move into a modal on open? does Tab stay trapped inside it?) is invisible to both jsdom component tests and automated contrast/ARIA scanners alike; only driving the real page with a keyboard catches it.
+
 ---
 
 ## Code Quality

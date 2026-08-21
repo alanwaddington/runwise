@@ -36,7 +36,7 @@
 					class="rounded-xl border border-gray-200 bg-gray-50/50 p-4 shadow-sm dark:border-gray-700 dark:bg-white/3"
 				>
 					<span
-						class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-muted dark:bg-gray-800"
+						class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-subtle dark:bg-gray-800 dark:text-muted"
 					>
 						{badgeLabel(product)}
 					</span>
@@ -46,7 +46,7 @@
 						href={product.url}
 						target="_blank"
 						rel={relAttr(product)}
-						class="mt-2 block rounded-sm text-xs font-medium text-accent-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+						class="mt-2 block rounded-sm text-xs font-medium text-accent-text underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 					>
 						{linkLabel(product)}
 					</a>
