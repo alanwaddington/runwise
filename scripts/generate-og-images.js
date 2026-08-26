@@ -28,7 +28,43 @@ const OG_IMAGES = [
 	{ file: 'og-vo2max.png', tool: 'VO2 Max Estimator' },
 	{ file: 'og-parkrun.png', tool: 'Parkrun Predictor' },
 	{ file: 'og-power-zones.png', tool: 'Power Zones Calculator' },
-	{ file: 'og-workouts.png', tool: 'Workout Suggestions' }
+	{ file: 'og-workouts.png', tool: 'Workout Suggestions' },
+	{
+		file: 'og-about.png',
+		tool: 'About Runwise',
+		eyebrow: 'About',
+		tagline: "Who's behind Runwise, and the methodology behind every calculator."
+	},
+	{
+		file: 'og-guides.png',
+		tool: 'Running Guides',
+		eyebrow: 'Guides',
+		tagline: "In-depth articles on the methods behind Runwise's calculators."
+	},
+	{
+		file: 'og-guide-understanding-vdot.png',
+		tool: 'Understanding VDOT',
+		eyebrow: 'Guide',
+		tagline: "How Jack Daniels' VDOT method drives your training paces."
+	},
+	{
+		file: 'og-guide-hr-zones-vs-power-zones.png',
+		tool: 'HR Zones vs Power',
+		eyebrow: 'Guide',
+		tagline: 'Heart rate and running power measure different things — here’s how to use each.'
+	},
+	{
+		file: 'og-guide-how-race-predictions-work.png',
+		tool: 'Race Predictions',
+		eyebrow: 'Guide',
+		tagline: 'How the Riegel formula predicts race times, and when to distrust it.'
+	},
+	{
+		file: 'og-guide-reading-your-vo2max.png',
+		tool: 'Reading VO2 Max',
+		eyebrow: 'Guide',
+		tagline: 'What a VO2 max estimate means, and how to actually improve it.'
+	}
 ];
 
 const FAVICONS = [
@@ -43,9 +79,11 @@ const browser = await chromium.launch();
 let optimizeFailures = 0;
 
 const ogPage = await browser.newPage({ viewport: { width: 1200, height: 630 } });
-for (const { file, tool } of OG_IMAGES) {
+for (const { file, tool, eyebrow, tagline } of OG_IMAGES) {
 	const url = new URL(pathToFileURL(OG_TEMPLATE_PATH));
 	if (tool) url.searchParams.set('tool', tool);
+	if (eyebrow) url.searchParams.set('eyebrow', eyebrow);
+	if (tagline) url.searchParams.set('tagline', tagline);
 
 	await ogPage.goto(url.toString());
 	await ogPage.waitForTimeout(300); // allow Google Fonts to load before screenshot

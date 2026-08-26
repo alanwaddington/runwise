@@ -20,8 +20,8 @@
 <p class="mt-4 text-base leading-relaxed text-muted">{guide.intro}</p>
 
 <div class="mt-4 rounded-r-lg border-l-2 border-accent bg-accent/10 px-4 py-3">
-	<p class="text-sm text-muted">
-		Sourced from: <span class="font-medium text-ink">{guide.sourcesCredited.join(', ')}</span>
+	<p class="text-sm text-ink">
+		Sourced from: <span class="font-semibold">{guide.sourcesCredited.join(', ')}</span>
 	</p>
 </div>
 

@@ -182,7 +182,7 @@
 		<button
 			type="submit"
 			disabled={status === 'sending'}
-			class="h-11 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+			class="h-11 rounded-lg bg-accent-dark px-5 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
 		>
 			{status === 'sending' ? 'Sending…' : 'Send message'}
 		</button>

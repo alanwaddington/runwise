@@ -248,6 +248,10 @@
 		(function () {
 			const params = new URLSearchParams(window.location.search);
 			const tool = params.get('tool');
+			// Optional override for non-calculator pages (About, Guides), where "Free Running
+			// Calculator" as the eyebrow/tagline would misdescribe the page.
+			const eyebrowText = params.get('eyebrow');
+			const taglineText = params.get('tagline');
 
 			const headline = document.getElementById('headline');
 			const eyebrow = document.getElementById('eyebrow');
@@ -260,8 +264,8 @@
 				headline.innerHTML = rest
 					? `${rest}<br /><span class="accent">${last}</span>`
 					: `<span class="accent">${last}</span>`;
-				eyebrow.textContent = 'Free Running Calculator';
-				tagline.textContent = 'Fast, accurate results — no login, no signup.';
+				eyebrow.textContent = eyebrowText || 'Free Running Calculator';
+				tagline.textContent = taglineText || 'Fast, accurate results — no login, no signup.';
 			}
 
 			const lanes = document.getElementById('lanes');
