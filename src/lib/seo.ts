@@ -1,3 +1,5 @@
+import { GUIDES } from './content/guides';
+
 export const BASE_URL = import.meta.env?.VITE_SITE_URL || 'https://runwise.app';
 export const SITE_NAME = 'Runwise';
 export const DEFAULT_OG_IMAGE = '/og/og-default.png';
@@ -101,5 +103,36 @@ export const PAGES: Record<string, PageSeo> = {
 		jsonLdType: 'WebSite',
 		changefreq: 'yearly',
 		priority: 0.3
-	}
+	},
+	'/about': {
+		title: 'About Runwise | Free Running Calculators',
+		description:
+			"Learn who's behind Runwise, why it exists, and the sourced methodologies — Riegel, Daniels' VDOT, ACSM, WMA — behind every calculator. Get in touch via our contact form.",
+		ogImage: '/og/og-about.png',
+		jsonLdType: 'WebSite',
+		changefreq: 'monthly',
+		priority: 0.5
+	},
+	'/guides': {
+		title: 'Running Guides | Runwise',
+		description:
+			'In-depth guides on VDOT training paces, heart rate vs power zones, race time predictions, and VO2 max — expanding on the methodology behind Runwise’s calculators.',
+		ogImage: '/og/og-guides.png',
+		jsonLdType: 'WebSite',
+		changefreq: 'monthly',
+		priority: 0.5
+	},
+	...Object.fromEntries(
+		GUIDES.map((guide) => [
+			guide.route,
+			{
+				title: `${guide.title} | Runwise`,
+				description: guide.excerpt,
+				ogImage: `/og/og-guide-${guide.slug}.png`,
+				jsonLdType: 'WebSite',
+				changefreq: 'yearly',
+				priority: 0.4
+			} satisfies PageSeo
+		])
+	)
 };
