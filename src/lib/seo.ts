@@ -105,9 +105,9 @@ export const PAGES: Record<string, PageSeo> = {
 		priority: 0.3
 	},
 	'/about': {
-		title: 'About Runwise | Free Running Calculators',
+		title: 'About | Runwise',
 		description:
-			"Learn who's behind Runwise, why it exists, and the sourced methodologies — Riegel, Daniels' VDOT, ACSM, WMA — behind every calculator. Get in touch via our contact form.",
+			"Learn who's behind Runwise, why it exists, and the sourced running-science methodologies behind every calculator. Get in touch via our contact form.",
 		ogImage: '/og/og-about.png',
 		jsonLdType: 'WebSite',
 		changefreq: 'monthly',

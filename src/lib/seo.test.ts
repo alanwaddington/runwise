@@ -4,8 +4,13 @@ import { BASE_URL, SITE_NAME, DEFAULT_OG_IMAGE, PAGES } from './seo';
 // Derived from PAGES rather than hardcoded so every new tool route automatically
 // inherits these quality checks (description length, keyword, JSON-LD type, etc.)
 // without needing a matching edit here — mirrors sitemap.test.ts's ALL_ROUTES.
-const TOOL_ROUTES = Object.keys(PAGES).filter((route) => route !== '/' && route !== '/privacy');
+// Excludes content pages (/privacy, /about, /guides and its articles, added in #110)
+// that don't follow tool-page SEO conventions (WebApplication type, keyword targets).
+const TOOL_ROUTES = Object.keys(PAGES).filter(
+	(route) => route !== '/' && route !== '/privacy' && route !== '/about' && !route.startsWith('/guides')
+);
 const ALL_ROUTES = ['/', ...TOOL_ROUTES];
+const EVERY_ROUTE = Object.keys(PAGES);
 
 const TARGET_KEYWORDS: Record<string, string> = {
 	'/pace': 'pace calculator',
@@ -35,7 +40,7 @@ describe('seo config constants', () => {
 
 describe('PAGES config', () => {
 	it('PAGES_everyRoute_hasAllRequiredFields', () => {
-		for (const route of ALL_ROUTES) {
+		for (const route of EVERY_ROUTE) {
 			const page = PAGES[route];
 			expect(page, `missing PAGES entry for ${route}`).toBeDefined();
 			expect(page.title).toBeTruthy();

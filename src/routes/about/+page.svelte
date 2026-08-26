@@ -69,7 +69,7 @@
 			</a>
 		</section>
 
-		<section>
+		<section id="contact">
 			<h2 class="text-lg font-semibold text-ink">Get in touch</h2>
 			<p class="mt-3 text-sm text-muted">
 				Spotted something wrong, got a suggestion, or just want to say hello? Send us a message

@@ -84,3 +84,15 @@
 </section>
 
 <EducationalSection />
+
+<section class="border-t border-ink/10 py-12 text-center">
+	<p class="text-muted">
+		Want to know who's behind Runwise and the methods behind the numbers?
+		<a
+			href="/about"
+			class="rounded-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+		>
+			Read our About page <span aria-hidden="true">→</span>
+		</a>
+	</p>
+</section>

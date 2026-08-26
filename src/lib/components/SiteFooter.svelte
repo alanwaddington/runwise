@@ -51,7 +51,21 @@
 	<div
 		class="mx-auto mt-8 flex max-w-5xl flex-col items-center gap-2 border-t border-gray-200 pt-6 dark:border-gray-700"
 	>
-		<div class="flex items-center gap-4 text-sm text-muted">
+		<div class="flex flex-wrap items-center justify-center gap-4 text-sm text-muted">
+			<a
+				href="/about"
+				class="rounded-sm transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			>
+				About
+			</a>
+			<span aria-hidden="true">·</span>
+			<a
+				href="/guides"
+				class="rounded-sm transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+			>
+				Guides
+			</a>
+			<span aria-hidden="true">·</span>
 			<a
 				href="/privacy"
 				class="rounded-sm transition-colors hover:text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"

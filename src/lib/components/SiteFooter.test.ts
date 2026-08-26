@@ -56,6 +56,20 @@ describe('SiteFooter', () => {
 		}
 	});
 
+	it('SiteFooter_renders_aboutLink', async () => {
+		const { default: SiteFooter } = await import('./SiteFooter.svelte');
+		const { getByRole } = render(SiteFooter);
+		const link = getByRole('link', { name: 'About' });
+		expect(link).toHaveAttribute('href', '/about');
+	});
+
+	it('SiteFooter_renders_guidesLink', async () => {
+		const { default: SiteFooter } = await import('./SiteFooter.svelte');
+		const { getByRole } = render(SiteFooter);
+		const link = getByRole('link', { name: 'Guides' });
+		expect(link).toHaveAttribute('href', '/guides');
+	});
+
 	it('SiteFooter_homeLink_hasCompleteFocusVisibleClasses', async () => {
 		const { default: SiteFooter } = await import('./SiteFooter.svelte');
 		const { getByRole } = render(SiteFooter);

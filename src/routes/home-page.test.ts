@@ -6,8 +6,11 @@ import { PAGES } from '$lib/seo';
 // Derived from PAGES rather than hardcoded so every new tool route automatically counts
 // towards this assertion without needing a matching edit here — mirrors seo.test.ts's
 // TOOL_ROUTES derivation. Catches a card being silently dropped from the homepage grid even
-// if nobody remembers to add its own named assertion below.
-const TOOL_ROUTES = Object.keys(PAGES).filter((route) => route !== '/' && route !== '/privacy');
+// if nobody remembers to add its own named assertion below. Excludes content pages (/privacy,
+// /about, /guides and its articles, added in #110) that don't get a "Go to X" tool card.
+const TOOL_ROUTES = Object.keys(PAGES).filter(
+	(route) => route !== '/' && route !== '/privacy' && route !== '/about' && !route.startsWith('/guides')
+);
 
 afterEach(() => {
 	cleanup();
@@ -63,6 +66,14 @@ describe('Home page', () => {
 		for (const [label, href] of routes) {
 			expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
 		}
+	});
+
+	it('links to the About page', () => {
+		render(Home);
+		expect(screen.getByRole('link', { name: /read our about page/i })).toHaveAttribute(
+			'href',
+			'/about'
+		);
 	});
 
 	it('renders exactly one tool card per PAGES tool route (no drift)', () => {
