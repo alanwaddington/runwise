@@ -11,7 +11,7 @@
 
 | Item | Result |
 |------|--------|
-| Overall Assessment | Pass with comments ⚠️ |
+| Overall Assessment | Pass ✅ (all findings resolved, see Findings) |
 | Risk Level | Low |
 | Test Coverage | Adequate |
 | Acceptance Criteria | 15 Met / 15 Total |
@@ -205,7 +205,7 @@ This project's workflow (per `CLAUDE.md`) keeps requirements/design in sections 
 | AC-1 | `/about` reachable from footer (every page) + homepage, no individual named | `about/+page.svelte`; `SiteFooter.svelte:55-60`; `+page.svelte:88-98` | `about.test.ts:16-24`, `SiteFooter.test.ts:59-64`, `home-page.test.ts:71-77` | ✅ Met |
 | AC-2 | `/about` references sourced methodologies (Riegel, VDOT, ACSM, WMA) | `about/+page.svelte:40-63` | `about.test.ts:26-35` | ✅ Met |
 | AC-3 | `/about` includes contact form; no email in DOM | `about/+page.svelte:72-81`, `ContactForm.svelte` | `about.test.ts:45-52`, `ContactForm.test.ts:39-45` | ✅ Met |
-| AC-4 | Submissions delivered server-side to a real, env-configured address | `mailer.ts:11,16`; `.env.example:28-30` | `mailer.test.ts:32-43` | ✅ Met (see M1 — real config-failure path untested/unguarded) |
+| AC-4 | Submissions delivered server-side to a real, env-configured address | `mailer.ts:11,16`; `.env.example:28-30` | `mailer.test.ts:32-43` | ✅ Met (M1's config-failure gap fixed post-review, see Findings) |
 | AC-5 | Basic spam/abuse mitigation (honeypot and/or rate limiting) | `contactValidation.ts:26-28`, `rateLimiter.ts`, `+server.ts:33-35` | `contactValidation.test.ts`, `rateLimiter.test.ts`, `contact.test.ts:77-110` | ✅ Met |
 | AC-6 | `/privacy` Contact no longer shows `mailto:`, routes through `/about` form | `privacy/+page.svelte:111-135` | `privacy.test.ts:10-25` | ✅ Met |
 | AC-7 | Exactly 4 guide articles, own routes, linked from index/footer/homepage | `guides.ts` (4 entries), 4 route dirs, `SiteFooter.svelte`, `guides/+page.svelte` | `guides.test.ts:12-14`, `guides-routes.test.ts`, `guides-index.test.ts` | ✅ Met |
@@ -224,37 +224,43 @@ This project's workflow (per `CLAUDE.md`) keeps requirements/design in sections 
 
 ## Findings
 
+> **Update (2026-08-26):** All findings below (M1, m1, m2) have been fixed in commit `dd22694`, each with a new regression test. m3 and S1 required no code change per their own recommendations. Full suite re-confirmed green after the fixes: 72 files / 1387 tests passing.
+
 ### Critical (must fix before merge)
 
 None.
 
 ### Major (should fix)
 
-#### M1 — Resend client construction is not exception-safe against a missing/invalid API key
+#### M1 — Resend client construction is not exception-safe against a missing/invalid API key — ✅ Fixed
 - **Category:** Reliability
 - **Location:** `src/lib/server/mailer.ts:11`
 - **Description:** `const resend = new Resend(env.RESEND_API_KEY);` executes *before* the `try` block starts (line 13). Reading the Resend SDK source (`node_modules/resend/dist/index.cjs:1259-1261`) confirms its constructor throws synchronously — `"Missing API key. Pass it to the constructor..."` — whenever the key argument and `process.env.RESEND_API_KEY` are both falsy. Because `sendContactEmail` is an `async function`, that synchronous throw becomes a rejected promise; the caller, `src/routes/api/contact/+server.ts:37`, does `const sendResult = await sendContactEmail(result.data);` with no surrounding `try/catch`. If `RESEND_API_KEY` is ever empty (a misconfigured preview deploy, an env var accidentally cleared, a future refactor of the Vercel integration), a contact-form submission would produce an unhandled exception and SvelteKit's generic 500 error page — not the deliberately-designed, tested `{error: 'Failed to send message...'}` 502 response this endpoint otherwise handles well. `mailer.test.ts`'s `beforeEach` always sets `RESEND_API_KEY`, so this path has zero test coverage.
 - **Recommendation:** Move the `new Resend(...)` call inside the `try` block (or guard with an explicit `if (!env.RESEND_API_KEY) return { success: false, error: 'Email service not configured' };` before constructing the client), and add a test that unsets `RESEND_API_KEY` and asserts a graceful `{success: false}` result.
+- **Outcome:** Fixed — `new Resend(...)` moved inside the `try` block (`mailer.ts`). Added `missingApiKey_returnsSuccessFalseWithErrorInsteadOfThrowing`, which mocks the real SDK's throw-on-missing-key behavior and confirms `sendContactEmail` now returns `{success: false, error: ...}` instead of propagating an unhandled rejection.
 
 ### Minor (nice to fix)
 
-#### m1 — Email-format regex duplicated between client and server
+#### m1 — Email-format regex duplicated between client and server — ✅ Fixed
 - **Category:** Code Quality
 - **Location:** `src/lib/server/contactValidation.ts:1`, `src/lib/components/ContactForm.svelte:4`
 - **Description:** `const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;` is defined identically in both files. If the pattern is ever tightened or loosened, it's easy to update one and forget the other, producing client/server validation disagreement.
 - **Recommendation:** Extract to a small shared module (e.g. `src/lib/validation/email.ts`) imported by both.
+- **Outcome:** Fixed — extracted to `src/lib/validation/email.ts` (`isValidEmail`), now imported by both `contactValidation.ts` and `ContactForm.svelte`. New `email.test.ts` covers valid/missing-@/missing-domain-dot/whitespace/empty cases.
 
-#### m2 — Contact-form message textarea has no client-side length cap
+#### m2 — Contact-form message textarea has no client-side length cap — ✅ Fixed
 - **Category:** Code Quality
 - **Location:** `src/lib/components/ContactForm.svelte:164-174`
 - **Description:** The server enforces a 5000-character maximum (`contactValidation.ts:2,44-46`), but the `<textarea>` has no `maxlength` attribute and the component's client-side validation doesn't check length. A user who writes a very long message gets no feedback until they submit and receive the server's "Message is too long" error.
 - **Recommendation:** Add `maxlength={5000}` to the textarea, optionally with a character counter.
+- **Outcome:** Fixed — added `maxlength={MAX_MESSAGE_LENGTH}`, backed by a new shared `src/lib/validation/messageLength.ts` constant (also now imported by `contactValidation.ts`) so the client cap and server limit can't drift apart, same fix pattern as m1. A live character counter was treated as optional embellishment beyond the finding and not added.
 
 #### m3 — No automated test exercises the real `/api/contact` → Resend integration end-to-end
 - **Category:** Test Coverage
 - **Location:** `src/routes/api/contact/contact.test.ts`, `e2e/contact-form.test.ts`
 - **Description:** Vitest mocks `$lib/server/mailer` entirely; the e2e suite intercepts `**/api/contact` via `page.route` before it ever reaches the server. This is a reasonable, standard choice (avoiding real third-party API calls in CI), but it means the actual live wiring — the real endpoint calling the real `mailer.ts` calling the real Resend API — has only ever been exercised manually (during this PR's `/verify` pass, deliberately without an unmocked send to avoid spamming the configured inbox).
 - **Recommendation:** No change required; noting for awareness. If this integration ever needs stronger confidence, a manual/staging smoke-test checklist item (rather than a CI test) would be the appropriate next step.
+- **Outcome:** No change needed, per the recommendation above.
 
 ### Suggestions (optional)
 
@@ -262,6 +268,7 @@ None.
 - **Category:** Scalability
 - **Location:** `src/lib/server/rateLimiter.ts:11-13`
 - **Description:** The in-memory `Map`-based limiter is scoped to a single Vercel Fluid Compute instance, not global across concurrent instances — already called out in a code comment and in the issue's `## Design` section. Not a new finding; flagging only so it's visible in this report as an accepted trade-off rather than an oversight.
+- **Outcome:** No change needed — accepted, documented trade-off.
 
 ---
 
@@ -284,9 +291,9 @@ None.
 None — no Critical findings.
 
 ### Post-merge improvements
-- [ ] M1: Guard `mailer.ts`'s `new Resend(...)` construction against a missing/invalid API key so a misconfiguration degrades gracefully instead of crashing the endpoint
-- [ ] m1: Extract the duplicated email-validation regex into a shared module
-- [ ] m2: Add a `maxlength` to the contact form's message textarea
+- [x] M1: Guard `mailer.ts`'s `new Resend(...)` construction against a missing/invalid API key so a misconfiguration degrades gracefully instead of crashing the endpoint — fixed in `dd22694`
+- [x] m1: Extract the duplicated email-validation regex into a shared module — fixed in `dd22694`
+- [x] m2: Add a `maxlength` to the contact form's message textarea — fixed in `dd22694`
 
 ---
 
