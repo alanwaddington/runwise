@@ -6,7 +6,7 @@ Runwise is a free collection of running calculators. No account required.
 
 ## Getting Started
 
-Open [runwise](/) in any browser. The home page lists all eight tools — click any card to open it.
+Open [runwise](/) in any browser. The home page lists all eight tools — click any card to open it. A link near the bottom of the page leads to [About & Contact](#about--contact--about), and the footer on every page links to About, Guides, and the Privacy Policy.
 
 ---
 
@@ -293,6 +293,31 @@ A cross-link to the Training Pace Calculator (Pace mode) or the Power Zones Calc
 
 ---
 
+## About & Contact — `/about`
+
+The About page explains who's behind Runwise (presented as a project/team, not an individual), why it exists, and the sourcing behind the numbers — it names the specific methodologies used across the tools (Pete Riegel's endurance formula, Jack Daniels' VDOT method, ACSM normative VO2 max data, and the WMA/Alan Jones age-factor tables) and links to the in-depth [Guides](#guides--guides) for readers who want more detail.
+
+**Contact form:** rather than publishing an email address, `/about` includes a contact form (Name, Email, Message). Submit it and your message is delivered directly to Runwise; you'll see an inline confirmation or error message without leaving the page. There is no email address published anywhere on the site — this is the only way to get in touch, including for privacy-related enquiries (see [Privacy Policy](#privacy-policy) below).
+
+Reachable from the footer on every page, and from a link on the home page.
+
+---
+
+## Guides — `/guides`
+
+Four in-depth articles expanding on the methodology behind the calculators, for readers who want more than a single tool's result:
+
+| Guide | Route | Expands on |
+|-------|-------|------------|
+| Understanding VDOT and how it drives your training paces | `/guides/understanding-vdot` | Training Pace Calculator |
+| Heart rate zones vs power zones: which should you train by? | `/guides/hr-zones-vs-power-zones` | HR Zone Calculator, Power Zones Calculator |
+| How race time predictions actually work (and when to distrust them) | `/guides/how-race-predictions-work` | Race Time Predictor, Parkrun Predictor |
+| Reading your VO2 max estimate: what it means and how to improve it | `/guides/reading-your-vo2max` | VO2 Max Estimator |
+
+The `/guides` index lists all four with a short excerpt each. Every article opens with a "Sourced from" line crediting the specific methodology it's built on. Reachable from the footer on every page, and linked from the About page.
+
+---
+
 ## Recommended Gear
 
 Each tool page shows affiliate product recommendations alongside the tool — GPS watches and heart rate monitors relevant to the tool you're using. On desktop the recommendations appear in a sidebar to the right of the tool; on mobile they appear below it. These link to Amazon search results. As an Amazon Associate, Runwise may earn a small commission from qualifying purchases at no extra cost to you.
@@ -313,7 +338,7 @@ Your choice is saved in your browser's local storage and remembered for future v
 
 ### Privacy Policy
 
-The full Privacy Policy is available at [/privacy](/privacy). It covers what data is collected, how cookies are used, Google AdSense, affiliate links, and your rights under GDPR.
+The full Privacy Policy is available at [/privacy](/privacy). It covers what data is collected, how cookies are used, Google AdSense, affiliate links, the [contact form](#about--contact--about)'s data processing (via Resend, solely to deliver your message — nothing is stored or used for marketing), and your rights under GDPR. Privacy-related enquiries, like everything else, go through the contact form on `/about` rather than an email address.
 
 ---
 

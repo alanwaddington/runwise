@@ -109,11 +109,27 @@
 		</section>
 
 		<section>
+			<h2 class="mb-3 text-lg font-semibold text-ink">Contact form</h2>
+			<p class="text-sm">
+				If you use the contact form on our <a
+					href="/about#contact"
+					class="rounded-sm text-accent-text underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					>About page</a
+				>, the name, email address, and message you submit are processed by Resend, our transactional
+				email provider, solely to deliver your message to us so we can reply. We do not store
+				submissions in a database, and we don't use them for marketing or any purpose beyond
+				responding to you.
+			</p>
+		</section>
+
+		<section>
 			<h2 class="mb-3 text-lg font-semibold text-ink">Contact</h2>
 			<p class="text-sm">
-				For privacy-related enquiries, contact us at
-				<a href="mailto:privacy@runwise.app" class="rounded-sm text-accent-text underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-					>privacy@runwise.app</a
+				For privacy-related enquiries, get in touch via the contact form on our
+				<a
+					href="/about#contact"
+					class="rounded-sm text-accent-text underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+					>About page</a
 				>.
 			</p>
 		</section>

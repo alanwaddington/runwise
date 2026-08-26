@@ -65,13 +65,26 @@ test.describe('WCAG AA accessibility scan', () => {
  * that gap for the 3 tool pages most similar in structure to /workouts (ToolLayout-based, with
  * the same sidebar/tab/link patterns); /race-predictor and /training-paces are already scanned
  * indirectly via workouts-race-prep.test.ts and other suites reaching similar shared components.
+ *
+ * #110 AC-10: extended to /about, /guides, and the 4 guide article routes — the new
+ * trust-signal/content pages added for AdSense re-review.
  */
 test.describe('WCAG AA accessibility scan, non-workouts pages', () => {
 	async function scan(page: import('@playwright/test').Page) {
 		return new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
 	}
 
-	for (const path of ['/hr-zones', '/parkrun', '/power-zones']) {
+	for (const path of [
+		'/hr-zones',
+		'/parkrun',
+		'/power-zones',
+		'/about',
+		'/guides',
+		'/guides/understanding-vdot',
+		'/guides/hr-zones-vs-power-zones',
+		'/guides/how-race-predictions-work',
+		'/guides/reading-your-vo2max'
+	]) {
 		test(`${path}, default state`, async ({ page }) => {
 			await seedCookieConsent(page);
 			await page.goto(path);

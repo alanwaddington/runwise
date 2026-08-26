@@ -6,8 +6,11 @@ import { PAGES } from './seo';
 // affiliate links without needing a matching edit here — mirrors seo.test.ts's TOOL_ROUTES
 // derivation and home-page.test.ts's card-count guard (PR #90 review finding M2). A hardcoded
 // list here previously went stale and silently missed /workouts having no affiliate entry at
-// all, unlike every other tool page.
-const TOOL_ROUTES = Object.keys(PAGES).filter((route) => route !== '/' && route !== '/privacy');
+// all, unlike every other tool page. Excludes content pages (/privacy, /about, /guides and its
+// articles, added in #110) that aren't calculators and don't carry affiliate links.
+const TOOL_ROUTES = Object.keys(PAGES).filter(
+	(route) => route !== '/' && route !== '/privacy' && route !== '/about' && !route.startsWith('/guides')
+);
 
 describe('AFFILIATE_LINKS config', () => {
 	it('AFFILIATE_LINKS_everyToolRoute_hasAtLeastOneProduct', () => {
