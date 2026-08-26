@@ -111,8 +111,31 @@
 <td>No</td>
 <td>Google AdSense publisher client ID (same value as <code>PUBLIC_GOOGLE_ADSENSE_ACCOUNT</code>, e.g. <code>ca-pub-XXXXXXXXX</code>). When set, <code>AdUnit.svelte</code> injects the AdSense script and renders ad slots for users who have granted marketing consent. Set only after the site has passed AdSense review — leaving this unset disables all ad rendering.</td>
 </tr>
+<tr>
+<td><code>RESEND_API_KEY</code></td>
+<td>For contact form</td>
+<td>Resend API key, used server-side by <code>src/lib/server/mailer.ts</code> to send <code>/about</code>&#39;s contact-form emails. <strong>Provisioned automatically</strong> by the Resend Vercel Marketplace integration — do not set by hand.</td>
+</tr>
+<tr>
+<td><code>RESEND_EMAIL_DOMAIN</code></td>
+<td>For contact form</td>
+<td>The verified sending domain (e.g. <code>runwise.app</code>), used to build the <code>from</code> address. Also <strong>provisioned automatically</strong> by the Resend integration.</td>
+</tr>
+<tr>
+<td><code>CONTACT_EMAIL</code></td>
+<td>For contact form</td>
+<td>The real inbox that receives contact-form submissions. <strong>Not</strong> provisioned by the Resend integration — set manually via <code>vercel env add CONTACT_EMAIL</code> or the dashboard.</td>
+</tr>
 </tbody></table>
-<p>Set optional variables in the Vercel dashboard under <strong>Environment Variables</strong> (left sidebar). See <code>.env.example</code> for the full list with descriptions. No environment variables are required for a first-time deploy.</p>
+<p>Set optional variables in the Vercel dashboard under <strong>Environment Variables</strong> (left sidebar). See <code>.env.example</code> for the full list with descriptions. No environment variables are required for a first-time deploy — the site builds and serves every tool page without them. The contact form on <code>/about</code> is the one feature that needs configuration beyond a first-time deploy; see below.</p>
+<h3>Contact Form Email (Resend)</h3>
+<p>The <code>/about</code> page&#39;s contact form sends via <a href="https://resend.com">Resend</a>, installed as a Vercel Marketplace integration rather than a hand-wired SMTP/SDK setup:</p>
+<pre><code class="language-bash">vercel link                          # if not already linked
+vercel integration add resend -m domain=&lt;your-domain&gt; -m region=us-east-1 --plan free
+vercel env add CONTACT_EMAIL production   # the inbox that should receive submissions
+vercel env pull --yes                # sync RESEND_API_KEY/RESEND_EMAIL_DOMAIN/CONTACT_EMAIL locally
+</code></pre>
+<p><strong>DNS verification is automatic if Vercel manages your domain&#39;s nameservers</strong> (as it does for <code>runwise.app</code>, registered through Vercel) — the integration provisions the SPF/DKIM records for you, with no mailbox required at the sending address (<code>contact@&lt;domain&gt;</code>; nobody ever reads mail sent <em>from</em> it, only mail sent <em>to</em> <code>CONTACT_EMAIL</code>). If your domain&#39;s DNS is hosted elsewhere, Resend&#39;s dashboard will show the SPF/DKIM records to add manually instead — check <code>vercel integration list</code> / the Resend dashboard for verification status before relying on real delivery.</p>
 <hr>
 <h2>First-Time Setup</h2>
 <ol>

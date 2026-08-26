@@ -85,7 +85,7 @@ npm run dev
 ├── app.html             # SvelteKit HTML shell
 ├── lib/
 │   ├── affiliates.ts    # Affiliate product definitions per route (Amazon Associates, Garmin, and direct/non-affiliate links)
-│   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images
+│   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images — includes /about, /guides, and each guide&#39;s route (generated from lib/content/guides.ts)
 │   ├── components/      # Shared UI components
 │   │   ├── AdUnit.svelte              # Consent-gated Google AdSense ad unit
 │   │   ├── AdUnit.test.ts
@@ -93,9 +93,13 @@ npm run dev
 │   │   ├── AffiliateLinks.test.ts
 │   │   ├── CollapsibleField.svelte    # Generic animated show/hide wrapper (max-height/opacity, aria-hidden, inert)
 │   │   ├── CollapsibleField.test.ts
+│   │   ├── ContactForm.svelte         # /about&#39;s contact form — client validation, hidden honeypot field, loading/success/error states, posts to /api/contact
+│   │   ├── ContactForm.test.ts
 │   │   ├── CookieBanner.svelte        # GDPR cookie consent banner (fixed bottom)
 │   │   ├── CookieBanner.test.ts
 │   │   ├── EducationalSection.svelte  # Homepage &quot;training fundamentals&quot; / &quot;common mistakes&quot; / &quot;how Runwise helps&quot; sections
+│   │   ├── GuideArticle.svelte        # Shared long-form article layout for /guides/* pages — title, intro, &quot;Sourced from&quot; credibility callout, sections
+│   │   ├── GuideArticle.test.ts
 │   │   ├── HeroSection.svelte
 │   │   ├── HeroSection.test.ts
 │   │   ├── IconWarning.svelte         # Shared inline warning-triangle SVG icon
@@ -109,7 +113,7 @@ npm run dev
 │   │   ├── ResultDisplay.test.ts
 │   │   ├── SeoHead.svelte             # Per-page meta tags, OG, JSON-LD, AdSense account verification
 │   │   ├── SeoHead.test.ts
-│   │   ├── SiteFooter.svelte          # Footer with Privacy Policy link and Manage Cookies button
+│   │   ├── SiteFooter.svelte          # Footer with About, Guides, and Privacy Policy links, plus the Manage Cookies button
 │   │   ├── SiteFooter.test.ts
 │   │   ├── SiteNav.svelte
 │   │   ├── SiteNav.test.ts
@@ -127,12 +131,26 @@ npm run dev
 │   ├── config/
 │   │   └── toolValidation.ts    # Per-field validation rule config shared across tool pages
 │   ├── content/
-│   │   └── explainers.ts        # Per-route PageExplainer content (heading/intro/sections, optional outbound links)
+│   │   ├── explainers.ts        # Per-route PageExplainer content (heading/intro/sections, optional outbound links)
+│   │   ├── guides.ts            # The 4 long-form /guides/* articles (title/excerpt/sourcesCredited/intro/sections), same content shape as explainers.ts
+│   │   └── guides.test.ts       # Enforces exactly 4 guides, unique slugs, a 900-word minimum, and that at least one guide names its source methodology
+│   ├── server/            # Server-only logic backing src/routes/api/contact
+│   │   ├── contactValidation.ts       # Pure validation of a contact submission — required fields, email format, message length, honeypot detection
+│   │   ├── contactValidation.test.ts
+│   │   ├── mailer.ts                  # Wraps the Resend SDK to send the contact-form notification email to CONTACT_EMAIL
+│   │   ├── mailer.test.ts
+│   │   ├── rateLimiter.ts             # Per-key sliding-window rate limiter (in-memory; per-instance, not global — see the Contact Form section below)
+│   │   └── rateLimiter.test.ts
 │   ├── stores/           # Svelte stores for cross-component state
 │   │   ├── consent.ts               # GDPR consent read/write (localStorage)
 │   │   ├── consent.test.ts
 │   │   ├── consentBannerVisible.ts  # Writable store: true = show banner
 │   │   └── toast.ts                 # Writable store + showToast()/dismissToast() driving Toast.svelte
+│   ├── validation/        # Shared client+server validation primitives (kept separate from lib/utils since they&#39;re used by both a Svelte component and a server route)
+│   │   ├── email.ts                 # isValidEmail() — single source of truth for the contact form&#39;s email regex, used by ContactForm.svelte and contactValidation.ts
+│   │   ├── email.test.ts
+│   │   ├── messageLength.ts         # MAX_MESSAGE_LENGTH (5000) — shared between the textarea&#39;s maxlength and the server&#39;s validation cap
+│   │   └── (no test file — a single exported constant)
 │   ├── utils/            # Pure utility modules (no Svelte dependency)
 │   │   ├── pace.ts                  # Pace/speed conversion functions
 │   │   ├── pace.test.ts
@@ -174,7 +192,7 @@ npm run dev
 │       └── git-dates.test.ts
 └── routes/
     ├── +layout.svelte   # Root layout — CookieBanner + header + main + SiteFooter
-    ├── +page.svelte     # Home page — HeroSection + ToolCard grid
+    ├── +page.svelte     # Home page — HeroSection + ToolCard grid + a closing link to /about
     ├── +error.svelte    # Error page
     ├── pace/
     ├── race-predictor/
@@ -184,7 +202,17 @@ npm run dev
     ├── parkrun/
     ├── power-zones/     # Power Zones Calculator (Stryd/Garmin/COROS*/Polar) — *COROS currently hidden pending further research
     ├── workouts/        # Workout Suggestions (Pace/Power/HR/Race-Prep modes, plus Mixed-Zone Sessions) — includes the workout detail modal and &quot;Download as .FIT&quot; export
-    └── privacy/         # Privacy Policy page
+    ├── privacy/         # Privacy Policy page
+    ├── about/           # Project identity, sourced-methodology summary, and the embedded ContactForm
+    ├── guides/
+    │   ├── +page.svelte                     # Guides index, listing every entry in lib/content/guides.ts
+    │   ├── understanding-vdot/
+    │   ├── hr-zones-vs-power-zones/
+    │   ├── how-race-predictions-work/
+    │   └── reading-your-vo2max/             # Each a thin wrapper rendering GuideArticle with its own guides.ts entry
+    └── api/
+        └── contact/
+            └── +server.ts   # POST /api/contact — validate → honeypot check → rate limit → send via lib/server/mailer.ts. The project&#39;s first mutating server route.
 </code></pre>
 <hr>
 <h2>Design System</h2>
@@ -384,7 +412,7 @@ npm run dev
 <tr>
 <td><code>SiteFooter</code></td>
 <td>none</td>
-<td>Page footer — Privacy Policy link and Manage Cookies button</td>
+<td>Page footer — About, Guides, and Privacy Policy links, plus the Manage Cookies button</td>
 </tr>
 <tr>
 <td><code>SeoHead</code></td>
@@ -441,7 +469,37 @@ npm run dev
 <td><code>size?</code>, <code>class?</code>, <code>ariaHidden?</code></td>
 <td>Shared inline warning-triangle SVG, used for validation error states</td>
 </tr>
+<tr>
+<td><code>ContactForm</code></td>
+<td>none</td>
+<td><code>/about</code>&#39;s contact form — name/email/message fields, a decoy honeypot field hidden from the accessibility tree (<code>aria-hidden</code> + <code>tabindex=&quot;-1&quot;</code>, not just CSS), client-side validation, and loading/success/error states. Posts to <code>/api/contact</code>.</td>
+</tr>
+<tr>
+<td><code>GuideArticle</code></td>
+<td><code>guide</code> (a <code>GuideContent</code> from <code>lib/content/guides.ts</code>)</td>
+<td>Shared layout for a <code>/guides/*</code> article — title, intro, a &quot;Sourced from&quot; credibility callout, then each section as an <code>&lt;h2&gt;</code> + body</td>
+</tr>
 </tbody></table>
+<hr>
+<h2>Contact Form</h2>
+<p><code>/about</code> embeds <code>ContactForm.svelte</code>, which posts JSON to <code>POST /api/contact</code> (<code>src/routes/api/contact/+server.ts</code>) — the first mutating server route in the project (every other <code>+server.ts</code>, <code>robots.txt</code> and <code>sitemap.xml</code>, is GET-only static text).</p>
+<pre><code>ContactForm.svelte
+  │ fetch POST { name, email, message, honeypot }
+  ▼
+src/routes/api/contact/+server.ts
+  │ 1. parse JSON (400 on failure)
+  │ 2. validateContactSubmission() — lib/server/contactValidation.ts
+  │      → honeypot filled? return 200 {ok:true} without sending (bot gets no signal)
+  │      → invalid?          return 400 {error}
+  │ 3. rateLimiter.isAllowed(clientAddress) — lib/server/rateLimiter.ts
+  │      → over limit? return 429 {error}
+  │ 4. sendContactEmail() — lib/server/mailer.ts
+  ▼
+Resend API → CONTACT_EMAIL inbox (replyTo: the submitter&#39;s own address)
+</code></pre>
+<p><strong>Email delivery</strong> is provisioned via the Resend integration on the Vercel Marketplace (<code>vercel integration add resend</code>), which auto-populates <code>RESEND_API_KEY</code> and <code>RESEND_EMAIL_DOMAIN</code> as project env vars. <code>CONTACT_EMAIL</code> — the real inbox that receives submissions — is a separate, manually-configured secret (see the Deployment Guide&#39;s Environment Variables section for all three).</p>
+<p><strong>Spam mitigation</strong> is hand-rolled, not a marketplace product (none exists for this): a honeypot field plus a per-IP sliding-window rate limiter (<code>rateLimiter.ts</code>, 5 requests / 10 minutes). The rate limiter&#39;s state is a plain in-memory <code>Map</code>, scoped to a single Vercel Fluid Compute instance — it reduces obvious scripted abuse but is not a global guarantee across concurrent instances. If abuse becomes a real problem, Vercel BotID (a first-party Vercel product) is the natural next step.</p>
+<p><strong>Shared client/server validation:</strong> the email-format check (<code>lib/validation/email.ts</code>) and the message length cap (<code>lib/validation/messageLength.ts</code>) are each defined once and imported by both <code>ContactForm.svelte</code> and <code>contactValidation.ts</code>, so the client-side <code>maxlength</code>/format check can never silently drift from what the server actually enforces.</p>
 <hr>
 <h2>Adding a New Tool</h2>
 <ol>
