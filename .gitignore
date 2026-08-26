@@ -13,3 +13,4 @@ playwright-report
 
 # Brainstorming visual companion mockups (local only)
 .superpowers/
+.env*.local
