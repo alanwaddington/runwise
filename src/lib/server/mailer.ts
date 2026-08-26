@@ -8,9 +8,9 @@ export interface SendEmailResult {
 }
 
 export async function sendContactEmail(submission: ContactSubmissionData): Promise<SendEmailResult> {
-	const resend = new Resend(env.RESEND_API_KEY);
-
 	try {
+		const resend = new Resend(env.RESEND_API_KEY);
+
 		const { error } = await resend.emails.send({
 			from: `Runwise contact form <contact@${env.RESEND_EMAIL_DOMAIN}>`,
 			to: [env.CONTACT_EMAIL],

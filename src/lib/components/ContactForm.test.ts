@@ -44,6 +44,12 @@ describe('ContactForm', () => {
 		expect(visibleText).not.toMatch(emailAddressPattern);
 	});
 
+	it('messageField_hasMaxlengthMatchingServerLimit', () => {
+		render(ContactForm);
+
+		expect(screen.getByLabelText(/message/i)).toHaveAttribute('maxlength', '5000');
+	});
+
 	it('honeypotField_isHiddenFromAccessibilityTreeAndTabOrder', () => {
 		const { container } = render(ContactForm);
 

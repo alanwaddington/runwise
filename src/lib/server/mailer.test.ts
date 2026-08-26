@@ -3,7 +3,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const { mockSend } = vi.hoisted(() => ({ mockSend: vi.fn() }));
 
 vi.mock('resend', () => ({
-	Resend: vi.fn().mockImplementation(function MockResend() {
+	// Mirrors the real Resend SDK's constructor, which throws synchronously when no API
+	// key is available (node_modules/resend/dist/index.cjs) -- needed to test that a
+	// missing/invalid key is handled gracefully rather than crashing the caller.
+	Resend: vi.fn().mockImplementation(function MockResend(key) {
+		if (!key) {
+			throw new Error('Missing API key. Pass it to the constructor `new Resend("re_123")`');
+		}
 		return { emails: { send: mockSend } };
 	})
 }));
@@ -87,5 +93,18 @@ describe('sendContactEmail', () => {
 		const result = await sendContactEmail(SUBMISSION);
 
 		expect(result).toEqual({ success: false, error: 'network down' });
+	});
+
+	it('missingApiKey_returnsSuccessFalseWithErrorInsteadOfThrowing', async () => {
+		delete mockEnv.RESEND_API_KEY;
+		const { sendContactEmail } = await import('./mailer');
+
+		const result = await sendContactEmail(SUBMISSION);
+
+		expect(result).toEqual({
+			success: false,
+			error: 'Missing API key. Pass it to the constructor `new Resend("re_123")`'
+		});
+		expect(mockSend).not.toHaveBeenCalled();
 	});
 });

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import IconWarning from './IconWarning.svelte';
-
-	const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	import { isValidEmail } from '$lib/validation/email';
+	import { MAX_MESSAGE_LENGTH } from '$lib/validation/messageLength';
 
 	type Status = 'idle' | 'sending' | 'success' | 'error';
 
@@ -21,7 +21,7 @@
 	const emailError = $derived(
 		email.trim() === ''
 			? 'Email is required.'
-			: !EMAIL_PATTERN.test(email.trim())
+			: !isValidEmail(email.trim())
 				? 'Enter a valid email address.'
 				: null
 	);
@@ -164,6 +164,7 @@
 			<textarea
 				id="contact-message"
 				rows="5"
+				maxlength={MAX_MESSAGE_LENGTH}
 				bind:value={message}
 				onblur={() => (messageTouched = true)}
 				aria-describedby={messageError && messageTouched ? 'contact-message-error' : undefined}

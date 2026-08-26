@@ -1,5 +1,5 @@
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_MESSAGE_LENGTH = 5000;
+import { isValidEmail } from '$lib/validation/email';
+import { MAX_MESSAGE_LENGTH } from '$lib/validation/messageLength';
 
 export interface ContactSubmissionData {
 	name: string;
@@ -33,7 +33,7 @@ export function validateContactSubmission(body: unknown): ContactValidationResul
 	}
 
 	const trimmedEmail = asTrimmedString(email);
-	if (trimmedEmail === '' || !EMAIL_PATTERN.test(trimmedEmail)) {
+	if (trimmedEmail === '' || !isValidEmail(trimmedEmail)) {
 		return { valid: false, error: 'A valid email address is required.' };
 	}
 
