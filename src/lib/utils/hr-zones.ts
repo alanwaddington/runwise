@@ -189,22 +189,23 @@ export interface HrTrainingZone {
 	name: string;
 	bpmLow: number | null;
 	bpmHigh: number | null;
-	confidence: 'high' | 'medium' | 'low';
+	confidence: 'high' | 'medium' | 'low' | 'none';
 }
 
 /**
- * %LTHR bands for Daniels' E/M/T/I/R zones. R is Repetition — Daniels' fastest
- * zone (fast, short reps of 30-90s) — placed *above* I, not a generic "Recovery"
- * zone below E. HR can't stabilise over reps that short, so R's confidence
- * reflects a well-defined boundary (unambiguously "above I") while the zone
- * itself stays pace-led rather than HR-led in practice.
+ * %LTHR bands for Daniels' E/M/T/I/R zones, sourced from Friel's zone guide cross-checked
+ * against Daniels' %HRmax ranges (see issue #101 research). R is Repetition — Daniels'
+ * fastest zone (fast, short reps of 30-90s) — placed *above* I, not a generic "Recovery"
+ * zone below E. HR can't stabilise over reps that short (30-90s lag), so R carries
+ * confidence 'none': the bound is well-defined but HR is not a viable prescription
+ * metric for that zone, only pace is.
  */
 const DANIELS_LTHR_ZONE_META = [
-	{ zone: 'E', name: 'Easy / Recovery', lowPct: null, highPct: 0.6, confidence: 'high' },
-	{ zone: 'M', name: 'Marathon', lowPct: 0.6, highPct: 0.9, confidence: 'high' },
-	{ zone: 'T', name: 'Threshold / Tempo', lowPct: 0.9, highPct: 1.05, confidence: 'medium' },
-	{ zone: 'I', name: 'Interval', lowPct: 1.05, highPct: 1.2, confidence: 'low' },
-	{ zone: 'R', name: 'Repetition', lowPct: 1.2, highPct: null, confidence: 'high' }
+	{ zone: 'E', name: 'Easy / Recovery', lowPct: null, highPct: 0.89, confidence: 'high' },
+	{ zone: 'M', name: 'Marathon', lowPct: 0.89, highPct: 0.95, confidence: 'high' },
+	{ zone: 'T', name: 'Threshold / Tempo', lowPct: 0.95, highPct: 1.02, confidence: 'medium' },
+	{ zone: 'I', name: 'Interval', lowPct: 1.02, highPct: 1.06, confidence: 'low' },
+	{ zone: 'R', name: 'Repetition', lowPct: 1.06, highPct: null, confidence: 'none' }
 ] as const;
 
 /**

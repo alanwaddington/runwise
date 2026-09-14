@@ -268,46 +268,46 @@ describe('calculateDanielsLthrZones', () => {
 		expect(zones.map((z) => z.zone)).toEqual(['E', 'M', 'T', 'I', 'R']);
 	});
 
-	it('calculateDanielsLthrZones_ELowerBoundIsNull_UpperIs60PercentLthr', () => {
+	it('calculateDanielsLthrZones_ELowerBoundIsNull_UpperIs89PercentLthr', () => {
 		const zones = calculateDanielsLthrZones(170)!;
 		const e = zones[0];
 		expect(e.bpmLow).toBeNull();
-		expect(e.bpmHigh).toBe(Math.round(170 * 0.6));
+		expect(e.bpmHigh).toBe(Math.round(170 * 0.89));
 		expect(e.confidence).toBe('high');
 	});
 
-	it('calculateDanielsLthrZones_MIs60To90PercentLthr', () => {
+	it('calculateDanielsLthrZones_MIs89To95PercentLthr', () => {
 		const zones = calculateDanielsLthrZones(170)!;
 		const m = zones[1];
-		expect(m.bpmLow).toBe(Math.round(170 * 0.6));
-		expect(m.bpmHigh).toBe(Math.round(170 * 0.9));
+		expect(m.bpmLow).toBe(Math.round(170 * 0.89));
+		expect(m.bpmHigh).toBe(Math.round(170 * 0.95));
 		expect(m.confidence).toBe('high');
 	});
 
-	it('calculateDanielsLthrZones_TIs90To105PercentLthr_MediumConfidence', () => {
+	it('calculateDanielsLthrZones_TIs95To102PercentLthr_MediumConfidence', () => {
 		const zones = calculateDanielsLthrZones(170)!;
 		const t = zones[2];
-		expect(t.bpmLow).toBe(Math.round(170 * 0.9));
-		expect(t.bpmHigh).toBe(Math.round(170 * 1.05));
+		expect(t.bpmLow).toBe(Math.round(170 * 0.95));
+		expect(t.bpmHigh).toBe(Math.round(170 * 1.02));
 		expect(t.confidence).toBe('medium');
 	});
 
-	it('calculateDanielsLthrZones_IIs105To120PercentLthr_LowConfidence', () => {
+	it('calculateDanielsLthrZones_IIs102To106PercentLthr_LowConfidence', () => {
 		const zones = calculateDanielsLthrZones(170)!;
 		const i = zones[3];
-		expect(i.bpmLow).toBe(Math.round(170 * 1.05));
-		expect(i.bpmHigh).toBe(Math.round(170 * 1.2));
+		expect(i.bpmLow).toBe(Math.round(170 * 1.02));
+		expect(i.bpmHigh).toBe(Math.round(170 * 1.06));
 		expect(i.confidence).toBe('low');
 	});
 
-	it('calculateDanielsLthrZones_RIsAbove120PercentLthr_OpenEndedHigh', () => {
+	it('calculateDanielsLthrZones_RIsAbove106PercentLthr_OpenEndedHigh_NoneConfidence', () => {
 		// R = Repetition (Daniels' fastest zone), not generic "Recovery" — reps are too
-		// short (30-90s) for HR to stabilise, so HR is informational only and pace leads.
+		// short (30-90s) for HR to stabilise, so HR is not a viable prescription metric.
 		const zones = calculateDanielsLthrZones(170)!;
 		const r = zones[4];
-		expect(r.bpmLow).toBe(Math.round(170 * 1.2));
+		expect(r.bpmLow).toBe(Math.round(170 * 1.06));
 		expect(r.bpmHigh).toBeNull();
-		expect(r.confidence).toBe('high');
+		expect(r.confidence).toBe('none');
 	});
 
 	it('calculateDanielsLthrZones_EachZoneHasName', () => {
