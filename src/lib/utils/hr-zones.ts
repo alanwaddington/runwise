@@ -225,6 +225,38 @@ export function calculateDanielsLthrZones(lthr: number): HrTrainingZone[] | null
 	}));
 }
 
+/**
+ * %MaxHR bands for Daniels' E/M/T/I/R zones, taken directly from Daniels' published
+ * %HRmax ranges (see issue #101 research). Unlike the LTHR table, T intentionally
+ * overlaps the top of M (88-89%) since Daniels' own ranges overlap there. R has no
+ * HR target at all: reps (30-90s) end before HR responds, so there is nothing
+ * physiologically meaningful to prescribe — confidence 'none' with null bounds.
+ */
+const DANIELS_MAXHR_ZONE_META = [
+	{ zone: 'E', name: 'Easy / Recovery', lowPct: 0.65, highPct: 0.79, confidence: 'high' },
+	{ zone: 'M', name: 'Marathon', lowPct: 0.8, highPct: 0.89, confidence: 'high' },
+	{ zone: 'T', name: 'Threshold / Tempo', lowPct: 0.88, highPct: 0.92, confidence: 'medium' },
+	{ zone: 'I', name: 'Interval', lowPct: 0.97, highPct: 1.0, confidence: 'low' },
+	{ zone: 'R', name: 'Repetition', lowPct: null, highPct: null, confidence: 'none' }
+] as const;
+
+/**
+ * Calculate Daniels-aligned E/M/T/I/R HR training zones from Max HR, with a
+ * confidence tier per zone reflecting how reliably HR maps to that zone's
+ * intended effort. Returns null for physiologically implausible Max HR values.
+ */
+export function calculateDanielsMaxHrZones(maxHr: number): HrTrainingZone[] | null {
+	if (maxHr < MIN_MAX_HR || maxHr > MAX_MAX_HR) return null;
+
+	return DANIELS_MAXHR_ZONE_META.map(({ zone, name, lowPct, highPct, confidence }) => ({
+		zone,
+		name,
+		bpmLow: lowPct === null ? null : Math.round(maxHr * lowPct),
+		bpmHigh: highPct === null ? null : Math.round(maxHr * highPct),
+		confidence
+	}));
+}
+
 /** "145–160 bpm" (both bounds), "< 160 bpm" / "> 145 bpm" (one open-ended bound), or "N/A". */
 export function formatBpmRange(bpmLow: number | null, bpmHigh: number | null): string {
 	if (bpmLow !== null && bpmHigh !== null) return `${bpmLow}–${bpmHigh} bpm`;
