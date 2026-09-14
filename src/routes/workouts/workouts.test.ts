@@ -326,7 +326,7 @@ describe('HR mode', () => {
 
 	it('shows the LTHR input when HR tab is selected', async () => {
 		await switchToHrMode();
-		expect(screen.getByLabelText(/lactate threshold heart rate/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/lactate threshold heart rate \(lthr\)/i)).toBeInTheDocument();
 	});
 
 	it('shows empty state when nothing is entered', async () => {
@@ -336,7 +336,7 @@ describe('HR mode', () => {
 
 	it('shows an inline error for an implausible LTHR', async () => {
 		await switchToHrMode();
-		const lthrInput = screen.getByLabelText(/lactate threshold heart rate/i);
+		const lthrInput = screen.getByLabelText(/lactate threshold heart rate \(lthr\)/i);
 		await fireEvent.input(lthrInput, { target: { value: '250' } });
 		await fireEvent.blur(lthrInput);
 		expect(screen.getByText(/must be between 100 and 200/i)).toBeInTheDocument();
@@ -344,7 +344,7 @@ describe('HR mode', () => {
 
 	it('shows the LTHR headline and 5 HR zones for valid inputs', async () => {
 		await switchToHrMode();
-		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate \(lthr\)/i), {
 			target: { value: '172' }
 		});
 		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
@@ -359,7 +359,7 @@ describe('HR mode', () => {
 
 	it('shows the fallback-pace notice when no race result has been entered', async () => {
 		await switchToHrMode();
-		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate \(lthr\)/i), {
 			target: { value: '172' }
 		});
 		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
@@ -375,10 +375,43 @@ describe('HR mode', () => {
 			target: { value: '60' }
 		});
 		await fireEvent.click(screen.getByRole('tab', { name: 'HR' }));
-		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate/i), {
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate \(lthr\)/i), {
 			target: { value: '172' }
 		});
 		expect(screen.queryByText(/durations are estimated using a general easy pace/i)).toBeNull();
+	});
+
+	it('switches to the Max HR input when the Max HR method tab is selected', async () => {
+		await switchToHrMode();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Max HR' }));
+		expect(screen.getByLabelText(/maximum heart rate \(max hr\)/i)).toBeInTheDocument();
+		expect(screen.queryByLabelText(/lactate threshold heart rate \(lthr\)/i)).toBeNull();
+	});
+
+	it('shows an inline error for an implausible Max HR', async () => {
+		await switchToHrMode();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Max HR' }));
+		const maxHrInput = screen.getByLabelText(/maximum heart rate \(max hr\)/i);
+		await fireEvent.input(maxHrInput, { target: { value: '250' } });
+		await fireEvent.blur(maxHrInput);
+		expect(screen.getByText(/must be between 100 and 220/i)).toBeInTheDocument();
+	});
+
+	it('shows the Max HR headline, zones, and an N/A caveat on the R zone for valid inputs', async () => {
+		await switchToHrMode();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Max HR' }));
+		await fireEvent.input(screen.getByLabelText(/maximum heart rate \(max hr\)/i), {
+			target: { value: '185' }
+		});
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		expect(screen.getByText(/your max hr/i)).toBeInTheDocument();
+		expect(screen.getByText('185 bpm')).toBeInTheDocument();
+		expect(screen.getAllByText('N/A').length).toBeGreaterThan(0);
+		expect(
+			screen.getByText(/hr can't stabilise over reps this short/i)
+		).toBeInTheDocument();
 	});
 });
 

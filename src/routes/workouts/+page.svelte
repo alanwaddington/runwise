@@ -85,6 +85,10 @@
 	let lthrRaw = $state('');
 	let lthrTouched = $state(false);
 	let lthrError = $state<string | null>(null);
+	let hrMethod = $state<'maxhr' | 'lthr'>('lthr');
+	let maxHrRaw = $state('');
+	let maxHrTouched = $state(false);
+	let maxHrError = $state<string | null>(null);
 
 	// Modal state for expanded workout view
 	let selectedWorkout = $state<{
@@ -216,10 +220,23 @@
 	let lthrValidation = $derived(validateRange(lthrRaw ? parseFloat(lthrRaw) : null, 100, 200));
 	let lthr = $derived(lthrValidation.type === 'valid' ? lthrValidation.value : null);
 
+	let maxHrValidation = $derived(validateRange(maxHrRaw ? parseFloat(maxHrRaw) : null, 100, 220));
+	let maxHr = $derived(maxHrValidation.type === 'valid' ? maxHrValidation.value : null);
+
+	let hrInput = $derived(
+		hrMethod === 'maxhr'
+			? maxHr !== null
+				? ({ method: 'maxhr', value: maxHr } as const)
+				: null
+			: lthr !== null
+				? ({ method: 'lthr', value: lthr } as const)
+				: null
+	);
+
 	let hrResult = $derived(
-		mode === 'hr' && lthr !== null && weeklyMileageKm > 0
+		mode === 'hr' && hrInput !== null && weeklyMileageKm > 0
 			? buildHrWorkoutsResult(
-					lthr,
+					hrInput,
 					weeklyMileageKm,
 					trainingPaceResult !== null && trainingPaceResult !== 'out-of-range'
 						? trainingPaceResult.zones
@@ -373,6 +390,26 @@
 		lthrError = validation.type === 'invalid' ? validation.error : null;
 	}
 
+	function onMaxHrInput(e: Event) {
+		const raw = (e.target as HTMLInputElement).value;
+		maxHrRaw = raw;
+		const validation = validateRange(raw ? parseFloat(raw) : null, 100, 220);
+		maxHrError = validation.type === 'invalid' ? validation.error : null;
+	}
+
+	function switchHrMethod(newMethod: 'maxhr' | 'lthr') {
+		hrMethod = newMethod;
+		if (newMethod === 'maxhr') {
+			lthrRaw = '';
+			lthrTouched = false;
+			lthrError = null;
+		} else {
+			maxHrRaw = '';
+			maxHrTouched = false;
+			maxHrError = null;
+		}
+	}
+
 	function switchMode(newMode: 'pace' | 'power' | 'hr' | 'race-prep') {
 		const previousMode = mode;
 		mode = newMode;
@@ -393,6 +430,8 @@
 		if (previousMode === 'hr' && newMode !== 'hr') {
 			lthrError = null;
 			lthrTouched = false;
+			maxHrError = null;
+			maxHrTouched = false;
 		}
 	}
 
@@ -415,6 +454,10 @@
 			lthrRaw = '';
 			lthrTouched = false;
 			lthrError = null;
+			maxHrRaw = '';
+			maxHrTouched = false;
+			maxHrError = null;
+			hrMethod = 'lthr';
 		} else {
 			raceDateRaw = '';
 		}
@@ -695,6 +738,68 @@
 	</p>
 {/snippet}
 
+{#snippet maxHrModalityInput()}
+	<InputField
+		id="maxhr"
+		label="Maximum heart rate (Max HR)"
+		bind:value={maxHrRaw}
+		unit="bpm"
+		type="text"
+		inputmode="decimal"
+		placeholder="e.g. 185"
+		required
+		error={maxHrError}
+		touched={maxHrTouched}
+		oninput={onMaxHrInput}
+		onblur={() => (maxHrTouched = true)}
+	/>
+	<p class="mt-1 text-xs text-muted">
+		Your maximum heart rate — measured, or estimated as 220 − age.
+	</p>
+{/snippet}
+
+{#snippet hrMethodSelector()}
+	<div class="mb-4">
+		<span class="mb-1.5 block text-sm font-medium text-ink">HR method</span>
+		<div
+			class="grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
+			role="tablist"
+			aria-label="HR zone method"
+		>
+			<button
+				type="button"
+				role="tab"
+				aria-selected={hrMethod === 'lthr'}
+				onclick={() => switchHrMethod('lthr')}
+				class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+				class:bg-accent-dark={hrMethod === 'lthr'}
+				class:text-white={hrMethod === 'lthr'}
+				class:font-semibold={hrMethod === 'lthr'}
+				class:text-subtle={hrMethod !== 'lthr'}
+				class:dark:text-muted={hrMethod !== 'lthr'}
+				class:hover:text-hover={hrMethod !== 'lthr'}
+			>
+				LTHR
+			</button>
+			<button
+				type="button"
+				role="tab"
+				aria-selected={hrMethod === 'maxhr'}
+				onclick={() => switchHrMethod('maxhr')}
+				class="rounded-md py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+				class:bg-accent-dark={hrMethod === 'maxhr'}
+				class:text-white={hrMethod === 'maxhr'}
+				class:font-semibold={hrMethod === 'maxhr'}
+				class:text-subtle={hrMethod !== 'maxhr'}
+				class:dark:text-muted={hrMethod !== 'maxhr'}
+				class:hover:text-hover={hrMethod !== 'maxhr'}
+			>
+				Max HR
+			</button>
+		</div>
+	</div>
+{/snippet}
+
 <ToolLayout
 	title="Workout Suggestions"
 	description="Turn your training paces and power into concrete session plans, scaled to your weekly mileage."
@@ -922,7 +1027,12 @@
 	{:else if mode === 'power'}
 		{@render powerModalityInputs()}
 	{:else}
-		{@render hrModalityInput()}
+		{@render hrMethodSelector()}
+		{#if hrMethod === 'maxhr'}
+			{@render maxHrModalityInput()}
+		{:else}
+			{@render hrModalityInput()}
+		{/if}
 	{/if}
 
 	<!-- Shared weekly mileage input -->
@@ -1360,7 +1470,8 @@
 					<path d="M12 3v2" />
 				</svg>
 				<p class="mt-3 text-sm text-muted">
-					Enter your LTHR and weekly mileage above to see your workout suggestions.
+					Enter your {hrMethod === 'maxhr' ? 'Max HR' : 'LTHR'} and weekly mileage above to see your
+					workout suggestions.
 				</p>
 			</div>
 		{:else if hrResult === 'out-of-range'}
@@ -1383,19 +1494,25 @@
 					<path d="M12 8h.01" />
 				</svg>
 				<p class="mt-3 text-sm font-medium text-ink">
-					That LTHR is outside the supported range (100–200 bpm).
+					{hrMethod === 'maxhr'
+						? 'That Max HR is outside the supported range (100–220 bpm).'
+						: 'That LTHR is outside the supported range (100–200 bpm).'}
 				</p>
 				<p class="mt-1 text-sm text-muted">
-					Try entering a value closer to your actual threshold heart rate.
+					Try entering a value closer to your actual {hrMethod === 'maxhr'
+						? 'maximum heart rate'
+						: 'threshold heart rate'}.
 				</p>
 			</div>
 		{:else}
 			<!-- State C: Valid results -->
 
-			<!-- LTHR headline -->
+			<!-- HR value headline -->
 			<div class="mb-6 text-center">
-				<p class="text-xs font-medium uppercase tracking-wide text-muted">Your LTHR</p>
-				<p class="text-4xl font-bold tabular-nums text-accent">{hrResult.lthr} bpm</p>
+				<p class="text-xs font-medium uppercase tracking-wide text-muted">
+					{hrResult.hrMethod === 'maxhr' ? 'Your Max HR' : 'Your LTHR'}
+				</p>
+				<p class="text-4xl font-bold tabular-nums text-accent">{hrResult.hrValue} bpm</p>
 			</div>
 
 			{#if hrResult.usedFallbackPace}
@@ -1452,13 +1569,23 @@
 							class:text-gray-700={zone.confidence === 'low'}
 							class:dark:bg-gray-700={zone.confidence === 'low'}
 							class:dark:text-gray-300={zone.confidence === 'low'}
+							class:border={zone.confidence === 'none'}
+							class:border-dashed={zone.confidence === 'none'}
+							class:border-slate-400={zone.confidence === 'none'}
+							class:dark:border-slate-500={zone.confidence === 'none'}
+							class:bg-slate-200={zone.confidence === 'none'}
+							class:text-slate-600={zone.confidence === 'none'}
+							class:dark:bg-slate-700={zone.confidence === 'none'}
+							class:dark:text-slate-300={zone.confidence === 'none'}
 							title={zone.confidence === 'high'
 								? "This zone's HR range is well-established."
 								: zone.confidence === 'medium'
 									? 'Threshold HR varies runner to runner.'
-									: 'HR lags too much over short efforts — use pace/effort as the primary guide.'}
+									: zone.confidence === 'low'
+										? 'HR lags too much over short efforts — use pace/effort as the primary guide.'
+										: 'HR is not applicable for this effort duration — use pace/effort instead.'}
 						>
-							{zone.confidence}
+							{zone.confidence === 'none' ? 'N/A' : zone.confidence}
 						</span>
 					</div>
 				{/each}
@@ -1479,6 +1606,12 @@
 							{formatBpmRange(zone.bpmLow, zone.bpmHigh)}
 						</span>
 					</div>
+
+					{#if zone.confidence === 'none'}
+						<p class="mb-3 text-xs italic text-muted">
+							HR can't stabilise over reps this short — go by pace or effort instead.
+						</p>
+					{/if}
 
 					<WorkoutRail label="{zone.name} workouts">
 						{#each zone.workouts as workout (workout.label + workout.description)}
