@@ -9,15 +9,22 @@ import {
 	type Workout,
 	type WorkoutSegment
 } from './workouts';
-import { calculateDanielsLthrZones, type HrTrainingZone } from './hr-zones';
+import {
+	calculateDanielsLthrZones,
+	calculateDanielsMaxHrZones,
+	type HrMethod,
+	type HrTrainingZone
+} from './hr-zones';
 import { ZONE_META, type ZoneKey, type TrainingZone } from './training-paces';
+
+export type HrInput = { method: 'lthr'; value: number } | { method: 'maxhr'; value: number };
 
 export interface HrWorkoutZone {
 	zone: ZoneKey;
 	name: string;
 	bpmLow: number | null;
 	bpmHigh: number | null;
-	confidence: 'high' | 'medium' | 'low';
+	confidence: 'high' | 'medium' | 'low' | 'none';
 	/** Present only when trainingZones was supplied to buildHrWorkoutsResult. */
 	informationalPaceLow?: string;
 	informationalPaceHigh?: string;
@@ -25,7 +32,8 @@ export interface HrWorkoutZone {
 }
 
 export interface HrWorkoutsResult {
-	lthr: number;
+	hrMethod: HrMethod;
+	hrValue: number;
 	zones: HrWorkoutZone[];
 	usedFallbackPace: boolean;
 }
@@ -442,25 +450,30 @@ export function buildHrZoneWorkouts(
 }
 
 /**
- * Build HR-based workout prescriptions for all zones from LTHR + weekly mileage.
+ * Build HR-based workout prescriptions for all zones from LTHR or Max HR + weekly mileage.
  * Duration-based (Decision 5) since HR carries no distance. When trainingZones is supplied
  * (the user has also entered a race result elsewhere on the page), each zone's own pace sizes
  * its workout durations and informational pace fields are populated; otherwise a documented
  * fallback pace (VDOT 45, ~5:30/km) is used for all zones and usedFallbackPace is set true so
- * the UI can flag the estimate as such.
+ * the UI can flag the estimate as such. The R zone via Max HR carries confidence 'none' with no
+ * bpm target (HR can't stabilise over a rep that short) — its workouts still generate, just
+ * without a bpm range baked into the description.
  */
 export function buildHrWorkoutsResult(
-	lthr: number | null,
+	hrInput: HrInput | null,
 	weeklyMileageKm: number | null,
 	trainingZones?: TrainingZone[]
 ): HrWorkoutsResult | 'out-of-range' | null {
-	if (lthr === null || weeklyMileageKm === null || weeklyMileageKm === undefined) {
+	if (hrInput === null || weeklyMileageKm === null || weeklyMileageKm === undefined) {
 		return null;
 	}
 
 	if (weeklyMileageKm <= 0) return 'out-of-range';
 
-	const hrZones = calculateDanielsLthrZones(lthr);
+	const hrZones =
+		hrInput.method === 'lthr'
+			? calculateDanielsLthrZones(hrInput.value)
+			: calculateDanielsMaxHrZones(hrInput.value);
 	if (hrZones === null) return 'out-of-range';
 
 	const usedFallbackPace = !trainingZones || trainingZones.length === 0;
@@ -486,5 +499,5 @@ export function buildHrWorkoutsResult(
 		};
 	});
 
-	return { lthr, zones, usedFallbackPace };
+	return { hrMethod: hrInput.method, hrValue: hrInput.value, zones, usedFallbackPace };
 }
