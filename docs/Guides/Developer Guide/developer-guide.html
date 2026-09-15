@@ -85,7 +85,7 @@ npm run dev
 ├── app.html             # SvelteKit HTML shell
 ├── lib/
 │   ├── affiliates.ts    # Affiliate product definitions per route (Amazon Associates, Garmin, and direct/non-affiliate links)
-│   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images — includes /about, /guides, and each guide&#39;s route (generated from lib/content/guides.ts)
+│   ├── seo.ts           # SEO metadata map (PAGES), sitemap config, OG images — includes /about, /guides, and each guide&#39;s route (generated from lib/content/guide-index.ts, NOT the full guides/ content — see below)
 │   ├── components/      # Shared UI components
 │   │   ├── AdUnit.svelte              # Consent-gated Google AdSense ad unit
 │   │   ├── AdUnit.test.ts
@@ -106,6 +106,8 @@ npm run dev
 │   │   ├── IconWarning.test.ts
 │   │   ├── InputField.svelte
 │   │   ├── InputField.test.ts
+│   │   ├── MedicalDisclaimer.svelte   # &quot;Not medical advice&quot; notice — rendered at the top of HR Zones, VO2 Max, and Workouts only (the YMYL-adjacent tools), links to /about for sourcing
+│   │   ├── MedicalDisclaimer.test.ts
 │   │   ├── PageExplainer.svelte       # Per-route &quot;About this tool&quot; footer content, driven by lib/content/explainers.ts; sections may include outbound reference links
 │   │   ├── PageExplainer.test.ts
 │   │   ├── PatternBadge.svelte        # Consolidated workout-pattern badge (Race-Prep, mixed-zone pair key, etc.) — one component, own row under the card title, replaces two earlier inconsistent badge styles
@@ -132,8 +134,10 @@ npm run dev
 │   │   └── toolValidation.ts    # Per-field validation rule config shared across tool pages
 │   ├── content/
 │   │   ├── explainers.ts        # Per-route PageExplainer content (heading/intro/sections, optional outbound links)
-│   │   ├── guides.ts            # The 4 long-form /guides/* articles (title/excerpt/sourcesCredited/intro/sections), same content shape as explainers.ts
-│   │   └── guides.test.ts       # Enforces exactly 4 guides, unique slugs, a 900-word minimum, and that at least one guide names its source methodology
+│   │   ├── guide-index.ts       # Lightweight per-guide metadata (slug/route/title/excerpt) ONLY — this is what seo.ts imports (rendered on every page via SeoHead), so guide article bodies never ship outside their own route&#39;s chunk
+│   │   ├── guide-index.test.ts  # Asserts GUIDE_INDEX stays in sync with the full GUIDES content (same slugs/order, matching route/title/excerpt) — guards against the two going out of sync
+│   │   ├── guides.test.ts       # Enforces exactly 10 guides, unique slugs, a 900-word minimum, and that EVERY guide names its source methodology in body prose
+│   │   └── guides/              # One file per guide (title/excerpt/sourcesCredited/intro/sections, same content shape as explainers.ts), re-exported as GUIDES from guides/index.ts; each /guides/&lt;slug&gt;/+page.svelte imports its own file directly rather than the aggregated array, so a route&#39;s own chunk carries only its own article
 │   ├── server/            # Server-only logic backing src/routes/api/contact
 │   │   ├── contactValidation.ts       # Pure validation of a contact submission — required fields, email format, message length, honeypot detection
 │   │   ├── contactValidation.test.ts
@@ -205,11 +209,17 @@ npm run dev
     ├── privacy/         # Privacy Policy page
     ├── about/           # Project identity, sourced-methodology summary, and the embedded ContactForm
     ├── guides/
-    │   ├── +page.svelte                     # Guides index, listing every entry in lib/content/guides.ts
+    │   ├── +page.svelte                     # Guides index, listing every entry in lib/content/guide-index.ts (NOT the full guides/ content)
     │   ├── understanding-vdot/
     │   ├── hr-zones-vs-power-zones/
     │   ├── how-race-predictions-work/
-    │   └── reading-your-vo2max/             # Each a thin wrapper rendering GuideArticle with its own guides.ts entry
+    │   ├── reading-your-vo2max/
+    │   ├── understanding-running-pace/
+    │   ├── parkrun-age-grading-explained/
+    │   ├── running-power-zones-explained/
+    │   ├── interval-training-explained/
+    │   ├── how-runwise-builds-workouts/
+    │   └── choosing-your-training-metric/   # Each a thin wrapper importing its own guide directly from lib/content/guides/&lt;slug&gt;.ts and rendering GuideArticle with it
     └── api/
         └── contact/
             └── +server.ts   # POST /api/contact — validate → honeypot check → rate limit → send via lib/server/mailer.ts. The project&#39;s first mutating server route.
@@ -476,8 +486,13 @@ npm run dev
 </tr>
 <tr>
 <td><code>GuideArticle</code></td>
-<td><code>guide</code> (a <code>GuideContent</code> from <code>lib/content/guides.ts</code>)</td>
+<td><code>guide</code> (a <code>GuideContent</code>, type defined in <code>lib/content/guides/types.ts</code>)</td>
 <td>Shared layout for a <code>/guides/*</code> article — title, intro, a &quot;Sourced from&quot; credibility callout, then each section as an <code>&lt;h2&gt;</code> + body</td>
+</tr>
+<tr>
+<td><code>MedicalDisclaimer</code></td>
+<td><em>(none)</em></td>
+<td>Fixed &quot;Not medical advice&quot; notice, rendered on HR Zones, VO2 Max, and Workouts only</td>
 </tr>
 </tbody></table>
 <hr>
