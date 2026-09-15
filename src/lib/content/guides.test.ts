@@ -9,8 +9,8 @@ function wordCount(guide: (typeof GUIDES)[number]): number {
 }
 
 describe('GUIDES content', () => {
-	it('containsExactlyFourGuides', () => {
-		expect(GUIDES).toHaveLength(4);
+	it('containsExactlyTenGuides', () => {
+		expect(GUIDES).toHaveLength(10);
 	});
 
 	it('everyGuide_hasAUniqueSlug', () => {
