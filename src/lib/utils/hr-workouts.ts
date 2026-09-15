@@ -12,6 +12,7 @@ import {
 import {
 	calculateDanielsLthrZones,
 	calculateDanielsMaxHrZones,
+	type HrConfidence,
 	type HrMethod,
 	type HrTrainingZone
 } from './hr-zones';
@@ -24,7 +25,7 @@ export interface HrWorkoutZone {
 	name: string;
 	bpmLow: number | null;
 	bpmHigh: number | null;
-	confidence: 'high' | 'medium' | 'low' | 'none';
+	confidence: HrConfidence;
 	/** Present only when trainingZones was supplied to buildHrWorkoutsResult. */
 	informationalPaceLow?: string;
 	informationalPaceHigh?: string;
@@ -76,6 +77,12 @@ function formatBpmRangeStr(hrZone: HrTrainingZone): string {
 	return 'N/A';
 }
 
+/** "{name} HR (142–153 bpm)", or "{name} effort" when the zone has no HR target at all
+ *  (Max HR method's R zone) — avoids descriptions reading as "at Repetition HR (N/A)". */
+function zoneHrClause(name: string, bpmRangeStr: string): string {
+	return bpmRangeStr === 'N/A' ? `${name} effort` : `${name} HR (${bpmRangeStr})`;
+}
+
 function buildHrContinuousWorkout(
 	zone: ZoneKey,
 	hrZone: HrTrainingZone,
@@ -98,7 +105,7 @@ function buildHrContinuousWorkout(
 
 	return {
 		label,
-		description: `${formatMinutes(qualityMinutes)} continuous ${zoneName} run at ${zoneName} HR (${bpmRangeStr})`,
+		description: `${formatMinutes(qualityMinutes)} continuous ${zoneName} run at ${zoneHrClause(zoneName, bpmRangeStr)}`,
 		totalVolumeKm: round1(qualityMinutes / pace),
 		recovery: 'None (continuous)',
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
@@ -149,7 +156,7 @@ function buildHrRepsWorkout(
 
 	return {
 		label,
-		description: `${repCount} × ${formatMinutes(repMinutes)} min at ${zoneName} HR (${bpmRangeStr}), ${recoveryStr} min recovery`,
+		description: `${repCount} × ${formatMinutes(repMinutes)} min at ${zoneHrClause(zoneName, bpmRangeStr)}, ${recoveryStr} min recovery`,
 		totalVolumeKm: round1(qualityTime / pace),
 		recovery: `${recoveryStr} min recovery between reps`,
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(segments)),
@@ -197,7 +204,7 @@ function buildHrZoneWorkoutsUnrounded(
 
 		const fartlek: Workout = {
 			label: 'Easy fartlek',
-			description: `${fartlekPickupCount} × ${formatMinutes(fartlekPickupMinutes)} min pickups at Easy HR (${bpmRangeStr}), ${formatMinutes(fartlekRecoveryMinutes)} min easy jog recovery`,
+			description: `${fartlekPickupCount} × ${formatMinutes(fartlekPickupMinutes)} min pickups at ${zoneHrClause('Easy', bpmRangeStr)}, ${formatMinutes(fartlekRecoveryMinutes)} min easy jog recovery`,
 			totalVolumeKm: round1(fartlekMinutes / pace),
 			recovery: `${formatMinutes(fartlekRecoveryMinutes)} min easy jog between pickups`,
 			estimatedDurationMinutes: Math.round(sumSegmentMinutes(fartlekSegments)),
@@ -226,7 +233,7 @@ function buildHrZoneWorkoutsUnrounded(
 		];
 		const segmented: Workout = {
 			label: 'Segments',
-			description: `2 × ${formatMinutes(segmentMinutes)} min at Marathon HR (${bpmRangeStr}), ${formatMinutes(recoveryMinutes)} min easy jog recovery`,
+			description: `2 × ${formatMinutes(segmentMinutes)} min at ${zoneHrClause('Marathon', bpmRangeStr)}, ${formatMinutes(recoveryMinutes)} min easy jog recovery`,
 			totalVolumeKm: round1(volumeMinutes / pace),
 			recovery: `${formatMinutes(recoveryMinutes)} min easy jog between segments`,
 			estimatedDurationMinutes: Math.round(sumSegmentMinutes(segmentedSegments)),
@@ -245,7 +252,7 @@ function buildHrZoneWorkoutsUnrounded(
 		progSegments.push(cooldownSegment(progCooldownMinutes));
 		const progression: Workout = {
 			label: 'Progression',
-			description: `${progSegmentCount} progressive segments building to Marathon HR (${bpmRangeStr})`,
+			description: `${progSegmentCount} progressive segments building to ${zoneHrClause('Marathon', bpmRangeStr)}`,
 			totalVolumeKm: round1(volumeMinutes / pace),
 			recovery: 'None (continuous progression)',
 			estimatedDurationMinutes: Math.round(sumSegmentMinutes(progSegments)),
@@ -284,7 +291,7 @@ function buildHrZoneWorkoutsUnrounded(
 		cruiseSegments.push(cooldownSegment(cruiseCooldownMinutes));
 		const cruise: Workout = {
 			label: 'Cruise intervals',
-			description: `${cruiseRepCount} × ${formatMinutes(cruiseRepMinutes)} min at Threshold HR (${bpmRangeStr}), ${formatMinutes(cruiseRecoveryMinutes)} min jog recovery`,
+			description: `${cruiseRepCount} × ${formatMinutes(cruiseRepMinutes)} min at ${zoneHrClause('Threshold', bpmRangeStr)}, ${formatMinutes(cruiseRecoveryMinutes)} min jog recovery`,
 			totalVolumeKm: round1(volumeMinutes / pace),
 			recovery: `${formatMinutes(cruiseRecoveryMinutes)} min jog between reps`,
 			estimatedDurationMinutes: Math.round(sumSegmentMinutes(cruiseSegments)),
@@ -321,7 +328,7 @@ function buildHrZoneWorkoutsUnrounded(
 		ladderSegments.push(cooldownSegment(ladderCooldownMinutes));
 		const ladder: Workout = {
 			label: 'Tempo ladder',
-			description: `Ascending and descending tempo ladder at Threshold HR (${bpmRangeStr})`,
+			description: `Ascending and descending tempo ladder at ${zoneHrClause('Threshold', bpmRangeStr)}`,
 			totalVolumeKm: round1(volumeMinutes / pace),
 			recovery: 'Recovery increases with each rung',
 			estimatedDurationMinutes: Math.round(sumSegmentMinutes(ladderSegments)),
@@ -396,7 +403,7 @@ function buildHrZoneWorkoutsUnrounded(
 		pyramidSegments.push(cooldownSegment(pyramidCooldownMinutes));
 		const pyramid: Workout = {
 			label: 'Pyramid',
-			description: `Ascending and descending intensity pyramid at Interval HR (${bpmRangeStr})`,
+			description: `Ascending and descending intensity pyramid at ${zoneHrClause('Interval', bpmRangeStr)}`,
 			totalVolumeKm: round1(volumeMinutes / pace),
 			recovery: `${formatMinutes(stepMinutes)} min recovery between steps`,
 			estimatedDurationMinutes: Math.round(sumSegmentMinutes(pyramidSegments)),
@@ -431,7 +438,7 @@ function buildHrZoneWorkoutsUnrounded(
 	descendingSegments.push(cooldownSegment(descendingCooldownMinutes));
 	const descending: Workout = {
 		label: 'Descending reps',
-		description: `Descending repetition lengths at Repetition HR (${bpmRangeStr})`,
+		description: `Descending repetition lengths at ${zoneHrClause('Repetition', bpmRangeStr)}`,
 		totalVolumeKm: round1(volumeMinutes / pace),
 		recovery: `${formatMinutes(descendingStepMinutes)} min recovery between reps`,
 		estimatedDurationMinutes: Math.round(sumSegmentMinutes(descendingSegments)),

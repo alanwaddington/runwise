@@ -408,14 +408,16 @@
 		maxHrError = validation.type === 'invalid' ? validation.error : null;
 	}
 
+	// Only clears touched/error (to avoid a stale validation message reappearing on the
+	// now-hidden field) — the raw values themselves are left alone. lthrRaw in particular
+	// is shared with the Race-Prep HR sub-panel, so wiping it here would silently discard
+	// a value the user entered there.
 	function switchHrMethod(newMethod: 'maxhr' | 'lthr') {
 		hrMethod = newMethod;
 		if (newMethod === 'maxhr') {
-			lthrRaw = '';
 			lthrTouched = false;
 			lthrError = null;
 		} else {
-			maxHrRaw = '';
 			maxHrTouched = false;
 			maxHrError = null;
 		}

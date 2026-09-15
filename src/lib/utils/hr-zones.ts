@@ -1,5 +1,10 @@
 export type HrMethod = 'maxhr' | 'lthr';
 
+/** How reliably HR maps to a zone's intended effort — 'none' means HR is not a viable
+ *  prescription metric for that zone at all (e.g. R, where reps are too short for HR to
+ *  respond), not just a wide/uncertain range. */
+export type HrConfidence = 'high' | 'medium' | 'low' | 'none';
+
 export interface HrZone {
 	zone: number | string;
 	name: string;
@@ -189,7 +194,7 @@ export interface HrTrainingZone {
 	name: string;
 	bpmLow: number | null;
 	bpmHigh: number | null;
-	confidence: 'high' | 'medium' | 'low' | 'none';
+	confidence: HrConfidence;
 }
 
 /**

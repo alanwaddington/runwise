@@ -413,6 +413,29 @@ describe('HR mode', () => {
 			screen.getByText(/hr can't stabilise over reps this short/i)
 		).toBeInTheDocument();
 	});
+
+	it('shows the Threshold/Interval gap note for the Max HR method', async () => {
+		await switchToHrMode();
+		await fireEvent.click(screen.getByRole('tab', { name: 'Max HR' }));
+		await fireEvent.input(screen.getByLabelText(/maximum heart rate \(max hr\)/i), {
+			target: { value: '185' }
+		});
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		expect(screen.getByText(/171–178 bpm has no zone/i)).toBeInTheDocument();
+	});
+
+	it('does not show the Threshold/Interval gap note for the LTHR method (contiguous table)', async () => {
+		await switchToHrMode();
+		await fireEvent.input(screen.getByLabelText(/lactate threshold heart rate \(lthr\)/i), {
+			target: { value: '172' }
+		});
+		await fireEvent.input(screen.getByLabelText(/weekly training mileage/i), {
+			target: { value: '60' }
+		});
+		expect(screen.queryByText(/has no zone/i)).toBeNull();
+	});
 });
 
 describe('Race-Prep mode', () => {
