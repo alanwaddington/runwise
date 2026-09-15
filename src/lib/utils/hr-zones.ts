@@ -228,9 +228,19 @@ export function calculateDanielsLthrZones(lthr: number): HrTrainingZone[] | null
 /**
  * %MaxHR bands for Daniels' E/M/T/I/R zones, taken directly from Daniels' published
  * %HRmax ranges (see issue #101 research). Unlike the LTHR table, T intentionally
- * overlaps the top of M (88-89%) since Daniels' own ranges overlap there. R has no
- * HR target at all: reps (30-90s) end before HR responds, so there is nothing
- * physiologically meaningful to prescribe — confidence 'none' with null bounds.
+ * overlaps the top of M (88-89%) since Daniels' own ranges overlap there, and there's
+ * an intentional 92-97% gap between T and I — Daniels' own ranges leave it uncovered
+ * rather than the tables being transposed wrong, and I's 'low' confidence already
+ * reflects that most reps sit near-max HR and never settle inside a tight band. Unlike
+ * Runwise, other zone systems (Friel, Garmin) build their tables contiguous, each zone's
+ * top meeting the next zone's bottom — but that reflects a UX choice to partition the
+ * whole HR range, not evidence the gap is unreal: exercise physiology independently
+ * describes a "grey zone" between the heavy and severe exercise domains where VO2 doesn't
+ * stabilise until ~95% VO2max (Ozkaya et al. 2022, "Grey Zone: A Gap Between Heavy and
+ * Severe Exercise"), i.e. a genuinely transitional effort band that's neither clean
+ * threshold work nor true VO2max work. R has no HR target at all: reps (30-90s) end
+ * before HR responds, so there is nothing physiologically meaningful to prescribe —
+ * confidence 'none' with null bounds.
  */
 const DANIELS_MAXHR_ZONE_META = [
 	{ zone: 'E', name: 'Easy / Recovery', lowPct: 0.65, highPct: 0.79, confidence: 'high' },

@@ -245,6 +245,17 @@
 			: null
 	);
 
+	// Daniels' Max HR method leaves an uncovered bpm band between Threshold and Interval
+	// (see hr-zones.ts) — surfaced explicitly so it reads as intentional, not a bug.
+	let hrZoneGap = $derived.by(() => {
+		if (hrResult === null || hrResult === 'out-of-range') return null;
+		const t = hrResult.zones.find((z) => z.zone === 'T');
+		const i = hrResult.zones.find((z) => z.zone === 'I');
+		if (!t || !i || t.bpmHigh === null || i.bpmLow === null) return null;
+		if (i.bpmLow <= t.bpmHigh + 1) return null;
+		return { low: t.bpmHigh + 1, high: i.bpmLow - 1 };
+	});
+
 	// Race-Prep mode derived state
 	let weeksUntilRace = $derived(raceDateRaw ? computeWeeksUntilRace(raceDateRaw, todayISO) : null);
 	let racePrepEligible = $derived(weeksUntilRace !== null && isRacePrepEligible(weeksUntilRace));
@@ -1590,6 +1601,16 @@
 					</div>
 				{/each}
 			</div>
+
+			{#if hrZoneGap}
+				<p class="mb-6 -mt-4 text-xs text-muted">
+					<span class="font-medium text-ink">{hrZoneGap.low}–{hrZoneGap.high} bpm has no zone —</span>
+					that's intentional, not a gap in the maths. Threshold and Interval are Daniels' own published
+					ranges, and that stretch sits in the genuine grey area between sustainable threshold effort
+					and true VO2max effort — HR isn't a reliable prescription there either way, so go by pace or
+					effort instead.
+				</p>
+			{/if}
 
 			<!-- Per-zone workout cards (HR mode) -->
 			{#each hrResult.zones as zone (zone.zone)}
