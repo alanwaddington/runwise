@@ -1,5 +1,10 @@
 export type HrMethod = 'maxhr' | 'lthr';
 
+/** How reliably HR maps to a zone's intended effort — 'none' means HR is not a viable
+ *  prescription metric for that zone at all (e.g. R, where reps are too short for HR to
+ *  respond), not just a wide/uncertain range. */
+export type HrConfidence = 'high' | 'medium' | 'low' | 'none';
+
 export interface HrZone {
 	zone: number | string;
 	name: string;
@@ -189,22 +194,23 @@ export interface HrTrainingZone {
 	name: string;
 	bpmLow: number | null;
 	bpmHigh: number | null;
-	confidence: 'high' | 'medium' | 'low';
+	confidence: HrConfidence;
 }
 
 /**
- * %LTHR bands for Daniels' E/M/T/I/R zones. R is Repetition — Daniels' fastest
- * zone (fast, short reps of 30-90s) — placed *above* I, not a generic "Recovery"
- * zone below E. HR can't stabilise over reps that short, so R's confidence
- * reflects a well-defined boundary (unambiguously "above I") while the zone
- * itself stays pace-led rather than HR-led in practice.
+ * %LTHR bands for Daniels' E/M/T/I/R zones, sourced from Friel's zone guide cross-checked
+ * against Daniels' %HRmax ranges (see issue #101 research). R is Repetition — Daniels'
+ * fastest zone (fast, short reps of 30-90s) — placed *above* I, not a generic "Recovery"
+ * zone below E. HR can't stabilise over reps that short (30-90s lag), so R carries
+ * confidence 'none': the bound is well-defined but HR is not a viable prescription
+ * metric for that zone, only pace is.
  */
 const DANIELS_LTHR_ZONE_META = [
-	{ zone: 'E', name: 'Easy / Recovery', lowPct: null, highPct: 0.6, confidence: 'high' },
-	{ zone: 'M', name: 'Marathon', lowPct: 0.6, highPct: 0.9, confidence: 'high' },
-	{ zone: 'T', name: 'Threshold / Tempo', lowPct: 0.9, highPct: 1.05, confidence: 'medium' },
-	{ zone: 'I', name: 'Interval', lowPct: 1.05, highPct: 1.2, confidence: 'low' },
-	{ zone: 'R', name: 'Repetition', lowPct: 1.2, highPct: null, confidence: 'high' }
+	{ zone: 'E', name: 'Easy / Recovery', lowPct: null, highPct: 0.89, confidence: 'high' },
+	{ zone: 'M', name: 'Marathon', lowPct: 0.89, highPct: 0.95, confidence: 'high' },
+	{ zone: 'T', name: 'Threshold / Tempo', lowPct: 0.95, highPct: 1.02, confidence: 'medium' },
+	{ zone: 'I', name: 'Interval', lowPct: 1.02, highPct: 1.06, confidence: 'low' },
+	{ zone: 'R', name: 'Repetition', lowPct: 1.06, highPct: null, confidence: 'none' }
 ] as const;
 
 /**
@@ -220,6 +226,48 @@ export function calculateDanielsLthrZones(lthr: number): HrTrainingZone[] | null
 		name,
 		bpmLow: lowPct === null ? null : Math.round(lthr * lowPct),
 		bpmHigh: highPct === null ? null : Math.round(lthr * highPct),
+		confidence
+	}));
+}
+
+/**
+ * %MaxHR bands for Daniels' E/M/T/I/R zones, taken directly from Daniels' published
+ * %HRmax ranges (see issue #101 research). Unlike the LTHR table, T intentionally
+ * overlaps the top of M (88-89%) since Daniels' own ranges overlap there, and there's
+ * an intentional 92-97% gap between T and I — Daniels' own ranges leave it uncovered
+ * rather than the tables being transposed wrong, and I's 'low' confidence already
+ * reflects that most reps sit near-max HR and never settle inside a tight band. Unlike
+ * Runwise, other zone systems (Friel, Garmin) build their tables contiguous, each zone's
+ * top meeting the next zone's bottom — but that reflects a UX choice to partition the
+ * whole HR range, not evidence the gap is unreal: exercise physiology independently
+ * describes a "grey zone" between the heavy and severe exercise domains where VO2 doesn't
+ * stabilise until ~95% VO2max (Ozkaya et al. 2022, "Grey Zone: A Gap Between Heavy and
+ * Severe Exercise"), i.e. a genuinely transitional effort band that's neither clean
+ * threshold work nor true VO2max work. R has no HR target at all: reps (30-90s) end
+ * before HR responds, so there is nothing physiologically meaningful to prescribe —
+ * confidence 'none' with null bounds.
+ */
+const DANIELS_MAXHR_ZONE_META = [
+	{ zone: 'E', name: 'Easy / Recovery', lowPct: 0.65, highPct: 0.79, confidence: 'high' },
+	{ zone: 'M', name: 'Marathon', lowPct: 0.8, highPct: 0.89, confidence: 'high' },
+	{ zone: 'T', name: 'Threshold / Tempo', lowPct: 0.88, highPct: 0.92, confidence: 'medium' },
+	{ zone: 'I', name: 'Interval', lowPct: 0.97, highPct: 1.0, confidence: 'low' },
+	{ zone: 'R', name: 'Repetition', lowPct: null, highPct: null, confidence: 'none' }
+] as const;
+
+/**
+ * Calculate Daniels-aligned E/M/T/I/R HR training zones from Max HR, with a
+ * confidence tier per zone reflecting how reliably HR maps to that zone's
+ * intended effort. Returns null for physiologically implausible Max HR values.
+ */
+export function calculateDanielsMaxHrZones(maxHr: number): HrTrainingZone[] | null {
+	if (maxHr < MIN_MAX_HR || maxHr > MAX_MAX_HR) return null;
+
+	return DANIELS_MAXHR_ZONE_META.map(({ zone, name, lowPct, highPct, confidence }) => ({
+		zone,
+		name,
+		bpmLow: lowPct === null ? null : Math.round(maxHr * lowPct),
+		bpmHigh: highPct === null ? null : Math.round(maxHr * highPct),
 		confidence
 	}));
 }

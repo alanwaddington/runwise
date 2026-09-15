@@ -243,14 +243,17 @@ Both a valid race result and a valid weekly mileage are required before results 
 
 **HR mode inputs:**
 
+A method selector (LTHR / Max HR) chooses which of the two fields below is shown; switching methods keeps whatever you'd entered for the other one, so toggling back doesn't lose it.
+
 | Field | Format | Example |
 |-------|--------|---------|
-| Lactate threshold heart rate (LTHR) | BPM (100–200) | 172 |
+| Lactate threshold heart rate (LTHR) — LTHR method | BPM (100–200) | 172 |
+| Maximum heart rate (Max HR) — Max HR method | BPM (100–220) | 185 |
 | Weekly training mileage | Decimal km (1–300), shared with Pace mode | 50 |
 
 If you've also entered a race result on the Pace tab, HR mode automatically uses your own training paces to size each zone's session duration and shows an informational pace range on Interval/Repetition workout cards (see below). Without a race result, durations fall back to a general easy pace and a notice says so.
 
-**Output (Pace/Power/HR modes):** Pace mode shows your VDOT score; Power mode shows your entered power value; HR mode shows your entered LTHR plus a zone-mapping list — each of the five zones' BPM range alongside a confidence badge (High/Medium/Low, hover for why) reflecting how reliably heart rate maps to that zone. Threshold is Medium confidence because the threshold heart rate band is inherently fuzzy; Interval is Low confidence because heart rate lags behind effort on short reps; Repetition sits *above* Interval (it's Daniels' fastest zone, not a low-intensity "recovery" zone) and is High-confidence-but-pace-led for the same reason — reps are too short for heart rate to catch up, so pace/effort is the more reliable guide even though the zone boundary itself is unambiguous. All three modes then show all five training zones (E, M, T, I, R) with the zone's pace, watt, or BPM range.
+**Output (Pace/Power/HR modes):** Pace mode shows your VDOT score; Power mode shows your entered power value; HR mode shows your entered LTHR or Max HR (whichever method is selected) plus a zone-mapping list — each of the five zones' BPM range alongside a confidence badge (High/Medium/Low/N/A, hover for why) reflecting how reliably heart rate maps to that zone. Threshold is Medium confidence because the threshold heart rate band is inherently fuzzy; Interval is Low confidence because heart rate lags behind effort on short reps; Repetition sits *above* Interval (it's Daniels' fastest zone, not a low-intensity "recovery" zone) and carries N/A confidence under both methods — reps (30–90 seconds) are too short for heart rate to respond at all, so no BPM target is shown and its workout cards carry a short note to go by pace or effort instead. Under the Max HR method specifically, Threshold's and Interval's BPM ranges don't quite meet — a narrow band in between carries no zone of its own, and a note beneath the zone list explains this is intentional (Daniels' own published ranges leave it uncovered, corresponding to a genuine "grey zone" between threshold and VO2max effort), not a display bug. All three modes then show all five training zones (E, M, T, I, R) with the zone's pace, watt, or BPM range.
 
 Pace mode has by far the widest variety, since it's the only mode with the additional session **patterns** below; Power and HR modes offer 3-4 workouts per zone (the same base formats Pace mode's Standard variants use). Every workout carries a small pattern badge above its title (e.g. "Fartlek", "Decay") — a card with no badge is a Standard workout.
 

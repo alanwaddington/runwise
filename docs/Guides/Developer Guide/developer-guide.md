@@ -129,7 +129,7 @@ src/
 │   │   ├── race-result-params.test.ts
 │   │   ├── training-paces.ts        # VDOT calculation (Daniels' formula), training zone pace derivation
 │   │   ├── training-paces.test.ts
-│   │   ├── hr-zones.ts              # Max HR zones, Friel LTHR zones, LTHR sub-zones, Tanaka age estimate, calculateDanielsLthrZones (E/M/T/I/R HR zones w/ confidence tiers)
+│   │   ├── hr-zones.ts              # Max HR zones, Friel LTHR zones, LTHR sub-zones, Tanaka age estimate, calculateDanielsLthrZones + calculateDanielsMaxHrZones (E/M/T/I/R HR zones from either method, HrConfidence: high/medium/low/none — R is always 'none', no HR target)
 │   │   ├── hr-zones.test.ts
 │   │   ├── vo2max.ts                # ACSM normative data, getFitnessCategory, getAcsmTable, CATEGORY_COLOURS
 │   │   ├── vo2max.test.ts
@@ -142,7 +142,7 @@ src/
 │   │   ├── workouts.test.ts
 │   │   ├── power-workouts.ts        # Power-mode equivalent of workouts.ts (device power → estimated pace → same session shapes)
 │   │   ├── power-workouts.test.ts
-│   │   ├── hr-workouts.ts           # HR-mode equivalent of workouts.ts — duration-based (no distance), buildHrWorkoutsResult, falls back to a default pace when no race result is available
+│   │   ├── hr-workouts.ts           # HR-mode equivalent of workouts.ts — duration-based (no distance), buildHrWorkoutsResult(hrInput, ...) dispatches on HrInput's { method: 'lthr' | 'maxhr' } discriminant, falls back to a default pace when no race result is available
 │   │   ├── hr-workouts.test.ts
 │   │   ├── workout-patterns.ts      # Pattern-tagged workout variants shared across zones: race-pace tempo/reps (race-prep); buildFartlekWorkout (M/T/I); buildProgressionWorkout (T/I); buildDecayWorkout (I/R); buildRepExpansionWorkouts (I/R, distance + time-based). All wired into buildZoneWorkouts (workouts.ts), Pace mode only.
 │   │   ├── workout-patterns.test.ts
