@@ -1,11 +1,32 @@
 import { describe, it, expect } from 'vitest';
 import { GUIDES, GUIDE_MIN_WORD_COUNT } from './guides';
 
-const METHODOLOGY_NAMES = ['Riegel', "Daniels' VDOT", 'VDOT', 'ACSM', 'WMA'];
+const METHODOLOGY_NAMES = [
+	'Riegel',
+	"Daniels' VDOT",
+	'VDOT',
+	'Daniels',
+	'ACSM',
+	'WMA',
+	'Alan Jones',
+	'Friel',
+	'Stryd',
+	'Garmin',
+	'Polar',
+	'Critical Power',
+	'MAP',
+	'Tanaka'
+];
 
 function wordCount(guide: (typeof GUIDES)[number]): number {
 	const text = [guide.intro, ...guide.sections.map((s) => `${s.heading} ${s.body}`)].join(' ');
 	return text.split(/\s+/).filter(Boolean).length;
+}
+
+/** Collects every guide that fails `predicate`, so one run names every offender
+ *  instead of an `expect()`-in-a-loop stopping at the first failure. */
+function failingSlugs(predicate: (guide: (typeof GUIDES)[number]) => boolean): string[] {
+	return GUIDES.filter((guide) => !predicate(guide)).map((guide) => guide.slug);
 }
 
 describe('GUIDES content', () => {
@@ -19,37 +40,35 @@ describe('GUIDES content', () => {
 	});
 
 	it('everyGuide_hasARouteMatchingItsSlug', () => {
-		for (const guide of GUIDES) {
-			expect(guide.route).toBe(`/guides/${guide.slug}`);
-		}
+		expect(failingSlugs((guide) => guide.route === `/guides/${guide.slug}`)).toEqual([]);
 	});
 
 	it('everyGuide_meetsTheMinimumWordCount', () => {
-		for (const guide of GUIDES) {
-			expect(wordCount(guide)).toBeGreaterThanOrEqual(GUIDE_MIN_WORD_COUNT);
-		}
+		expect(failingSlugs((guide) => wordCount(guide) >= GUIDE_MIN_WORD_COUNT)).toEqual([]);
 	});
 
-	it('everyGuide_hasATitleExcerptAndAtLeastTwoSections', () => {
-		for (const guide of GUIDES) {
-			expect(guide.title.length).toBeGreaterThan(0);
-			expect(guide.excerpt.length).toBeGreaterThan(0);
-			expect(guide.sections.length).toBeGreaterThanOrEqual(2);
-		}
+	it('everyGuide_hasATitle', () => {
+		expect(failingSlugs((guide) => guide.title.length > 0)).toEqual([]);
+	});
+
+	it('everyGuide_hasAnExcerpt', () => {
+		expect(failingSlugs((guide) => guide.excerpt.length > 0)).toEqual([]);
+	});
+
+	it('everyGuide_hasAtLeastTwoSections', () => {
+		expect(failingSlugs((guide) => guide.sections.length >= 2)).toEqual([]);
 	});
 
 	it('everyGuide_hasAtLeastOneCreditedSource', () => {
-		for (const guide of GUIDES) {
-			expect(guide.sourcesCredited.length).toBeGreaterThanOrEqual(1);
-		}
+		expect(failingSlugs((guide) => guide.sourcesCredited.length >= 1)).toEqual([]);
 	});
 
-	it('atLeastOneGuide_explicitlyNamesItsSourceMethodologyInBody', () => {
-		const anyGuideNamesASource = GUIDES.some((guide) => {
+	it('everyGuide_explicitlyNamesItsSourceMethodologyInBody', () => {
+		const namesASource = (guide: (typeof GUIDES)[number]) => {
 			const text = [guide.intro, ...guide.sections.map((s) => s.body)].join(' ');
 			return METHODOLOGY_NAMES.some((name) => text.includes(name));
-		});
+		};
 
-		expect(anyGuideNamesASource).toBe(true);
+		expect(failingSlugs(namesASource)).toEqual([]);
 	});
 });

@@ -1,9 +1,7 @@
 <script lang="ts">
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import GuideArticle from '$lib/components/GuideArticle.svelte';
-	import { GUIDES } from '$lib/content/guides';
-
-	const guide = GUIDES.find((g) => g.slug === 'choosing-your-training-metric')!;
+	import { guide } from '$lib/content/guides/choosing-your-training-metric';
 </script>
 
 <SeoHead route={guide.route} />

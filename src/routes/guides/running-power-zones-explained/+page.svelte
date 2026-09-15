@@ -1,9 +1,7 @@
 <script lang="ts">
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import GuideArticle from '$lib/components/GuideArticle.svelte';
-	import { GUIDES } from '$lib/content/guides';
-
-	const guide = GUIDES.find((g) => g.slug === 'running-power-zones-explained')!;
+	import { guide } from '$lib/content/guides/running-power-zones-explained';
 </script>
 
 <SeoHead route={guide.route} />

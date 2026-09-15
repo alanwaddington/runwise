@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SeoHead from '$lib/components/SeoHead.svelte';
-	import { GUIDES } from '$lib/content/guides';
+	import { GUIDE_INDEX } from '$lib/content/guide-index';
 </script>
 
 <SeoHead route="/guides" />
@@ -19,7 +19,7 @@
 	</p>
 
 	<div class="mt-8 space-y-4">
-		{#each GUIDES as guide (guide.slug)}
+		{#each GUIDE_INDEX as guide (guide.slug)}
 			<a
 				href={guide.route}
 				class="block rounded-lg border border-gray-300 p-5 transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:border-gray-700"

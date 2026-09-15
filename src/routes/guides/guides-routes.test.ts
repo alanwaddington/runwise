@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, cleanup } from '@testing-library/svelte';
-import { GUIDES } from '$lib/content/guides';
+import { GUIDE_INDEX as GUIDES } from '$lib/content/guide-index';
 
 const mockEnv: Record<string, string> = {};
 vi.mock('$env/dynamic/public', () => ({ env: mockEnv }));
