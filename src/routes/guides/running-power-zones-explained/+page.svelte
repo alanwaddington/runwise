@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import GuideArticle from '$lib/components/GuideArticle.svelte';
-	import { guide } from '$lib/content/guides/how-race-predictions-work';
+	import { guide } from '$lib/content/guides/running-power-zones-explained';
 </script>
 
 <SeoHead route={guide.route} />

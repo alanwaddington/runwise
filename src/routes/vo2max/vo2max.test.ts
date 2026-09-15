@@ -21,6 +21,11 @@ describe('Vo2max page', () => {
 		expect(screen.getByRole('link', { name: /all tools/i })).toHaveAttribute('href', '/');
 	});
 
+	it('renders the not-medical-advice disclaimer', () => {
+		render(Vo2max);
+		expect(screen.getByText('Not medical advice.')).toBeInTheDocument();
+	});
+
 	// ── Distance dropdown (AC2, AC3) ──────────────────────────────────────────
 
 	it('renders distance dropdown with standard options (AC2)', () => {

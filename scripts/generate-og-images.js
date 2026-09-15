@@ -64,6 +64,42 @@ const OG_IMAGES = [
 		tool: 'Reading VO2 Max',
 		eyebrow: 'Guide',
 		tagline: 'What a VO2 max estimate means, and how to actually improve it.'
+	},
+	{
+		file: 'og-guide-understanding-running-pace.png',
+		tool: 'Understanding Pace',
+		eyebrow: 'Guide',
+		tagline: 'What pace actually measures, and where GPS and terrain mislead it.'
+	},
+	{
+		file: 'og-guide-parkrun-age-grading-explained.png',
+		tool: 'Parkrun Age-Grading',
+		eyebrow: 'Guide',
+		tagline: 'How the WMA age-grading tables work, and their real limitations.'
+	},
+	{
+		file: 'og-guide-running-power-zones-explained.png',
+		tool: 'Running Power Explained',
+		eyebrow: 'Guide',
+		tagline: 'Critical Power, Threshold Power, and MAP are not the same metric.'
+	},
+	{
+		file: 'og-guide-interval-training-explained.png',
+		tool: 'Interval Training',
+		eyebrow: 'Guide',
+		tagline: 'Why duration and recovery matter more than the number on your watch.'
+	},
+	{
+		file: 'og-guide-how-runwise-builds-workouts.png',
+		tool: 'How Workouts Are Built',
+		eyebrow: 'Guide',
+		tagline: 'The weekly-mileage scaling logic behind every session this tool generates.'
+	},
+	{
+		file: 'og-guide-choosing-your-training-metric.png',
+		tool: 'Choosing Your Metric',
+		eyebrow: 'Guide',
+		tagline: 'Pace, power, or heart rate: a practical framework for picking one.'
 	}
 ];
 

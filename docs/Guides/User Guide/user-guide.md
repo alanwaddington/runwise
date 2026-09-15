@@ -101,6 +101,8 @@ Calculate your five heart rate training zones using either the Max HR percentage
 
 **Note:** Joe Friel's LTHR zone boundaries intentionally have small gaps between them by design.
 
+**Disclaimer:** A "Not medical advice" notice is shown at the top of the page, linking to the About page's methodology sourcing and recommending a doctor or coach be consulted before starting a new exercise programme.
+
 ---
 
 ### VO2 Max Estimator — `/vo2max`
@@ -120,6 +122,8 @@ Estimate your aerobic fitness level (VO2 max) from a recent race performance usi
 **Output:**
 
 Your estimated VDOT score is displayed in ml/kg/min to one decimal place. VDOT is a practical proxy for VO2 max derived from race performance rather than a lab test.
+
+**Disclaimer:** A "Not medical advice" notice is shown at the top of the page, linking to the About page's methodology sourcing and recommending a doctor or coach be consulted before starting a new exercise programme.
 
 **Fitness category** (shown below the VDOT score):
 
@@ -220,6 +224,8 @@ Cross-links to the HR Zone Calculator are displayed with results.
 
 Turn your training paces, your device's running power, or your heart rate into concrete session plans, scaled to your current weekly training mileage — plus a 4-8 week race-prep plan once a race is on the horizon. Based on Jack Daniels' weekly-mileage-scaling rules layered on top of the Training Pace Calculator's VDOT method — Power and HR modes reuse the exact same session shapes and scaling rules, substituting an estimated pace derived from your power value or heart rate zone.
 
+**Disclaimer:** A "Not medical advice" notice is shown at the top of the page, linking to the About page's methodology sourcing and recommending a doctor or coach be consulted before starting a new exercise programme.
+
 **Mode toggle:** A Pace / Power / HR segmented control at the top switches between input sets. A fourth "Race-Prep" tab appears once you've entered a race date 4–8 weeks away (see Race-Prep mode, below) — outside that window it's hidden rather than shown disabled. Your weekly mileage, and your race date, carry over between modes (both are single shared fields), but mode-specific inputs and their validation states do not.
 
 **Pace mode inputs:**
@@ -308,7 +314,7 @@ Reachable from the footer on every page, and from a link on the home page.
 
 ## Guides — `/guides`
 
-Four in-depth articles expanding on the methodology behind the calculators, for readers who want more than a single tool's result:
+Ten in-depth articles expanding on the methodology behind the calculators, for readers who want more than a single tool's result:
 
 | Guide | Route | Expands on |
 |-------|-------|------------|
@@ -316,8 +322,14 @@ Four in-depth articles expanding on the methodology behind the calculators, for 
 | Heart rate zones vs power zones: which should you train by? | `/guides/hr-zones-vs-power-zones` | HR Zone Calculator, Power Zones Calculator |
 | How race time predictions actually work (and when to distrust them) | `/guides/how-race-predictions-work` | Race Time Predictor, Parkrun Predictor |
 | Reading your VO2 max estimate: what it means and how to improve it | `/guides/reading-your-vo2max` | VO2 Max Estimator |
+| Understanding running pace: what it measures, and where it misleads you | `/guides/understanding-running-pace` | Pace Calculator |
+| How parkrun age-grading actually works, and how to use it well | `/guides/parkrun-age-grading-explained` | Parkrun Predictor |
+| Running power zones explained: Critical Power, Threshold Power, and MAP | `/guides/running-power-zones-explained` | Power Zones Calculator |
+| Interval and repetition training: why duration, recovery, and effort matter more than the number on your watch | `/guides/interval-training-explained` | Training Pace Calculator, HR Zone Calculator, Workout Suggestions |
+| How structured workouts are built from your training paces | `/guides/how-runwise-builds-workouts` | Workout Suggestions |
+| Pace, power, or heart rate: how to choose your training metric | `/guides/choosing-your-training-metric` | Training Pace Calculator, HR Zone Calculator, Power Zones Calculator |
 
-The `/guides` index lists all four with a short excerpt each. Every article opens with a "Sourced from" line crediting the specific methodology it's built on. Reachable from the footer on every page, and linked from the About page.
+The `/guides` index lists all ten with a short excerpt each. Every article opens with a "Sourced from" line crediting the specific methodology it's built on. Reachable from the footer on every page, and linked from the About page.
 
 ---
 

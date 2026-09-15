@@ -4,6 +4,7 @@
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import PageExplainer from '$lib/components/PageExplainer.svelte';
+	import MedicalDisclaimer from '$lib/components/MedicalDisclaimer.svelte';
 	import { validatePositive } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime, buildPredictionTable } from '$lib/utils/race-predictor';
 	import { calculateVdot } from '$lib/utils/training-paces';
@@ -110,6 +111,8 @@
 <SeoHead route="/vo2max" />
 
 <ToolLayout title="VO2 Max Estimator" description="Estimate your VO2 max from race times or field tests." route="/vo2max">
+	<MedicalDisclaimer />
+
 	<!-- Race distance select -->
 	<div class="mb-4">
 		<label for="distance-select" class="mb-1.5 block text-sm font-medium text-ink"

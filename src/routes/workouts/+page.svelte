@@ -6,6 +6,7 @@
 	import CollapsibleField from '$lib/components/CollapsibleField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import PageExplainer from '$lib/components/PageExplainer.svelte';
+	import MedicalDisclaimer from '$lib/components/MedicalDisclaimer.svelte';
 	import { validatePositive, validateRange } from '$lib/utils/validation';
 	import { STANDARD_DISTANCES, parseTime } from '$lib/utils/race-predictor';
 	import { buildWorkoutsResult, formatDurationMinutes, type Workout } from '$lib/utils/workouts';
@@ -818,6 +819,8 @@
 	description="Turn your training paces and power into concrete session plans, scaled to your weekly mileage."
 	route="/workouts"
 >
+	<MedicalDisclaimer />
+
 	<!-- Mode toggle tabs -->
 	<div
 		class="mb-6 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 sm:grid-cols-4 dark:bg-gray-800"

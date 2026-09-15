@@ -43,6 +43,11 @@ describe('Workouts page', () => {
 		expect(screen.getByLabelText(/weekly training mileage/i)).toBeInTheDocument();
 	});
 
+	it('renders the not-medical-advice disclaimer', () => {
+		render(Workouts);
+		expect(screen.getByText('Not medical advice.')).toBeInTheDocument();
+	});
+
 	it('shows empty state when nothing is entered', () => {
 		render(Workouts);
 		expect(screen.getByText(/enter a race result and your weekly mileage/i)).toBeInTheDocument();

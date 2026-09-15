@@ -1,4 +1,4 @@
-import { GUIDES } from './content/guides';
+import { GUIDE_INDEX } from './content/guide-index';
 
 export const BASE_URL = import.meta.env?.VITE_SITE_URL || 'https://runwise.app';
 export const SITE_NAME = 'Runwise';
@@ -123,7 +123,7 @@ export const PAGES: Record<string, PageSeo> = {
 		priority: 0.5
 	},
 	...Object.fromEntries(
-		GUIDES.map((guide) => [
+		GUIDE_INDEX.map((guide) => [
 			guide.route,
 			{
 				title: `${guide.title} | Runwise`,
