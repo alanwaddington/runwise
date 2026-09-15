@@ -3,6 +3,7 @@
 	import InputField from '$lib/components/InputField.svelte';
 	import SeoHead from '$lib/components/SeoHead.svelte';
 	import PageExplainer from '$lib/components/PageExplainer.svelte';
+	import MedicalDisclaimer from '$lib/components/MedicalDisclaimer.svelte';
 	import { validatePositive, validateRange } from '$lib/utils/validation';
 	import {
 		calculateMaxHrZones,
@@ -120,6 +121,8 @@
 	description="Calculate your personalised heart rate training zones."
 	route="/hr-zones"
 >
+	<MedicalDisclaimer />
+
 	<!-- Method selector + info tooltip -->
 	<div class="mb-4 flex items-center gap-3">
 		<div class="flex flex-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800" role="tablist" tabindex="-1" onkeydown={handleTabKeydown}>

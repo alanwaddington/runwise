@@ -21,6 +21,11 @@ describe('HrZones page', () => {
 		expect(screen.getByRole('link', { name: /all tools/i })).toHaveAttribute('href', '/');
 	});
 
+	it('renders the not-medical-advice disclaimer', () => {
+		render(HrZones);
+		expect(screen.getByText('Not medical advice.')).toBeInTheDocument();
+	});
+
 	// ── Method selector ──────────────────────────────────────────────────────
 
 	it('renders Max HR and LTHR tabs', () => {
