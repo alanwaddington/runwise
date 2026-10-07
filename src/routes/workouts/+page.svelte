@@ -52,18 +52,33 @@
 	const powerValueParam = page.url.searchParams.get('power');
 	const mileageParam = page.url.searchParams.get('mileage');
 
+	// Worked example shown by default (no race-result/mileage params and nothing edited yet) so
+	// a first-time visitor -- or a crawler -- sees real workout output instead of an empty "enter
+	// your inputs" placeholder. Cleared as soon as the user touches any of the three inputs below.
+	const EXAMPLE_TIME_RAW = '25:00';
+	const EXAMPLE_WEEKLY_MILEAGE_RAW = '30';
+	const isColdVisit = !prefill && !mileageParam;
+	let usingExampleDefaults = $state(isColdVisit);
+	// Narrower than usingExampleDefaults: tracks specifically whether the race time/distance is
+	// still the placeholder (vs. mileage, which is shared across modes -- see switchMode -- and
+	// can be edited on its own without making the Pace tab's example race result "real"). Other
+	// modes' cross-checks against a real race result (e.g. HR mode's fallback-pace notice) key
+	// off this, not usingExampleDefaults, so editing weekly mileage alone can't leak the Pace
+	// tab's placeholder time into them.
+	let paceInputIsExample = $state(!prefill);
+
 	// Mode toggle state
 	let mode = $state<'pace' | 'power' | 'hr' | 'race-prep'>(powerModeParam ? 'power' : 'pace');
 
 	// Shared state
-	let sharedWeeklyMileageRaw = $state(mileageParam || '');
+	let sharedWeeklyMileageRaw = $state(mileageParam || (isColdVisit ? EXAMPLE_WEEKLY_MILEAGE_RAW : ''));
 	const todayISO = new Date().toISOString().slice(0, 10);
 	let raceDateRaw = $state('');
 
 	// Pace mode state
 	let selectedOption = $state(prefill?.selectedOption ?? '5K');
 	let customKmRaw = $state(prefill?.customKmRaw ?? '');
-	let timeRaw = $state(prefill?.timeRaw ?? '');
+	let timeRaw = $state(prefill?.timeRaw ?? (isColdVisit ? EXAMPLE_TIME_RAW : ''));
 	let timeBand = $state<TimeBand>('Any time');
 
 	let customKmTouched = $state(false);
@@ -212,9 +227,13 @@
 
 	// Raw TrainingZone[] (distinct from WorkoutZone[] used by `result`), needed by HR mode's
 	// optional trainingZones parameter and by mixed-zone workouts — computed regardless of
-	// `mode` whenever a race result is present, same rationale as `result` above.
+	// `mode` whenever a race result is present, same rationale as `result` above. Excluded while
+	// `usingExampleDefaults` is true so the Pace tab's worked example doesn't leak into other
+	// modes' "no race result entered" fallback behavior (e.g. HR mode's fallback-pace notice).
 	let trainingPaceResult = $derived(
-		timeSeconds !== null && distanceKm > 0 ? buildTrainingPaceResult(distanceKm, timeSeconds) : null
+		!paceInputIsExample && timeSeconds !== null && distanceKm > 0
+			? buildTrainingPaceResult(distanceKm, timeSeconds)
+			: null
 	);
 
 	// HR mode derived state
@@ -352,6 +371,8 @@
 
 	function onDistanceChange(e: Event) {
 		selectedOption = (e.target as HTMLSelectElement).value;
+		usingExampleDefaults = false;
+		paceInputIsExample = false;
 	}
 
 	function onCustomKmInput(e: Event) {
@@ -359,12 +380,16 @@
 		customKmRaw = raw;
 		const validation = validatePositive(raw ? parseFloat(raw) : null);
 		customKmError = validation.type === 'invalid' ? validation.error : null;
+		usingExampleDefaults = false;
+		paceInputIsExample = false;
 	}
 
 	function onTimeInput(e: Event) {
 		const raw = (e.target as HTMLInputElement).value;
 		timeRaw = raw;
 		timeError = raw && parseTime(raw) === null ? 'Enter MM:SS or H:MM:SS' : null;
+		usingExampleDefaults = false;
+		paceInputIsExample = false;
 	}
 
 	function onWeeklyMileageInput(e: Event) {
@@ -372,6 +397,7 @@
 		sharedWeeklyMileageRaw = raw;
 		const validation = validateRange(raw ? parseFloat(raw) : null, 1, 300);
 		weeklyMileageError = validation.type === 'invalid' ? validation.error : null;
+		usingExampleDefaults = false;
 	}
 
 	function onRaceDateInput(e: Event) {
@@ -1138,6 +1164,15 @@
 			</div>
 		{:else}
 			<!-- State C: Valid results -->
+
+			{#if usingExampleDefaults}
+				<div
+					class="mb-6 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-muted"
+				>
+					Showing an example for a {EXAMPLE_TIME_RAW} 5K at {EXAMPLE_WEEKLY_MILEAGE_RAW} km/week.
+					Enter your own race result and weekly mileage above to personalize these workouts.
+				</div>
+			{/if}
 
 			<!-- VDOT headline -->
 			<div class="mb-6 text-center">

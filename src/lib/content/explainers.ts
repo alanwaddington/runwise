@@ -190,7 +190,13 @@ export const EXPLAINERS: Record<string, PageExplainerContent> = {
 		sections: [
 			{
 				heading: 'Critical Power, Threshold Power, and MAP are not the same thing',
-				body: 'Stryd uses Critical Power (CP), the highest power you can sustain indefinitely without fatiguing. Garmin uses a similar concept it calls Threshold Power. Polar uses Maximal Aerobic Power (MAP), measured from a 6-minute all-out test, a meaningfully different metric to CP even though both are entered in watts. Always use the number your own device reports for its own metric, never mix and match.'
+				body: 'Stryd uses Critical Power (CP), the highest power you can sustain indefinitely without fatiguing. Garmin uses a similar concept it calls Threshold Power. Polar uses Maximal Aerobic Power (MAP), measured from a 6-minute all-out test, a meaningfully different metric to CP even though both are entered in watts. Always use the number your own device reports for its own metric, never mix and match.',
+				links: [
+					{
+						label: 'Full guide: Running power zones explained',
+						url: '/guides/running-power-zones-explained'
+					}
+				]
 			},
 			{
 				heading: 'A note on Garmin\'s zones',

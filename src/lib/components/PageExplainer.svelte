@@ -25,11 +25,12 @@
 					{#if section.links}
 						<ul class="mt-2 space-y-1">
 							{#each section.links as link (link.url)}
+								{@const external = !link.url.startsWith('/')}
 								<li>
 									<a
 										href={link.url}
-										target="_blank"
-										rel="noopener noreferrer"
+										target={external ? '_blank' : undefined}
+										rel={external ? 'noopener noreferrer' : undefined}
 										class="rounded-sm text-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 									>
 										{link.label} <span aria-hidden="true">→</span>
