@@ -462,7 +462,7 @@ npm run dev
 <tr>
 <td><code>PageExplainer</code></td>
 <td><code>route</code></td>
-<td>Per-route &quot;About this tool&quot; footer content, driven by the <code>EXPLAINERS</code> map in <code>lib/content/explainers.ts</code>. A section may include <code>links</code> (label + URL), rendered as real <code>target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;</code> anchors.</td>
+<td>Per-route &quot;About this tool&quot; footer content, driven by the <code>EXPLAINERS</code> map in <code>lib/content/explainers.ts</code>. A section may include <code>links</code> (label + URL); an internal link (URL starting with <code>/</code>) renders as a plain same-tab anchor, an external one gets <code>target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;</code>. <code>GuideArticle</code> (below) renders a section&#39;s <code>links</code> the same way.</td>
 </tr>
 <tr>
 <td><code>Toast</code></td>
@@ -487,7 +487,7 @@ npm run dev
 <tr>
 <td><code>GuideArticle</code></td>
 <td><code>guide</code> (a <code>GuideContent</code>, type defined in <code>lib/content/guides/types.ts</code>)</td>
-<td>Shared layout for a <code>/guides/*</code> article — title, intro, a &quot;Sourced from&quot; credibility callout, then each section as an <code>&lt;h2&gt;</code> + body</td>
+<td>Shared layout for a <code>/guides/*</code> article — title, intro, a &quot;Sourced from&quot; credibility callout, then each section as an <code>&lt;h2&gt;</code> + body, plus that section&#39;s <code>links</code> if present (same internal/external rendering rule as <code>PageExplainer</code>, above)</td>
 </tr>
 <tr>
 <td><code>MedicalDisclaimer</code></td>

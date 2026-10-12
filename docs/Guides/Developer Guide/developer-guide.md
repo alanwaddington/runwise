@@ -310,12 +310,12 @@ This makes every `hover:` utility sitewide apply on tap as well as mouse hover �
 | `CollapsibleField` | `expanded`, `children` (Snippet) | Generic animated show/hide wrapper — see [Collapsible Content](#collapsible-content) below |
 | `InputField` | `label`, `id`, `value`, `type?`, `unit?`, `step?`, `placeholder?`, `inputmode?` | Labelled input with optional unit suffix. `inputmode` triggers the correct mobile keyboard (e.g. `"decimal"`). |
 | `ResultDisplay` | `value`, `label` | Prominent result block with copy-to-clipboard |
-| `PageExplainer` | `route` | Per-route "About this tool" footer content, driven by the `EXPLAINERS` map in `lib/content/explainers.ts`. A section may include `links` (label + URL), rendered as real `target="_blank" rel="noopener noreferrer"` anchors. |
+| `PageExplainer` | `route` | Per-route "About this tool" footer content, driven by the `EXPLAINERS` map in `lib/content/explainers.ts`. A section may include `links` (label + URL); an internal link (URL starting with `/`) renders as a plain same-tab anchor, an external one gets `target="_blank" rel="noopener noreferrer"`. `GuideArticle` (below) renders a section's `links` the same way. |
 | `Toast` | none (reads the `toast` store) | App-wide success/failure notification — call `showToast(message, 'success' \| 'error')` from anywhere to trigger it; auto-dismisses (5s success / 7s error) or can be dismissed manually. Rendered once, near the root of `+page.svelte` for the pages that use it. Uses a plain CSS `@keyframes` animation rather than `svelte/transition`, since jsdom (this repo's Vitest environment) doesn't implement the Web Animations API those rely on. |
 | `WorkoutProfileChart` | `segments` | Segment-by-segment bar chart (warm-up/work/recovery/cool-down), sized by duration and coloured by intensity, used on `/workouts` |
 | `IconWarning` | `size?`, `class?`, `ariaHidden?` | Shared inline warning-triangle SVG, used for validation error states |
 | `ContactForm` | none | `/about`'s contact form — name/email/message fields, a decoy honeypot field hidden from the accessibility tree (`aria-hidden` + `tabindex="-1"`, not just CSS), client-side validation, and loading/success/error states. Posts to `/api/contact`. |
-| `GuideArticle` | `guide` (a `GuideContent`, type defined in `lib/content/guides/types.ts`) | Shared layout for a `/guides/*` article — title, intro, a "Sourced from" credibility callout, then each section as an `<h2>` + body |
+| `GuideArticle` | `guide` (a `GuideContent`, type defined in `lib/content/guides/types.ts`) | Shared layout for a `/guides/*` article — title, intro, a "Sourced from" credibility callout, then each section as an `<h2>` + body, plus that section's `links` if present (same internal/external rendering rule as `PageExplainer`, above) |
 | `MedicalDisclaimer` | *(none)* | Fixed "Not medical advice" notice, rendered on HR Zones, VO2 Max, and Workouts only |
 
 ---
