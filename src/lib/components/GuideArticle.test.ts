@@ -14,7 +14,14 @@ const GUIDE: GuideContent = {
 	intro: 'This is the intro paragraph.',
 	sections: [
 		{ heading: 'First section', body: 'First section body.' },
-		{ heading: 'Second section', body: 'Second section body.' }
+		{
+			heading: 'Second section',
+			body: 'Second section body.',
+			links: [
+				{ label: 'Internal link', url: '/power-zones' },
+				{ label: 'External link', url: 'https://example.com/source' }
+			]
+		}
 	]
 };
 
@@ -53,5 +60,31 @@ describe('GuideArticle', () => {
 
 		const guidesLinks = getAllByRole('link').filter((el) => el.getAttribute('href') === '/guides');
 		expect(guidesLinks.length).toBeGreaterThanOrEqual(2);
+	});
+
+	it('rendersSectionLinksWhenPresent', () => {
+		const { getByRole } = render(GuideArticle, { guide: GUIDE });
+
+		expect(getByRole('link', { name: 'Internal link' })).toHaveAttribute('href', '/power-zones');
+		expect(getByRole('link', { name: 'External link' })).toHaveAttribute(
+			'href',
+			'https://example.com/source'
+		);
+	});
+
+	it('internalSectionLink_rendersWithoutTargetOrRel', () => {
+		const { getByRole } = render(GuideArticle, { guide: GUIDE });
+
+		const link = getByRole('link', { name: 'Internal link' });
+		expect(link).not.toHaveAttribute('target');
+		expect(link).not.toHaveAttribute('rel');
+	});
+
+	it('externalSectionLink_opensInNewTabSafely', () => {
+		const { getByRole } = render(GuideArticle, { guide: GUIDE });
+
+		const link = getByRole('link', { name: 'External link' });
+		expect(link).toHaveAttribute('target', '_blank');
+		expect(link).toHaveAttribute('rel', 'noopener noreferrer');
 	});
 });

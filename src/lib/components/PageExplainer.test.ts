@@ -22,6 +22,17 @@ vi.mock('$lib/content/explainers', () => ({
 					]
 				}
 			]
+		},
+		'/with-internal-link': {
+			heading: 'About an internal cross-link',
+			intro: 'Intro text.',
+			sections: [
+				{
+					heading: 'A section with an internal link',
+					body: 'Some body text.',
+					links: [{ label: 'Full guide', url: '/guides/some-guide' }]
+				}
+			]
 		}
 	}
 }));
@@ -55,5 +66,13 @@ describe('PageExplainer component', () => {
 		const guideLink = screen.getByRole('link', { name: 'Official guide' });
 		expect(guideLink).toHaveAttribute('target', '_blank');
 		expect(guideLink).toHaveAttribute('rel', 'noopener noreferrer');
+	});
+
+	it('PageExplainer_SectionWithInternalLink_RendersWithoutTargetBlank', () => {
+		render(PageExplainer, { props: { route: '/with-internal-link' } });
+		const link = screen.getByRole('link', { name: 'Full guide' });
+		expect(link).toHaveAttribute('href', '/guides/some-guide');
+		expect(link).not.toHaveAttribute('target');
+		expect(link).not.toHaveAttribute('rel');
 	});
 });

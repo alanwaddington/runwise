@@ -71,4 +71,10 @@ describe('GUIDES content', () => {
 
 		expect(failingSlugs(namesASource)).toEqual([]);
 	});
+
+	it('runningPowerZonesExplained_crossLinksToThePowerZonesCalculator', () => {
+		const guide = GUIDES.find((g) => g.slug === 'running-power-zones-explained')!;
+		const hasLink = guide.sections.some((s) => s.links?.some((l) => l.url === '/power-zones'));
+		expect(hasLink).toBe(true);
+	});
 });
