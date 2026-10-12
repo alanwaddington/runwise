@@ -237,7 +237,7 @@ Turn your training paces, your device's running power, or your heart rate into c
 | Race time | MM:SS or H:MM:SS — auto-detected | 25:00 or 1:56:20 |
 | Weekly training mileage | Decimal km (1–300) | 50 |
 
-Both a valid race result and a valid weekly mileage are required before results appear.
+On a first visit, before you've entered anything, a worked example (5K in 25:00 at 30 km/week) is shown by default — clearly labeled as an example — so you see real workout output immediately rather than an empty "enter your inputs" prompt. It's replaced by your own results as soon as you edit the race distance, race time, or weekly mileage above; from a shared link carrying only a race result (no mileage), mileage stays blank rather than being filled with the example value.
 
 **Power mode inputs:**
 

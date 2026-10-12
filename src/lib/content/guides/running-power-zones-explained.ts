@@ -36,7 +36,13 @@ export const guide: GuideContent = {
 		},
 		{
 			heading: 'What power is genuinely good for, regardless of brand',
-			body: "Despite the cross-brand inconsistency, running power's core strength holds regardless of which model produced it: it responds to effort within seconds rather than the tens of seconds to minutes heart rate takes to catch up, and it stays far more consistent than pace on hills, in wind, or across variable trail surfaces, because it's estimating the work your body is doing rather than the ground you're covering. This makes power especially valuable for interval and hill-repeat sessions where instant feedback matters, and on races or long runs across terrain variable enough that a fixed pace target would either undercook flat sections or blow you up on the climbs. Pick a device, learn its specific numbers, and treat power as internally consistent within that ecosystem rather than universally comparable across every runner and every brand."
+			body: "Despite the cross-brand inconsistency, running power's core strength holds regardless of which model produced it: it responds to effort within seconds rather than the tens of seconds to minutes heart rate takes to catch up, and it stays far more consistent than pace on hills, in wind, or across variable trail surfaces, because it's estimating the work your body is doing rather than the ground you're covering. This makes power especially valuable for interval and hill-repeat sessions where instant feedback matters, and on races or long runs across terrain variable enough that a fixed pace target would either undercook flat sections or blow you up on the climbs. Pick a device, learn its specific numbers, and treat power as internally consistent within that ecosystem rather than universally comparable across every runner and every brand.",
+			links: [
+				{
+					label: 'Try the Power Zones calculator',
+					url: '/power-zones'
+				}
+			]
 		}
 	]
 };

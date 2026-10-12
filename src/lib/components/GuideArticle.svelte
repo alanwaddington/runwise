@@ -30,6 +30,23 @@
 		<div>
 			<h2 class="text-xl font-semibold text-ink">{section.heading}</h2>
 			<p class="mt-2 leading-relaxed text-muted">{section.body}</p>
+			{#if section.links}
+				<ul class="mt-2 space-y-1">
+					{#each section.links as link (link.url)}
+						{@const external = !link.url.startsWith('/')}
+						<li>
+							<a
+								href={link.url}
+								target={external ? '_blank' : undefined}
+								rel={external ? 'noopener noreferrer' : undefined}
+								class="rounded-sm text-sm text-accent-text underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+							>
+								{link.label} <span aria-hidden="true">→</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			{/if}
 		</div>
 	{/each}
 </div>

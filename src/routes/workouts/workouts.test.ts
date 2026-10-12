@@ -48,15 +48,28 @@ describe('Workouts page', () => {
 		expect(screen.getByText('Not medical advice.')).toBeInTheDocument();
 	});
 
-	it('shows empty state when nothing is entered', () => {
+	it('shows a worked example when nothing is entered, instead of an empty state', () => {
 		render(Workouts);
+		expect(screen.getByText(/showing an example for a 25:00 5k at 30 km\/week/i)).toBeInTheDocument();
+		expect(screen.getByText(/your vdot/i)).toBeInTheDocument();
+	});
+
+	it('shows the real empty state once the example inputs are cleared', async () => {
+		render(Workouts);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '' } });
 		expect(screen.getByText(/enter a race result and your weekly mileage/i)).toBeInTheDocument();
+		expect(screen.queryByText(/showing an example/i)).toBeNull();
 	});
 
 	it('does not show results with only a race time (missing weekly mileage)', async () => {
 		render(Workouts);
 		const timeInput = screen.getByLabelText(/race time/i);
 		await fireEvent.input(timeInput, { target: { value: '25:00' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '' } });
 		expect(screen.getByText(/enter a race result and your weekly mileage/i)).toBeInTheDocument();
 	});
 
@@ -122,8 +135,17 @@ describe('Workouts page', () => {
 		expect(link).toHaveAttribute('href', expect.stringContaining('time=25%3A00'));
 	});
 
-	it('does not show the cross-link in the empty state', () => {
+	it('shows the training-paces cross-link for the default worked example', () => {
 		render(Workouts);
+		expect(screen.getByRole('link', { name: /view training paces/i })).toBeInTheDocument();
+	});
+
+	it('does not show the cross-link once the example inputs are cleared', async () => {
+		render(Workouts);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '' } });
 		expect(screen.queryByRole('link', { name: /view training paces/i })).toBeNull();
 	});
 
@@ -131,6 +153,8 @@ describe('Workouts page', () => {
 		render(Workouts);
 		const timeInput = screen.getByLabelText(/race time/i);
 		await fireEvent.input(timeInput, { target: { value: '25:00' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '' } });
 		expect(screen.queryByRole('link', { name: /view training paces/i })).toBeNull();
 	});
 
@@ -151,10 +175,10 @@ describe('Workouts page', () => {
 		expect(screen.getByLabelText(/race time/i)).toHaveValue('45:00');
 	});
 
-	it('falls back to the normal empty state for malformed query params', () => {
+	it('falls back to the worked example for malformed query params', () => {
 		mockPage.url = new URL('http://localhost/workouts?distance=Bogus&time=notatime');
 		render(Workouts);
-		expect(screen.getByText(/enter a race result and your weekly mileage/i)).toBeInTheDocument();
+		expect(screen.getByText(/showing an example for a 25:00 5k at 30 km\/week/i)).toBeInTheDocument();
 	});
 
 	it('weekly mileage does not carry over from prefilled query params', () => {
@@ -725,8 +749,17 @@ describe('Recovery Options subsection (Task 11, Open Question #4)', () => {
 		expect(floatCard?.textContent).not.toMatch(/0\s*km/);
 	});
 
-	it('does not show the Recovery Options heading in the empty state', () => {
+	it('shows the Recovery Options heading for the default worked example', () => {
 		render(Workouts);
+		expect(screen.getByRole('heading', { name: 'Recovery Options' })).toBeInTheDocument();
+	});
+
+	it('does not show the Recovery Options heading once the example inputs are cleared', async () => {
+		render(Workouts);
+		const timeInput = screen.getByLabelText(/race time/i);
+		await fireEvent.input(timeInput, { target: { value: '' } });
+		const mileageInput = screen.getByLabelText(/weekly training mileage/i);
+		await fireEvent.input(mileageInput, { target: { value: '' } });
 		expect(screen.queryByRole('heading', { name: 'Recovery Options' })).toBeNull();
 	});
 
